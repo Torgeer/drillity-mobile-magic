@@ -107,5 +107,28 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    /* Prevent rubber-band scrolling on iOS */
+    overscroll-behavior-y: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Safe area support for iOS notch */
+  @supports (padding: max(0px)) {
+    body {
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+  }
+
+  /* Improve touch targets on mobile */
+  button, a, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Better scrolling on iOS */
+  .overflow-auto {
+    -webkit-overflow-scrolling: touch;
   }
 }

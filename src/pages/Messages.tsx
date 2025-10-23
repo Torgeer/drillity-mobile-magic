@@ -29,8 +29,8 @@ const Messages = () => {
           <p className="text-muted-foreground">Communications</p>
         </div>
 
-        <div className="grid grid-cols-3 gap-6 h-[calc(100vh-200px)]">
-          <Card className="p-4 overflow-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-auto lg:h-[calc(100vh-200px)]">
+          <Card className="p-4 max-h-[300px] lg:max-h-none overflow-auto">
             <h2 className="font-semibold mb-4">Conversations</h2>
             <div className="space-y-2">
               {conversations.map((conv) => (
@@ -52,7 +52,7 @@ const Messages = () => {
             </div>
           </Card>
 
-          <Card className="col-span-2 flex flex-col">
+          <Card className="lg:col-span-2 flex flex-col min-h-[500px] lg:min-h-0">
             <div className="border-b border-border p-4">
               <h2 className="font-semibold">PetroWorks HR</h2>
             </div>
