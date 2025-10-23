@@ -82,13 +82,20 @@ const CompanyProfile = () => {
         setEditData(data);
 
         // Fetch contacts
-        const { data: contactsData } = await supabase
-          .from("company_contacts")
-          .select("*")
-          .eq("company_id", data.id)
-          .order("created_at", { ascending: false });
+        try {
+          const { data: contactsData, error: contactsError } = await supabase
+            .from("company_contacts")
+            .select("*")
+            .eq("company_id", data.id)
+            .order("created_at", { ascending: false });
 
-        if (contactsData) setContacts(contactsData);
+          if (!contactsError && contactsData) {
+            setContacts(contactsData);
+          }
+        } catch (err) {
+          console.error("Error fetching contacts:", err);
+          // Don't fail the whole page if contacts fail
+        }
       }
     } catch (error) {
       console.error("Error fetching company profile:", error);

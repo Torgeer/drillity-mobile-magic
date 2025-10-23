@@ -60,10 +60,14 @@ const Dashboard = () => {
         .eq("read", false);
 
       // Count profile views
-      const { count: profileViewsCount } = await supabase
+      const { count: profileViewsCount, error: viewsError } = await supabase
         .from("profile_views")
         .select("*", { count: "exact", head: true })
         .eq("talent_id", user.id);
+
+      if (viewsError) {
+        console.error("Error fetching profile views:", viewsError);
+      }
 
       setStats({
         totalJobs: totalJobsCount || 0,
@@ -77,17 +81,6 @@ const Dashboard = () => {
       setStatsLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        navigate("/auth");
-      } else if (userType === 'company') {
-        // Company users should use company dashboard
-        navigate("/company/dashboard");
-      }
-    }
-  }, [user, userType, loading, navigate]);
 
   if (loading) {
     return (

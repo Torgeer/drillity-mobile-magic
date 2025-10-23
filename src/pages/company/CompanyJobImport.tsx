@@ -114,12 +114,12 @@ const CompanyJobImport = () => {
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Upload className="h-5 w-5" />
-              Ladda upp fil
+              Upload File
             </h2>
             
             <div className="space-y-4">
               <div>
-                <Label>Välj fil (JSON eller CSV)</Label>
+                <Label>Select file (JSON or CSV)</Label>
                 <input
                   type="file"
                   accept=".json,.csv"
@@ -168,11 +168,11 @@ Senior Drilling Engineer,Job description...,Houston TX,full_time,senior,100000,1
             
             <div className="space-y-4">
               <div>
-                <Label>Klistra in JSON-data</Label>
+                <Label>Paste JSON data</Label>
                 <Textarea
                   value={jsonData}
                   onChange={(e) => setJsonData(e.target.value)}
-                  placeholder="Klistra in din JSON-data här..."
+                  placeholder="Paste your JSON data here..."
                   className="min-h-[400px] font-mono text-xs"
                 />
               </div>

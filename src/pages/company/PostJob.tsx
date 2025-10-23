@@ -4,14 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { getCurrentLocation, requestLocationPermission } from "@/utils/capacitorPlugins";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import type { Database } from "@/integrations/supabase/types";
 
 const PostJob = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [companyId, setCompanyId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -24,6 +29,28 @@ const PostJob = () => {
     skills: "",
     certifications: "",
   });
+
+  useEffect(() => {
+    fetchCompanyId();
+  }, [user]);
+
+  const fetchCompanyId = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("company_profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) throw error;
+      setCompanyId(data.id);
+    } catch (error) {
+      console.error("Error fetching company ID:", error);
+      toast.error("Failed to load company information");
+    }
+  };
 
   const handleLocationDetect = async () => {
     const hasPermission = await requestLocationPermission();
@@ -40,13 +67,36 @@ const PostJob = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!companyId) {
+      toast.error("Company profile not found");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Here you would save to Supabase
+      const { error } = await supabase.from("jobs").insert({
+        company_id: companyId,
+        title: formData.title,
+        description: formData.description,
+        location: formData.location,
+        job_type: formData.jobType as Database["public"]["Enums"]["job_type"],
+        experience_level: formData.experienceLevel as Database["public"]["Enums"]["experience_level"],
+        salary_min: formData.salaryMin ? parseInt(formData.salaryMin) : null,
+        salary_max: formData.salaryMax ? parseInt(formData.salaryMax) : null,
+        remote: formData.remote,
+        skills: formData.skills ? formData.skills.split(",").map(s => s.trim()) : [],
+        certifications: formData.certifications ? formData.certifications.split(",").map(c => c.trim()) : [],
+        is_active: true,
+      });
+
+      if (error) throw error;
+
       toast.success("Job posted successfully!");
       navigate("/company/jobs");
     } catch (error) {
+      console.error("Error posting job:", error);
       toast.error("Failed to post job");
     } finally {
       setLoading(false);
