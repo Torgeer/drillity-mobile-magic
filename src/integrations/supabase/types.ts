@@ -250,44 +250,83 @@ export type Database = {
       }
       profiles: {
         Row: {
+          availability_status: string | null
           avatar_url: string | null
           bio: string | null
           created_at: string
+          drilling_experience: boolean | null
           email: string
+          experience_years: number | null
+          facebook_url: string | null
+          foundation_experience: boolean | null
           full_name: string | null
+          has_passport: boolean | null
           id: string
+          instagram_url: string | null
           latitude: number | null
+          linkedin_url: string | null
           location: string | null
           longitude: number | null
+          mining_experience: boolean | null
+          offshore_experience: boolean | null
+          passport_number: string | null
           phone: string | null
+          preferred_work_type: string[] | null
+          prospecting_experience: boolean | null
           updated_at: string
           user_type: Database["public"]["Enums"]["user_type"]
         }
         Insert: {
+          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          drilling_experience?: boolean | null
           email: string
+          experience_years?: number | null
+          facebook_url?: string | null
+          foundation_experience?: boolean | null
           full_name?: string | null
+          has_passport?: boolean | null
           id: string
+          instagram_url?: string | null
           latitude?: number | null
+          linkedin_url?: string | null
           location?: string | null
           longitude?: number | null
+          mining_experience?: boolean | null
+          offshore_experience?: boolean | null
+          passport_number?: string | null
           phone?: string | null
+          preferred_work_type?: string[] | null
+          prospecting_experience?: boolean | null
           updated_at?: string
           user_type?: Database["public"]["Enums"]["user_type"]
         }
         Update: {
+          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          drilling_experience?: boolean | null
           email?: string
+          experience_years?: number | null
+          facebook_url?: string | null
+          foundation_experience?: boolean | null
           full_name?: string | null
+          has_passport?: boolean | null
           id?: string
+          instagram_url?: string | null
           latitude?: number | null
+          linkedin_url?: string | null
           location?: string | null
           longitude?: number | null
+          mining_experience?: boolean | null
+          offshore_experience?: boolean | null
+          passport_number?: string | null
           phone?: string | null
+          preferred_work_type?: string[] | null
+          prospecting_experience?: boolean | null
           updated_at?: string
           user_type?: Database["public"]["Enums"]["user_type"]
         }
