@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth, UserType } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { authenticateWithBiometrics, getBiometricCredentials, setBiometricCredentials } from "@/utils/capacitorPlugins";
+import drillityLogo from "@/assets/drillity-logo.png";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -81,12 +82,7 @@ const Auth = () => {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
-          <div className="flex items-center gap-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
-              <span className="text-2xl font-bold text-primary-foreground">D</span>
-            </div>
-            <span className="text-3xl font-bold">Drillity</span>
-          </div>
+          <img src={drillityLogo} alt="Drillity" className="h-12" />
         </div>
 
         <Card className="p-8">
