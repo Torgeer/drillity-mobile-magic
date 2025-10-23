@@ -46,7 +46,7 @@ const Dashboard = () => {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Talent Dashboard</h1>
-          <p className="text-muted-foreground">Din jobbsökningsöversikt</p>
+          <p className="text-muted-foreground">Your job search overview</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

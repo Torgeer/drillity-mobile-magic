@@ -38,7 +38,7 @@ const CompanySettings = () => {
               onClick={handleLogout}
             >
               <LogOut className="h-4 w-4 mr-2" />
-              Logga ut
+              Log Out
             </Button>
           </div>
         </Card>

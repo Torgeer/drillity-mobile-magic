@@ -43,15 +43,15 @@ const CompanyDashboard = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Företagsdashboard</h1>
-            <p className="text-muted-foreground">Hantera din rekryteringsprocess</p>
+            <h1 className="text-3xl font-bold">Company Dashboard</h1>
+            <p className="text-muted-foreground">Manage your recruitment process</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => navigate('/company/jobs/import')}>
-              Importera Jobb
+              Import Jobs
             </Button>
             <Button onClick={() => navigate('/company/jobs/new')}>
-              Lägg upp Jobb
+              Post Job
             </Button>
           </div>
         </div>
