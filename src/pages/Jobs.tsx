@@ -135,7 +135,7 @@ const Jobs = () => {
           <p className="text-muted-foreground">Find opportunities</p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col gap-4">
           <input
             type="text"
             placeholder="Search jobs..."
@@ -143,29 +143,31 @@ const Jobs = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
-          <input
-            type="text"
-            placeholder="Location filter..."
-            value={locationFilter}
-            onChange={(e) => setLocationFilter(e.target.value)}
-            className="rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-          <select 
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          >
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Location filter..."
+              value={locationFilter}
+              onChange={(e) => setLocationFilter(e.target.value)}
+              className="flex-1 rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            <select 
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="flex-1 rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
             <option value="">All Types</option>
             <option value="full_time">Full-time</option>
             <option value="part_time">Part-time</option>
             <option value="contract">Contract</option>
           </select>
+          </div>
           <LocationJobSearch onLocationFound={handleLocationFound} />
         </div>
 
         <div className="space-y-4">
           {sortedJobs.length === 0 ? (
-            <Card className="p-12 text-center">
+            <Card className="ad-card text-center">
               <p className="text-muted-foreground">No jobs found. Try adjusting your filters.</p>
             </Card>
           ) : (
@@ -179,9 +181,8 @@ const Jobs = () => {
                 : 'Competitive';
 
               return (
-                <Card key={job.id} className="p-6 hover:border-primary/50 transition-colors">
-                  <div className="flex items-start justify-between flex-col sm:flex-row gap-4">
-                    <div className="flex-1 w-full">
+                <Card key={job.id} className="ad-card hover:border-primary/50 transition-colors">
+                  <div className="flex flex-col gap-4 w-full min-w-0">
                       <div className="flex items-center gap-2 mb-2">
                         <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                           {job.job_type?.replace('_', ' ')}
@@ -219,8 +220,7 @@ const Jobs = () => {
                         </div>
                       )}
 
-                      <Button onClick={() => handleApply(job.id, job.company_id)}>Apply Now</Button>
-                    </div>
+                      <Button onClick={() => handleApply(job.id, job.company_id)} className="w-full sm:w-auto">Apply Now</Button>
                   </div>
                 </Card>
               );

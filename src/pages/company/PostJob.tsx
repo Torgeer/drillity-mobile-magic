@@ -62,7 +62,7 @@ const PostJob = () => {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <Card className="p-6 space-y-6">
+          <Card className="ad-card space-y-6">
             <div className="space-y-4">
               <div>
                 <Label htmlFor="title">Job Title</Label>
@@ -87,7 +87,7 @@ const PostJob = () => {
                 />
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="location">Location</Label>
                   <div className="flex gap-2">
@@ -120,7 +120,7 @@ const PostJob = () => {
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="experienceLevel">Experience Level</Label>
                   <select
@@ -189,11 +189,11 @@ const PostJob = () => {
               </div>
             </div>
 
-            <div className="flex gap-4">
-              <Button type="submit" disabled={loading}>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button type="submit" disabled={loading} className="w-full sm:w-auto">
                 {loading ? "Posting..." : "Post Job"}
               </Button>
-              <Button type="button" variant="outline" onClick={() => navigate("/company/jobs")}>
+              <Button type="button" variant="outline" onClick={() => navigate("/company/jobs")} className="w-full sm:w-auto">
                 Cancel
               </Button>
             </div>

@@ -5,12 +5,14 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme, Theme } from "@/hooks/useTheme";
+import { useDisplaySettings, SizeOption } from "@/hooks/useDisplaySettings";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const CompanySettings = () => {
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { textScale, setTextScale, adSize, setAdSize } = useDisplaySettings();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -75,6 +77,32 @@ const CompanySettings = () => {
                 <option value="dark">Dark</option>
                 <option value="gray">Gray</option>
                 <option value="light">Light</option>
+              </select>
+            </div>
+
+            <div>
+              <Label>Textstorlek</Label>
+              <select
+                className="mt-2 w-full rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                value={textScale}
+                onChange={(e) => setTextScale(e.target.value as SizeOption)}
+              >
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="big">Big</option>
+              </select>
+            </div>
+
+            <div>
+              <Label>Annons-/liststorlek</Label>
+              <select
+                className="mt-2 w-full rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                value={adSize}
+                onChange={(e) => setAdSize(e.target.value as SizeOption)}
+              >
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="big">Big</option>
               </select>
             </div>
           </div>

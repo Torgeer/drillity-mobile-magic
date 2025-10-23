@@ -84,7 +84,7 @@ const BrowseTalent = () => {
   return (
     <CompanyLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold">Browse Talent</h1>
             <p className="text-muted-foreground">Find qualified candidates</p>
@@ -93,13 +93,14 @@ const BrowseTalent = () => {
             <Button 
               variant={sortByDistance ? "default" : "outline"}
               onClick={() => setSortByDistance(!sortByDistance)}
+              className="w-full sm:w-auto"
             >
               {sortByDistance ? "Sorted by Distance" : "Sort by Distance"}
             </Button>
           )}
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           <input
             type="text"
             placeholder="Search talents..."
@@ -126,9 +127,8 @@ const BrowseTalent = () => {
               : null;
 
             return (
-              <Card key={talent.id} className="p-6 hover:border-primary/50 transition-colors">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-4 flex-1">
+              <Card key={talent.id} className="ad-card hover:border-primary/50 transition-colors">
+                <div className="flex flex-col sm:flex-row items-start gap-4 w-full min-w-0">
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-2xl">
                       {talent.name.split(' ').map(n => n[0]).join('')}
                     </div>
@@ -140,7 +140,7 @@ const BrowseTalent = () => {
                         </Badge>
                       </div>
                       
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3 min-w-0">
                         <div className="flex items-center gap-1">
                           <MapPin className="h-4 w-4" />
                           {talent.location}
@@ -163,21 +163,20 @@ const BrowseTalent = () => {
                         </div>
                       </div>
 
-                      <div className="flex gap-2">
-                        <Button size="sm">
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" className="w-full sm:w-auto">
                           View Profile
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" className="w-full sm:w-auto">
                           <Mail className="h-4 w-4 mr-2" />
                           Message
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" className="w-full sm:w-auto">
                           Invite to Apply
                         </Button>
                       </div>
                     </div>
                   </div>
-                </div>
               </Card>
             );
           })}

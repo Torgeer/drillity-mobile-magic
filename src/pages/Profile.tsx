@@ -19,7 +19,7 @@ const Profile = () => {
           <Button className="w-full sm:w-auto">Edit Profile</Button>
         </div>
 
-        <Card className="p-4 sm:p-6">
+        <Card className="ad-card">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
             <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-primary/20 flex items-center justify-center text-3xl sm:text-4xl font-bold text-primary flex-shrink-0">
               A
@@ -37,7 +37,7 @@ const Profile = () => {
 
         {user && <CVUpload userId={user.id} />}
 
-        <Card className="p-6">
+        <Card className="ad-card">
           <h3 className="text-xl font-semibold mb-4">Skills</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -59,13 +59,13 @@ const Profile = () => {
           </div>
         </Card>
 
-        <Card className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Experience</h3>
+        <Card className="ad-card">
+          <h3 className="text-lg sm:text-xl font-semibold mb-4">Experience</h3>
           <p className="text-muted-foreground">No experience listed.</p>
         </Card>
 
-        <Card className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Certifications</h3>
+        <Card className="ad-card">
+          <h3 className="text-lg sm:text-xl font-semibold mb-4">Certifications</h3>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="h-2 w-2 rounded-full bg-primary" />

@@ -41,12 +41,12 @@ const CompanyJobs = () => {
   return (
     <CompanyLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold">My Jobs</h1>
             <p className="text-muted-foreground">Manage your job postings</p>
           </div>
-          <Button onClick={() => navigate('/company/jobs/new')}>
+          <Button onClick={() => navigate('/company/jobs/new')} className="w-full sm:w-auto">
             Post New Job
           </Button>
         </div>
@@ -65,9 +65,8 @@ const CompanyJobs = () => {
 
         <div className="space-y-4">
           {jobs.map((job) => (
-            <Card key={job.id} className="p-6 hover:border-primary/50 transition-colors">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
+            <Card key={job.id} className="ad-card hover:border-primary/50 transition-colors">
+              <div className="flex flex-col gap-4 w-full min-w-0">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant={job.isActive ? "default" : "secondary"}>
                       {job.isActive ? "Active" : "Inactive"}
@@ -79,7 +78,7 @@ const CompanyJobs = () => {
                   
                   <h3 className="text-xl font-semibold text-primary mb-1">{job.title}</h3>
                   
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3 min-w-0">
                     <div className="flex items-center gap-1">
                       <MapPin className="h-4 w-4" />
                       {job.location}
@@ -94,18 +93,17 @@ const CompanyJobs = () => {
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button size="sm" onClick={() => navigate(`/company/applications?job=${job.id}`)}>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" onClick={() => navigate(`/company/applications?job=${job.id}`)} className="w-full sm:w-auto">
                       View Applications
                     </Button>
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" className="w-full sm:w-auto">
                       Edit Job
                     </Button>
-                    <Button size="sm" variant="ghost">
+                    <Button size="sm" variant="ghost" className="w-full sm:w-auto">
                       {job.isActive ? 'Deactivate' : 'Activate'}
                     </Button>
                   </div>
-                </div>
               </div>
             </Card>
           ))}

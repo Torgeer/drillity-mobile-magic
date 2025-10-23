@@ -125,7 +125,7 @@ const Applications = () => {
 
         <div className="space-y-4">
           {applications.length === 0 ? (
-            <Card className="p-12 text-center">
+            <Card className="ad-card text-center">
               <p className="text-muted-foreground mb-4">You haven't applied to any jobs yet.</p>
               <Button onClick={() => navigate('/jobs')}>Start Browsing Jobs</Button>
             </Card>
@@ -137,7 +137,7 @@ const Applications = () => {
                 : 'Competitive';
 
               return (
-                <Card key={app.id} className="p-4 sm:p-6">
+                <Card key={app.id} className="ad-card">
                   <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                     <div className="flex-1 w-full">
                       <div className="flex flex-wrap items-center gap-2 mb-2">

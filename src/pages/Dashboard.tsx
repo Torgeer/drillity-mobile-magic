@@ -51,7 +51,7 @@ const Dashboard = () => {
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => (
-            <Card key={stat.name} className="p-6">
+            <Card key={stat.name} className="ad-card">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">{stat.name}</p>
@@ -66,7 +66,7 @@ const Dashboard = () => {
           ))}
         </div>
 
-        <Card className="p-6">
+        <Card className="ad-card">
           <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
           <div className="space-y-4">
             <div className="flex items-start gap-4 border-b border-border pb-4 last:border-0 last:pb-0">

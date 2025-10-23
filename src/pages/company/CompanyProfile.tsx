@@ -115,7 +115,7 @@ const CompanyProfile = () => {
           </div>
         </div>
 
-        <Card className="p-4 sm:p-6">
+        <Card className="ad-card">
           <h3 className="text-lg sm:text-xl font-semibold mb-4">Company Logo</h3>
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
             <div className="relative flex-shrink-0">
@@ -142,7 +142,7 @@ const CompanyProfile = () => {
           </div>
         </Card>
 
-        <Card className="p-4 sm:p-6">
+        <Card className="ad-card">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-4">
             <h3 className="text-lg sm:text-xl font-semibold">Team Members</h3>
             <Button onClick={() => setShowAddMember(!showAddMember)} className="w-full sm:w-auto">
@@ -233,7 +233,7 @@ const CompanyProfile = () => {
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="ad-card">
           <h3 className="text-xl font-semibold mb-4">About</h3>
           <p className="text-muted-foreground">Add a description of your company, mission and culture.</p>
         </Card>
