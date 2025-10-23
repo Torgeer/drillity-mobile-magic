@@ -2,8 +2,12 @@ import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { CVUpload } from "@/components/CVUpload";
+import { useAuth } from "@/hooks/useAuth";
 
 const Profile = () => {
+  const { user } = useAuth();
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -30,6 +34,8 @@ const Profile = () => {
             </div>
           </div>
         </Card>
+
+        {user && <CVUpload userId={user.id} />}
 
         <Card className="p-6">
           <h3 className="text-xl font-semibold mb-4">Skills</h3>

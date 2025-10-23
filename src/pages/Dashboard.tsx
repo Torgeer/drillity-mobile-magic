@@ -1,6 +1,10 @@
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Briefcase, FileText, MessageSquare, TrendingUp } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const stats = [
   { name: "Active Applications", value: "5", icon: FileText, change: "+2 this week" },
@@ -10,6 +14,28 @@ const stats = [
 ];
 
 const Dashboard = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  
+  // Initialize push notifications
+  usePushNotifications(user?.id);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="space-y-6">

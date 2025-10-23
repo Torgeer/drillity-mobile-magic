@@ -2,25 +2,79 @@ import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const conversations = [
   { id: 1, company: "PetroWorks HR", lastMessage: "We received your application. Can you start next week?", unread: 2, time: "09:15" },
   { id: 2, company: "DrillSafe", lastMessage: "Safety training is scheduled for Friday.", unread: 0, time: "09:17" },
 ];
 
-const messages = [
-  { id: 1, sender: "PetroWorks HR", text: "We received your application. Can you start next week?", time: "09:15", isSent: false },
-  { id: 2, sender: "You", text: "Yes, I am available!", time: "09:17", isSent: true },
-  { id: 3, sender: "PetroWorks HR", text: "Great, we will send you the contract.", time: "09:18", isSent: false },
-  { id: 4, sender: "You", text: "Thank you! Looking forward to it.", time: "09:18", isSent: true },
-  { id: 5, sender: "PetroWorks HR", text: "Please check your email for the onboarding documents.", time: "09:20", isSent: false },
-  { id: 6, sender: "You", text: "Received, will review and sign today.", time: "09:21", isSent: true },
-  { id: 7, sender: "PetroWorks HR", text: "Let us know if you have any questions about the process.", time: "09:22", isSent: false },
-  { id: 8, sender: "You", text: "Will do, thanks again!", time: "09:23", isSent: true },
-  { id: 9, sender: "PetroWorks HR", text: "Welcome to the team!", time: "09:24", isSent: false },
-];
-
 const Messages = () => {
+  const { user } = useAuth();
+  const [messages, setMessages] = useState([
+    { id: 1, sender: "PetroWorks HR", text: "We received your application. Can you start next week?", time: "09:15", isSent: false },
+    { id: 2, sender: "You", text: "Yes, I am available!", time: "09:17", isSent: true },
+    { id: 3, sender: "PetroWorks HR", text: "Great, we will send you the contract.", time: "09:18", isSent: false },
+    { id: 4, sender: "You", text: "Thank you! Looking forward to it.", time: "09:18", isSent: true },
+    { id: 5, sender: "PetroWorks HR", text: "Please check your email for the onboarding documents.", time: "09:20", isSent: false },
+    { id: 6, sender: "You", text: "Received, will review and sign today.", time: "09:21", isSent: true },
+    { id: 7, sender: "PetroWorks HR", text: "Let us know if you have any questions about the process.", time: "09:22", isSent: false },
+    { id: 8, sender: "You", text: "Will do, thanks again!", time: "09:23", isSent: true },
+    { id: 9, sender: "PetroWorks HR", text: "Welcome to the team!", time: "09:24", isSent: false },
+  ]);
+  const [newMessage, setNewMessage] = useState("");
+
+  // Subscribe to realtime messages
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `receiver_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('New message received:', payload);
+          // Add new message to list
+          const newMsg = {
+            id: Date.now(),
+            sender: "Other",
+            text: payload.new.content,
+            time: new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }),
+            isSent: false
+          };
+          setMessages(prev => [...prev, newMsg]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  const handleSend = () => {
+    if (!newMessage.trim()) return;
+    
+    const msg = {
+      id: Date.now(),
+      sender: "You",
+      text: newMessage,
+      time: new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }),
+      isSent: true
+    };
+    
+    setMessages(prev => [...prev, msg]);
+    setNewMessage("");
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -84,9 +138,12 @@ const Messages = () => {
                 <input
                   type="text"
                   placeholder="Type a message..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                   className="flex-1 rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
-                <Button>Send</Button>
+                <Button onClick={handleSend}>Send</Button>
               </div>
             </div>
           </Card>
