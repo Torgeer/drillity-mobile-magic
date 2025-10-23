@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Upload, User } from "lucide-react";
+import { CVUpload } from "@/components/CVUpload";
 
 const profileSchema = z.object({
   full_name: z.string().min(2, "Name must be at least 2 characters"),
@@ -481,6 +482,8 @@ export const ProfileEditForm = ({ userId, profile, onSuccess, onCancel }: Profil
             />
           </div>
         </Card>
+
+        <CVUpload userId={userId} />
 
         <div className="flex gap-4">
           <Button type="submit" disabled={isSubmitting} className="flex-1">

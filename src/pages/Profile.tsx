@@ -88,7 +88,7 @@ const Profile = () => {
     }
   };
 
-  if (loading) {
+  if (loading && !isEditing) {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -268,8 +268,6 @@ const Profile = () => {
             </div>
           </Card>
         )}
-
-        {user && <CVUpload userId={user.id} />}
 
         <Card className="ad-card">
           <h3 className="text-xl font-semibold mb-4">Skills</h3>
