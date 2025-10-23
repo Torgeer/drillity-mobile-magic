@@ -20,45 +20,43 @@ export function useAuth() {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user profile to get user type
-          setTimeout(async () => {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('user_type')
-              .eq('id', session.user.id)
-              .single();
-            
-            if (profile) {
-              setUserType(profile.user_type as UserType);
-            }
-          }, 0);
+          // Fetch user profile to get user type BEFORE setting loading to false
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('user_type')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (profile) {
+            setUserType(profile.user_type as UserType);
+          }
+          setLoading(false);
         } else {
           setUserType(null);
+          setLoading(false);
         }
-        
-        setLoading(false);
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        supabase
+        const { data: profile } = await supabase
           .from('profiles')
           .select('user_type')
           .eq('id', session.user.id)
-          .single()
-          .then(({ data: profile }) => {
-            if (profile) {
-              setUserType(profile.user_type as UserType);
-            }
-          });
+          .single();
+        
+        if (profile) {
+          setUserType(profile.user_type as UserType);
+        }
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
-      
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
