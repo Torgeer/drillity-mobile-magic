@@ -13,7 +13,7 @@ import { Briefcase, Building2, Download, Newspaper } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
-  const { signUp, signIn, user } = useAuth();
+  const { signUp, signIn, user, userType: authUserType, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const { canInstall, installPWA } = usePWAInstall();
   
@@ -22,17 +22,17 @@ const Landing = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [userType, setUserType] = useState<'talent' | 'company'>('talent');
-  const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
 
   // Redirect if already logged in
-  if (user) {
-    navigate(userType === 'company' ? '/company/dashboard' : '/dashboard');
+  if (!authLoading && user && authUserType) {
+    navigate(authUserType === 'company' ? '/company/dashboard' : '/dashboard');
     return null;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setFormLoading(true);
 
     try {
       if (isLogin) {
@@ -64,7 +64,7 @@ const Landing = () => {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setFormLoading(false);
     }
   };
 
@@ -259,8 +259,8 @@ const Landing = () => {
                     />
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Laddar..." : isLogin ? "Logga in" : "Registrera"}
+                  <Button type="submit" className="w-full" disabled={formLoading}>
+                    {formLoading ? "Laddar..." : isLogin ? "Logga in" : "Registrera"}
                   </Button>
                 </form>
               </CardContent>
