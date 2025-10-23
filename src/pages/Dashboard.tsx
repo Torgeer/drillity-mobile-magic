@@ -45,8 +45,8 @@ const Dashboard = () => {
     <Layout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Talent Dashboard</h1>
-          <p className="text-muted-foreground">Your job search overview</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Talent Dashboard</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">Your job search overview</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

@@ -79,8 +79,8 @@ const Messages = () => {
     <Layout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Messages</h1>
-          <p className="text-muted-foreground">Communications</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Messages</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">Communications</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-auto lg:h-[calc(100vh-200px)]">

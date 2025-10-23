@@ -108,21 +108,21 @@ const CompanyProfile = () => {
   return (
     <CompanyLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Company Profile</h1>
-            <p className="text-muted-foreground">Manage your company information</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">Company Profile</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">Manage your company information</p>
           </div>
         </div>
 
-        <Card className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Company Logo</h3>
-          <div className="flex items-start gap-6">
-            <div className="relative">
+        <Card className="p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-semibold mb-4">Company Logo</h3>
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+            <div className="relative flex-shrink-0">
               {logoUrl ? (
-                <img src={logoUrl} alt="Company Logo" className="h-32 w-32 object-cover rounded-lg" />
+                <img src={logoUrl} alt="Company Logo" className="h-24 w-24 sm:h-32 sm:w-32 object-cover rounded-lg" />
               ) : (
-                <div className="h-32 w-32 rounded-lg bg-primary/20 flex items-center justify-center text-4xl font-bold text-primary">
+                <div className="h-24 w-24 sm:h-32 sm:w-32 rounded-lg bg-primary/20 flex items-center justify-center text-3xl sm:text-4xl font-bold text-primary">
                   D
                 </div>
               )}
@@ -131,10 +131,10 @@ const CompanyProfile = () => {
                 <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
               </label>
             </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold mb-1">Drillity AB</h2>
-              <p className="text-muted-foreground mb-4">info@drillity.com</p>
-              <div className="flex gap-2">
+            <div className="flex-1 text-center sm:text-left w-full">
+              <h2 className="text-xl sm:text-2xl font-bold mb-1">Drillity AB</h2>
+              <p className="text-muted-foreground mb-4 text-sm sm:text-base break-all sm:break-normal">info@drillity.com</p>
+              <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 <Badge variant="outline">Hiring</Badge>
                 <Badge variant="outline">Oil & Gas</Badge>
               </div>
@@ -142,10 +142,10 @@ const CompanyProfile = () => {
           </div>
         </Card>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Team Members</h3>
-            <Button onClick={() => setShowAddMember(!showAddMember)}>
+        <Card className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-4">
+            <h3 className="text-lg sm:text-xl font-semibold">Team Members</h3>
+            <Button onClick={() => setShowAddMember(!showAddMember)} className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Add Member
             </Button>

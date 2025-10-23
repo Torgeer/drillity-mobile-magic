@@ -94,11 +94,12 @@ const Auth = () => {
           </div>
 
           {!isLogin && (
-            <div className="mb-4 grid grid-cols-2 gap-2">
+            <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
               <Button
                 type="button"
                 variant={userType === 'talent' ? 'default' : 'outline'}
                 onClick={() => setUserType('talent')}
+                className="text-sm"
               >
                 I'm looking for work
               </Button>
@@ -106,6 +107,7 @@ const Auth = () => {
                 type="button"
                 variant={userType === 'company' ? 'default' : 'outline'}
                 onClick={() => setUserType('company')}
+                className="text-sm"
               >
                 I'm hiring
               </Button>

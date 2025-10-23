@@ -199,8 +199,16 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
     /* Prevent rubber-band scrolling on iOS */
     overscroll-behavior-y: none;
+    /* Prevent horizontal scrolling */
+    overflow-x: hidden;
+    max-width: 100vw;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    overflow-x: hidden;
+    max-width: 100vw;
   }
 
   /* Safe area support for iOS notch */
@@ -220,5 +228,11 @@ All colors MUST be HSL.
   /* Better scrolling on iOS */
   .overflow-auto {
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent content overflow */
+  main {
+    overflow-x: hidden;
+    max-width: 100%;
   }
 }

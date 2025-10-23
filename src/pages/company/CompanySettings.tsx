@@ -22,8 +22,8 @@ const CompanySettings = () => {
     <CompanyLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Company Settings</h1>
-          <p className="text-muted-foreground">Manage your company preferences</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Company Settings</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">Manage your company preferences</p>
         </div>
 
         <Card className="p-6">

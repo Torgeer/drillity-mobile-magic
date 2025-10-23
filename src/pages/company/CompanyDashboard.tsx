@@ -41,16 +41,16 @@ const CompanyDashboard = () => {
   return (
     <CompanyLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Company Dashboard</h1>
-            <p className="text-muted-foreground">Manage your recruitment process</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">Company Dashboard</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">Manage your recruitment process</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate('/company/jobs/import')}>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => navigate('/company/jobs/import')} className="flex-1 sm:flex-initial">
               Import Jobs
             </Button>
-            <Button onClick={() => navigate('/company/jobs/new')}>
+            <Button onClick={() => navigate('/company/jobs/new')} className="flex-1 sm:flex-initial">
               Post Job
             </Button>
           </div>
