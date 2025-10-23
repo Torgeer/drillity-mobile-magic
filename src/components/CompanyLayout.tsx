@@ -33,6 +33,9 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex min-h-screen bg-background">
       {/* Mobile header */}
       <div className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b border-sidebar-border bg-sidebar px-4 lg:hidden">
+        <div className="flex items-center">
+          <img src={drillityLogo} alt="Drillity" className="h-8" />
+        </div>
         <Button
           variant="ghost"
           size="icon"
@@ -41,9 +44,6 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
         >
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </Button>
-        <div className="flex items-center">
-          <img src={drillityLogo} alt="Drillity" className="h-8" />
-        </div>
       </div>
 
       {/* Sidebar - Desktop */}
@@ -93,8 +93,8 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-          <aside className="fixed inset-y-0 left-0 w-64 bg-sidebar border-r border-sidebar-border">
-            <div className="flex h-full flex-col pt-16">
+          <aside className="fixed top-16 left-0 right-0 bg-sidebar border-b border-sidebar-border animate-slide-in-top shadow-lg">
+            <div className="flex flex-col max-h-[calc(100vh-4rem)] overflow-y-auto">
               <nav className="flex-1 space-y-1 p-4">
                 <div className="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-primary">
                   Company
