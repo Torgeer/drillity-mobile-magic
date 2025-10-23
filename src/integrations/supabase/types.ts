@@ -14,7 +14,352 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      applications: {
+        Row: {
+          applied_at: string
+          company_id: string
+          cover_letter: string | null
+          cv_url: string | null
+          id: string
+          job_id: string
+          status: Database["public"]["Enums"]["application_status"]
+          talent_id: string
+          updated_at: string
+        }
+        Insert: {
+          applied_at?: string
+          company_id: string
+          cover_letter?: string | null
+          cv_url?: string | null
+          id?: string
+          job_id: string
+          status?: Database["public"]["Enums"]["application_status"]
+          talent_id: string
+          updated_at?: string
+        }
+        Update: {
+          applied_at?: string
+          company_id?: string
+          cover_letter?: string | null
+          cv_url?: string | null
+          id?: string
+          job_id?: string
+          status?: Database["public"]["Enums"]["application_status"]
+          talent_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_profiles: {
+        Row: {
+          company_name: string
+          company_size: string | null
+          created_at: string
+          description: string | null
+          id: string
+          industry: string | null
+          latitude: number | null
+          location: string | null
+          logo_url: string | null
+          longitude: number | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          company_name: string
+          company_size?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string | null
+          latitude?: number | null
+          location?: string | null
+          logo_url?: string | null
+          longitude?: number | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          company_name?: string
+          company_size?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string | null
+          latitude?: number | null
+          location?: string | null
+          logo_url?: string | null
+          longitude?: number | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      jobs: {
+        Row: {
+          certifications: string[] | null
+          company_id: string
+          created_at: string
+          description: string
+          experience_level: Database["public"]["Enums"]["experience_level"]
+          id: string
+          is_active: boolean | null
+          job_type: Database["public"]["Enums"]["job_type"]
+          latitude: number | null
+          location: string
+          longitude: number | null
+          remote: boolean | null
+          salary_currency: string | null
+          salary_max: number | null
+          salary_min: number | null
+          skills: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          certifications?: string[] | null
+          company_id: string
+          created_at?: string
+          description: string
+          experience_level: Database["public"]["Enums"]["experience_level"]
+          id?: string
+          is_active?: boolean | null
+          job_type: Database["public"]["Enums"]["job_type"]
+          latitude?: number | null
+          location: string
+          longitude?: number | null
+          remote?: boolean | null
+          salary_currency?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          skills?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          certifications?: string[] | null
+          company_id?: string
+          created_at?: string
+          description?: string
+          experience_level?: Database["public"]["Enums"]["experience_level"]
+          id?: string
+          is_active?: boolean | null
+          job_type?: Database["public"]["Enums"]["job_type"]
+          latitude?: number | null
+          location?: string
+          longitude?: number | null
+          remote?: boolean | null
+          salary_currency?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          skills?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          read: boolean | null
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          read?: boolean | null
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          read?: boolean | null
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          phone: string | null
+          updated_at: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          phone?: string | null
+          updated_at?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          phone?: string | null
+          updated_at?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Relationships: []
+      }
+      push_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          platform: string
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          platform: string
+          token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          platform?: string
+          token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      talent_certifications: {
+        Row: {
+          certification_name: string
+          created_at: string
+          expiry_date: string | null
+          id: string
+          issue_date: string | null
+          issuer: string | null
+          talent_id: string
+        }
+        Insert: {
+          certification_name: string
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          issue_date?: string | null
+          issuer?: string | null
+          talent_id: string
+        }
+        Update: {
+          certification_name?: string
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          issue_date?: string | null
+          issuer?: string | null
+          talent_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "talent_certifications_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      talent_skills: {
+        Row: {
+          created_at: string
+          id: string
+          skill_level: Database["public"]["Enums"]["experience_level"]
+          skill_name: string
+          talent_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          skill_level: Database["public"]["Enums"]["experience_level"]
+          skill_name: string
+          talent_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          skill_level?: Database["public"]["Enums"]["experience_level"]
+          skill_name?: string
+          talent_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "talent_skills_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +368,17 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      application_status:
+        | "pending"
+        | "reviewing"
+        | "interviewing"
+        | "offered"
+        | "accepted"
+        | "rejected"
+        | "withdrawn"
+      experience_level: "entry" | "intermediate" | "senior" | "expert"
+      job_type: "full_time" | "part_time" | "contract" | "rotation"
+      user_type: "talent" | "company"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +505,19 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      application_status: [
+        "pending",
+        "reviewing",
+        "interviewing",
+        "offered",
+        "accepted",
+        "rejected",
+        "withdrawn",
+      ],
+      experience_level: ["entry", "intermediate", "senior", "expert"],
+      job_type: ["full_time", "part_time", "contract", "rotation"],
+      user_type: ["talent", "company"],
+    },
   },
 } as const
