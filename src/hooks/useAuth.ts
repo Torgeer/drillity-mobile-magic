@@ -65,10 +65,7 @@ export function useAuth() {
   }, []);
 
   const signUp = async (email: string, password: string, userType: UserType, fullName?: string) => {
-    // Redirect talent users to install page, companies to dashboard
-    const redirectUrl = userType === 'talent' 
-      ? `${window.location.origin}/install` 
-      : `${window.location.origin}/company/dashboard`;
+    const redirectUrl = `${window.location.origin}/`;
     
     const { error, data } = await supabase.auth.signUp({
       email,
@@ -97,7 +94,7 @@ export function useAuth() {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (!error) {
-      navigate('/');
+      navigate('/auth');
     }
     return { error };
   };
