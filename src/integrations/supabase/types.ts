@@ -248,6 +248,27 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_views: {
+        Row: {
+          company_id: string
+          id: string
+          talent_id: string
+          viewed_at: string
+        }
+        Insert: {
+          company_id: string
+          id?: string
+          talent_id: string
+          viewed_at?: string
+        }
+        Update: {
+          company_id?: string
+          id?: string
+          talent_id?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           availability_status: string | null
