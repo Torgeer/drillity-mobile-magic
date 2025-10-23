@@ -4,102 +4,304 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, Plus, X } from "lucide-react";
+import { Upload, Loader2, Globe } from "lucide-react";
 import { toast } from "sonner";
-
-interface TeamMember {
-  id: string;
-  name: string;
-  role: string;
-  email: string;
-  phone: string;
-  image?: string;
-}
+import { supabase } from "@/integrations/supabase/client";
 
 const CompanyProfile = () => {
-  const { user, userType, loading } = useAuth();
+  const { user, userType, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [logoUrl, setLogoUrl] = useState<string>("");
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
-    {
-      id: "1",
-      name: "John Smith",
-      role: "HR Manager",
-      email: "john@drillity.com",
-      phone: "+46 70 123 4567",
-      image: ""
-    }
-  ]);
-  const [showAddMember, setShowAddMember] = useState(false);
-  const [newMember, setNewMember] = useState<Omit<TeamMember, "id">>({
-    name: "",
-    role: "",
-    email: "",
-    phone: "",
-    image: ""
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [companyData, setCompanyData] = useState<any>({
+    id: "",
+    company_name: "",
+    description: "",
+    website: "",
+    industry: "",
+    location: "",
+    company_size: "",
+    logo_url: "",
   });
 
+  const [editData, setEditData] = useState(companyData);
+
   useEffect(() => {
-    if (!loading) {
+    if (!authLoading) {
       if (!user) navigate("/auth");
       else if (userType === 'talent') navigate("/profile");
+      else fetchCompanyProfile();
     }
-  }, [user, userType, loading, navigate]);
+  }, [user, userType, authLoading, navigate]);
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoUrl(reader.result as string);
-        toast.success("Company logo uploaded!");
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const fetchCompanyProfile = async () => {
+    if (!user) return;
 
-  const handleMemberImageUpload = (e: React.ChangeEvent<HTMLInputElement>, memberId?: string) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (memberId) {
-          setTeamMembers(prev => prev.map(m => 
-            m.id === memberId ? { ...m, image: reader.result as string } : m
-          ));
+    try {
+      const { data, error } = await supabase
+        .from("company_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No profile found, create one
+          const { data: newProfile, error: createError } = await supabase
+            .from("company_profiles")
+            .insert({
+              user_id: user.id,
+              company_name: "My Company",
+            })
+            .select()
+            .single();
+
+          if (createError) throw createError;
+          setCompanyData(newProfile);
+          setEditData(newProfile);
         } else {
-          setNewMember(prev => ({ ...prev, image: reader.result as string }));
+          throw error;
         }
-        toast.success("Image uploaded!");
-      };
-      reader.readAsDataURL(file);
+      } else {
+        setCompanyData(data);
+        setEditData(data);
+      }
+    } catch (error) {
+      console.error("Error fetching company profile:", error);
+      toast.error("Failed to load company profile");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleAddMember = () => {
-    if (!newMember.name || !newMember.role || !newMember.email) {
-      toast.error("Please fill in all required fields");
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB");
       return;
     }
-    setTeamMembers(prev => [...prev, { ...newMember, id: Date.now().toString() }]);
-    setNewMember({ name: "", role: "", email: "", phone: "", image: "" });
-    setShowAddMember(false);
-    toast.success("Team member added!");
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("File must be an image");
+      return;
+    }
+
+    setUploadingLogo(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${companyData.id}-${Date.now()}.${fileExt}`;
+      const filePath = fileName;
+
+      const { error: uploadError } = await supabase.storage
+        .from("company-logos")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("company-logos")
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from("company_profiles")
+        .update({ logo_url: publicUrl })
+        .eq("id", companyData.id);
+
+      if (updateError) throw updateError;
+
+      setCompanyData({ ...companyData, logo_url: publicUrl });
+      setEditData({ ...editData, logo_url: publicUrl });
+      toast.success("Company logo updated!");
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      toast.error("Failed to upload logo");
+    } finally {
+      setUploadingLogo(false);
+    }
   };
 
-  const handleRemoveMember = (id: string) => {
-    setTeamMembers(prev => prev.filter(m => m.id !== id));
-    toast.success("Team member removed");
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("company_profiles")
+        .update({
+          company_name: editData.company_name,
+          description: editData.description,
+          website: editData.website,
+          industry: editData.industry,
+          location: editData.location,
+          company_size: editData.company_size,
+        })
+        .eq("id", companyData.id);
+
+      if (error) throw error;
+
+      setCompanyData(editData);
+      setIsEditing(false);
+      toast.success("Company profile updated!");
+    } catch (error) {
+      console.error("Error updating company profile:", error);
+      toast.error("Failed to update company profile");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <CompanyLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <p className="text-muted-foreground">Loading...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </CompanyLayout>
+    );
+  }
+
+  if (isEditing) {
+    return (
+      <CompanyLayout>
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold">Edit Company Profile</h1>
+              <p className="text-muted-foreground text-sm sm:text-base">Update your company information</p>
+            </div>
+          </div>
+
+          <Card className="ad-card">
+            <h3 className="text-lg sm:text-xl font-semibold mb-4">Company Logo</h3>
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative">
+                {editData.logo_url ? (
+                  <img
+                    src={editData.logo_url}
+                    alt="Company Logo"
+                    className="h-32 w-32 object-cover rounded-lg border-4 border-primary/20"
+                  />
+                ) : (
+                  <div className="h-32 w-32 rounded-lg bg-primary/20 flex items-center justify-center text-4xl font-bold text-primary border-4 border-primary/20">
+                    {editData.company_name?.charAt(0) || "?"}
+                  </div>
+                )}
+                {uploadingLogo && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+                    <Loader2 className="h-8 w-8 animate-spin text-white" />
+                  </div>
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingLogo}
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Upload Logo
+              </Button>
+            </div>
+          </Card>
+
+          <Card className="ad-card">
+            <h3 className="text-lg sm:text-xl font-semibold mb-4">Company Information</h3>
+            <div className="space-y-4">
+              <div>
+                <Label>Company Name *</Label>
+                <Input
+                  value={editData.company_name || ""}
+                  onChange={(e) => setEditData({ ...editData, company_name: e.target.value })}
+                  placeholder="Company name"
+                />
+              </div>
+
+              <div>
+                <Label>Industry</Label>
+                <Input
+                  value={editData.industry || ""}
+                  onChange={(e) => setEditData({ ...editData, industry: e.target.value })}
+                  placeholder="e.g. Oil & Gas, Mining, Construction"
+                />
+              </div>
+
+              <div>
+                <Label>Company Size</Label>
+                <Input
+                  value={editData.company_size || ""}
+                  onChange={(e) => setEditData({ ...editData, company_size: e.target.value })}
+                  placeholder="e.g. 1-10, 11-50, 51-200, 201-500, 500+"
+                />
+              </div>
+
+              <div>
+                <Label>Location</Label>
+                <Input
+                  value={editData.location || ""}
+                  onChange={(e) => setEditData({ ...editData, location: e.target.value })}
+                  placeholder="City, Country"
+                />
+              </div>
+
+              <div>
+                <Label>Website</Label>
+                <Input
+                  value={editData.website || ""}
+                  onChange={(e) => setEditData({ ...editData, website: e.target.value })}
+                  placeholder="https://example.com"
+                  type="url"
+                />
+              </div>
+
+              <div>
+                <Label>Description</Label>
+                <Textarea
+                  value={editData.description || ""}
+                  onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                  placeholder="Tell talents about your company, mission and culture"
+                  rows={6}
+                />
+              </div>
+            </div>
+          </Card>
+
+          <div className="flex gap-4">
+            <Button onClick={handleSave} disabled={saving} className="flex-1">
+              {saving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditData(companyData);
+                setIsEditing(false);
+              }}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
       </CompanyLayout>
     );
@@ -111,132 +313,73 @@ const CompanyProfile = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">Company Profile</h1>
-            <p className="text-muted-foreground text-sm sm:text-base">Manage your company information</p>
+            <p className="text-muted-foreground text-sm sm:text-base">Your company information</p>
           </div>
+          <Button className="w-full sm:w-auto" onClick={() => setIsEditing(true)}>
+            Edit Profile
+          </Button>
         </div>
 
         <Card className="ad-card">
-          <h3 className="text-lg sm:text-xl font-semibold mb-4">Company Logo</h3>
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-            <div className="relative flex-shrink-0">
-              {logoUrl ? (
-                <img src={logoUrl} alt="Company Logo" className="h-24 w-24 sm:h-32 sm:w-32 object-cover rounded-lg" />
-              ) : (
-                <div className="h-24 w-24 sm:h-32 sm:w-32 rounded-lg bg-primary/20 flex items-center justify-center text-3xl sm:text-4xl font-bold text-primary">
-                  D
-                </div>
-              )}
-              <label className="absolute bottom-0 right-0 bg-primary text-primary-foreground p-2 rounded-full cursor-pointer hover:bg-primary/90 transition-colors">
-                <Upload className="h-4 w-4" />
-                <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-              </label>
-            </div>
+            {companyData.logo_url ? (
+              <img
+                src={companyData.logo_url}
+                alt="Company Logo"
+                className="h-24 w-24 sm:h-32 sm:w-32 object-cover rounded-lg border-4 border-primary/20 flex-shrink-0"
+              />
+            ) : (
+              <div className="h-24 w-24 sm:h-32 sm:w-32 rounded-lg bg-primary/20 flex items-center justify-center text-4xl font-bold text-primary border-4 border-primary/20 flex-shrink-0">
+                {companyData.company_name?.charAt(0) || "?"}
+              </div>
+            )}
             <div className="flex-1 text-center sm:text-left w-full">
-              <h2 className="text-xl sm:text-2xl font-bold mb-1">Drillity AB</h2>
-              <p className="text-muted-foreground mb-4 text-sm sm:text-base break-all sm:break-normal">info@drillity.com</p>
-              <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-                <Badge variant="outline">Hiring</Badge>
-                <Badge variant="outline">Oil & Gas</Badge>
+              <h2 className="text-xl sm:text-2xl font-bold mb-1">
+                {companyData.company_name || "Company Name"}
+              </h2>
+              {companyData.location && (
+                <p className="text-muted-foreground mb-2 text-sm">
+                  📍 {companyData.location}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-2 justify-center sm:justify-start mb-4">
+                {companyData.industry && (
+                  <Badge variant="outline">{companyData.industry}</Badge>
+                )}
+                {companyData.company_size && (
+                  <Badge variant="outline">{companyData.company_size} employees</Badge>
+                )}
               </div>
+              {companyData.website && (
+                <a
+                  href={companyData.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-primary hover:underline text-sm"
+                >
+                  <Globe className="h-4 w-4" />
+                  {companyData.website}
+                </a>
+              )}
             </div>
           </div>
         </Card>
 
-        <Card className="ad-card">
-          <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-4">
-            <h3 className="text-lg sm:text-xl font-semibold">Team Members</h3>
-            <Button onClick={() => setShowAddMember(!showAddMember)} className="w-full sm:w-auto">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Member
-            </Button>
-          </div>
+        {companyData.description && (
+          <Card className="ad-card">
+            <h3 className="text-xl font-semibold mb-4">About</h3>
+            <p className="text-muted-foreground whitespace-pre-wrap">{companyData.description}</p>
+          </Card>
+        )}
 
-          {showAddMember && (
-            <Card className="p-4 mb-4 bg-secondary/50">
-              <div className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <div className="relative">
-                    {newMember.image ? (
-                      <img src={newMember.image} alt="Member" className="h-20 w-20 object-cover rounded-full" />
-                    ) : (
-                      <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center">
-                        <span className="text-2xl font-bold text-muted-foreground">?</span>
-                      </div>
-                    )}
-                    <label className="absolute bottom-0 right-0 bg-primary text-primary-foreground p-1 rounded-full cursor-pointer hover:bg-primary/90 transition-colors">
-                      <Upload className="h-3 w-3" />
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleMemberImageUpload(e)} />
-                    </label>
-                  </div>
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label>Name *</Label>
-                      <Input value={newMember.name} onChange={(e) => setNewMember(prev => ({ ...prev, name: e.target.value }))} placeholder="Full name" />
-                    </div>
-                    <div>
-                      <Label>Role *</Label>
-                      <Input value={newMember.role} onChange={(e) => setNewMember(prev => ({ ...prev, role: e.target.value }))} placeholder="Job title" />
-                    </div>
-                    <div>
-                      <Label>Email *</Label>
-                      <Input value={newMember.email} onChange={(e) => setNewMember(prev => ({ ...prev, email: e.target.value }))} placeholder="email@company.com" type="email" />
-                    </div>
-                    <div>
-                      <Label>Phone</Label>
-                      <Input value={newMember.phone} onChange={(e) => setNewMember(prev => ({ ...prev, phone: e.target.value }))} placeholder="+46 70 123 4567" />
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => { setShowAddMember(false); setNewMember({ name: "", role: "", email: "", phone: "", image: "" }); }}>Cancel</Button>
-                  <Button onClick={handleAddMember}>Add Member</Button>
-                </div>
-              </div>
-            </Card>
-          )}
-
-          <div className="space-y-4">
-            {teamMembers.map((member) => (
-              <Card key={member.id} className="p-4">
-                <div className="flex items-start gap-4">
-                  <div className="relative group">
-                    {member.image ? (
-                      <img src={member.image} alt={member.name} className="h-16 w-16 object-cover rounded-full" />
-                    ) : (
-                      <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-xl font-semibold text-primary">
-                        {member.name.split(' ').map(n => n[0]).join('')}
-                      </div>
-                    )}
-                    <label className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                      <Upload className="h-4 w-4 text-white" />
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleMemberImageUpload(e, member.id)} />
-                    </label>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="font-semibold">{member.name}</p>
-                        <p className="text-sm text-muted-foreground">{member.role}</p>
-                      </div>
-                      <Button variant="ghost" size="icon" onClick={() => handleRemoveMember(member.id)}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="mt-2 space-y-1 text-sm text-muted-foreground">
-                      <p>📧 {member.email}</p>
-                      {member.phone && <p>📱 {member.phone}</p>}
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </Card>
-
-        <Card className="ad-card">
-          <h3 className="text-xl font-semibold mb-4">About</h3>
-          <p className="text-muted-foreground">Add a description of your company, mission and culture.</p>
-        </Card>
+        {!companyData.description && (
+          <Card className="ad-card">
+            <h3 className="text-xl font-semibold mb-4">About</h3>
+            <p className="text-muted-foreground">
+              Click "Edit Profile" to add a description of your company, mission and culture.
+            </p>
+          </Card>
+        )}
       </div>
     </CompanyLayout>
   );
