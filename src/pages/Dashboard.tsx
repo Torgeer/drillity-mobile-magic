@@ -14,17 +14,22 @@ const stats = [
 ];
 
 const Dashboard = () => {
-  const { user, loading } = useAuth();
+  const { user, userType, loading } = useAuth();
   const navigate = useNavigate();
   
   // Initialize push notifications
   usePushNotifications(user?.id);
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
+    if (!loading) {
+      if (!user) {
+        navigate("/auth");
+      } else if (userType === 'company') {
+        // Company users should use company dashboard
+        navigate("/company/dashboard");
+      }
     }
-  }, [user, loading, navigate]);
+  }, [user, userType, loading, navigate]);
 
   if (loading) {
     return (

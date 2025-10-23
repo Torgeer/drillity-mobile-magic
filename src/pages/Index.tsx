@@ -8,15 +8,21 @@ const Index = () => {
   const { user, userType, loading } = useAuth();
 
   useEffect(() => {
+    console.log('Index redirect check:', { loading, user: !!user, userType });
+    
     if (!loading) {
       if (user && userType) {
         // Redirect based on user type
+        console.log('Redirecting user with type:', userType);
         if (userType === 'company') {
+          console.log('Navigating to company dashboard');
           navigate("/company/dashboard");
         } else {
+          console.log('Navigating to talent dashboard');
           navigate("/dashboard");
         }
       } else {
+        console.log('No user or userType, navigating to auth');
         navigate("/auth");
       }
     }

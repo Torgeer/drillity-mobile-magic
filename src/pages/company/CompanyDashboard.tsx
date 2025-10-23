@@ -3,6 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Briefcase, FileText, MessageSquare, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 
 const stats = [
   { name: "Active Jobs", value: "8", icon: Briefcase, change: "+2 this week" },
@@ -13,6 +15,28 @@ const stats = [
 
 const CompanyDashboard = () => {
   const navigate = useNavigate();
+  const { user, userType, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading) {
+      if (!user) {
+        navigate("/auth");
+      } else if (userType === 'talent') {
+        // Talent users should use talent dashboard
+        navigate("/dashboard");
+      }
+    }
+  }, [user, userType, loading, navigate]);
+
+  if (loading) {
+    return (
+      <CompanyLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </CompanyLayout>
+    );
+  }
 
   return (
     <CompanyLayout>
