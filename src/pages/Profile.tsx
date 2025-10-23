@@ -3,7 +3,7 @@ import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CVUpload } from "@/components/CVUpload";
+
 import { ProfileEditForm } from "@/components/ProfileEditForm";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +16,8 @@ const Profile = () => {
   const [certifications, setCertifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [editUserId, setEditUserId] = useState<string | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -88,6 +90,36 @@ const Profile = () => {
     }
   };
 
+  const handleEditClick = async () => {
+    setIsEditing(true);
+    setEditLoading(true);
+    try {
+      const { data } = await supabase.auth.getUser();
+      const id = data.user?.id || user?.id || null;
+      if (!id) {
+        setEditUserId(null);
+        return;
+      }
+      setEditUserId(id);
+
+      // Ensure a profile row exists for this user
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (!existing) {
+        const email = data.user?.email || profile?.email || "";
+        if (email) {
+          await supabase.from("profiles").insert({ id, email });
+        }
+      }
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
   if (loading && !isEditing) {
     return (
       <Layout>
@@ -98,7 +130,16 @@ const Profile = () => {
     );
   }
 
-  if (isEditing && user) {
+  if (isEditing) {
+    if (editLoading || !editUserId) {
+      return (
+        <Layout>
+          <div className="flex items-center justify-center min-h-[400px]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </Layout>
+      );
+    }
     return (
       <Layout>
         <div className="space-y-6">
@@ -107,7 +148,7 @@ const Profile = () => {
             <p className="text-muted-foreground text-sm sm:text-base">Update your professional information</p>
           </div>
           <ProfileEditForm
-            userId={user.id}
+            userId={editUserId}
             profile={profile}
             onSuccess={() => {
               setIsEditing(false);
@@ -159,7 +200,7 @@ const Profile = () => {
             <h1 className="text-2xl sm:text-3xl font-bold">My Profile</h1>
             <p className="text-muted-foreground text-sm sm:text-base">Professional profile</p>
           </div>
-          <Button className="w-full sm:w-auto" onClick={() => setIsEditing(true)}>
+          <Button className="w-full sm:w-auto" onClick={handleEditClick}>
             Edit Profile
           </Button>
         </div>
