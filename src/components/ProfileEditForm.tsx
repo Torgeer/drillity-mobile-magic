@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload, User } from "lucide-react";
 
 const profileSchema = z.object({
   full_name: z.string().min(2, "Name must be at least 2 characters"),
@@ -57,6 +57,9 @@ interface ProfileEditFormProps {
 
 export const ProfileEditForm = ({ userId, profile, onSuccess, onCancel }: ProfileEditFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || "");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -79,6 +82,58 @@ export const ProfileEditForm = ({ userId, profile, onSuccess, onCancel }: Profil
       availability_status: profile?.availability_status || "available",
     },
   });
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB");
+      return;
+    }
+
+    // Check file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("File must be an image");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      // Upload to Supabase Storage
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${userId}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("profile-avatars")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from("profile-avatars")
+        .getPublicUrl(filePath);
+
+      // Update profile with new avatar URL
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("id", userId);
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(publicUrl);
+      toast.success("Profile picture updated!");
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      toast.error("Failed to upload profile picture");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const onSubmit = async (data: ProfileFormData) => {
     setIsSubmitting(true);
@@ -103,6 +158,46 @@ export const ProfileEditForm = ({ userId, profile, onSuccess, onCancel }: Profil
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <Card className="ad-card">
+          <h3 className="text-lg font-semibold mb-4">Profile Picture</h3>
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Profile"
+                  className="h-32 w-32 rounded-full object-cover border-4 border-primary/20"
+                />
+              ) : (
+                <div className="h-32 w-32 rounded-full bg-primary/20 flex items-center justify-center border-4 border-primary/20">
+                  <User className="h-16 w-16 text-primary" />
+                </div>
+              )}
+              {uploadingAvatar && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                  <Loader2 className="h-8 w-8 animate-spin text-white" />
+                </div>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingAvatar}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Picture
+            </Button>
+          </div>
+        </Card>
+
         <Card className="ad-card">
           <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
           <div className="space-y-4">

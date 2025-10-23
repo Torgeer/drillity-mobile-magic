@@ -35,10 +35,14 @@ const Profile = () => {
         .eq("id", user.id)
         .single();
 
-      if (error) throw error;
-      setProfile(data);
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 is "not found" error - that's okay for new profiles
+        console.error("Error fetching profile:", error);
+      }
+      setProfile(data || {});
     } catch (error) {
       console.error("Error fetching profile:", error);
+      setProfile({}); // Set empty profile on error
     } finally {
       setLoading(false);
     }
@@ -54,10 +58,13 @@ const Profile = () => {
         .eq("talent_id", user.id)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') {
+        console.error("Error fetching skills:", error);
+      }
       setSkills(data || []);
     } catch (error) {
       console.error("Error fetching skills:", error);
+      setSkills([]);
     }
   };
 
@@ -71,10 +78,13 @@ const Profile = () => {
         .eq("talent_id", user.id)
         .order("issue_date", { ascending: false });
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') {
+        console.error("Error fetching certifications:", error);
+      }
       setCertifications(data || []);
     } catch (error) {
       console.error("Error fetching certifications:", error);
+      setCertifications([]);
     }
   };
 
@@ -156,9 +166,17 @@ const Profile = () => {
 
         <Card className="ad-card">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-            <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-primary/20 flex items-center justify-center text-3xl sm:text-4xl font-bold text-primary flex-shrink-0">
-              {getInitials(profile?.full_name)}
-            </div>
+            {profile?.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                alt={profile.full_name || "Profile"}
+                className="h-20 w-20 sm:h-24 sm:w-24 rounded-full object-cover border-4 border-primary/20 flex-shrink-0"
+              />
+            ) : (
+              <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-primary/20 flex items-center justify-center text-3xl sm:text-4xl font-bold text-primary flex-shrink-0">
+                {getInitials(profile?.full_name)}
+              </div>
+            )}
             <div className="flex-1 text-center sm:text-left w-full">
               <h2 className="text-xl sm:text-2xl font-bold mb-1">
                 {profile?.full_name || "No name set"}
