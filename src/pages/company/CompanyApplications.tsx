@@ -75,8 +75,8 @@ const CompanyApplications = () => {
 
         <div className="space-y-4">
           {applications.map((app) => (
-            <Card key={app.id} className="p-6">
-              <div className="flex items-start justify-between mb-4">
+            <Card key={app.id} className="ad-card">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                 <div className="flex items-start gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-lg">
                     {app.talentName.split(' ').map(n => n[0]).join('')}
@@ -84,7 +84,7 @@ const CompanyApplications = () => {
                   <div>
                     <h3 className="text-xl font-semibold">{app.talentName}</h3>
                     <p className="text-sm text-muted-foreground">Applied for: {app.jobTitle}</p>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground min-w-0">
                       <div className="flex items-center gap-1">
                         <MapPin className="h-4 w-4" />
                         {app.location}
@@ -110,7 +110,7 @@ const CompanyApplications = () => {
 
               <div className="mb-4">
                 <h4 className="text-sm font-medium mb-2">Skills</h4>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {app.skills.map((skill) => (
                     <Badge key={skill} variant="outline" className="bg-secondary">
                       {skill}
@@ -119,18 +119,18 @@ const CompanyApplications = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2">
-                <Button size="sm">
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" className="w-full sm:w-auto">
                   <FileText className="h-4 w-4 mr-2" />
                   View CV
                 </Button>
-                <Button size="sm" variant="outline">
+                <Button size="sm" variant="outline" className="w-full sm:w-auto">
                   Schedule Interview
                 </Button>
-                <Button size="sm" variant="outline">
+                <Button size="sm" variant="outline" className="w-full sm:w-auto">
                   Message
                 </Button>
-                <Button size="sm" variant="ghost">
+                <Button size="sm" variant="ghost" className="w-full sm:w-auto">
                   Reject
                 </Button>
               </div>

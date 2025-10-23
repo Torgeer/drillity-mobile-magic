@@ -236,3 +236,20 @@ All colors MUST be HSL.
     max-width: 100%;
   }
 }
+
+/* Display settings: global text scale and ad/list density */
+@layer base {
+  :root { --ad-card-padding: 1rem; }
+  html.text-scale-small { font-size: 15px; }
+  html.text-scale-medium { font-size: 16px; }
+  html.text-scale-big { font-size: 18px; }
+
+  html.ad-size-small { --ad-card-padding: 0.75rem; }
+  html.ad-size-medium { --ad-card-padding: 1rem; }
+  html.ad-size-big { --ad-card-padding: 1.25rem; }
+}
+
+@layer components {
+  .ad-card { padding: var(--ad-card-padding) !important; }
+}
+
