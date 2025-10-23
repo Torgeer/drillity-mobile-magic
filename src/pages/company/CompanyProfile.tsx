@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -30,9 +31,15 @@ const CompanyProfile = () => {
     location: "",
     company_size: "",
     logo_url: "",
+    foundation_sector: false,
+    offshore_sector: false,
+    mining_sector: false,
+    prospecting_sector: false,
+    infrastructure_sector: false,
   });
 
   const [editData, setEditData] = useState(companyData);
+  const [contacts, setContacts] = useState<any[]>([]);
 
   useEffect(() => {
     if (!authLoading) {
@@ -73,6 +80,15 @@ const CompanyProfile = () => {
       } else {
         setCompanyData(data);
         setEditData(data);
+
+        // Fetch contacts
+        const { data: contactsData } = await supabase
+          .from("company_contacts")
+          .select("*")
+          .eq("company_id", data.id)
+          .order("created_at", { ascending: false });
+
+        if (contactsData) setContacts(contactsData);
       }
     } catch (error) {
       console.error("Error fetching company profile:", error);
@@ -142,6 +158,11 @@ const CompanyProfile = () => {
           industry: editData.industry,
           location: editData.location,
           company_size: editData.company_size,
+          foundation_sector: editData.foundation_sector,
+          offshore_sector: editData.offshore_sector,
+          mining_sector: editData.mining_sector,
+          prospecting_sector: editData.prospecting_sector,
+          infrastructure_sector: editData.infrastructure_sector,
         })
         .eq("id", companyData.id);
 
@@ -280,6 +301,76 @@ const CompanyProfile = () => {
             </div>
           </Card>
 
+          <Card className="ad-card">
+            <h3 className="text-lg sm:text-xl font-semibold mb-4">Industry Sectors</h3>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="edit-foundation"
+                  checked={editData.foundation_sector}
+                  onCheckedChange={(checked) =>
+                    setEditData({ ...editData, foundation_sector: checked as boolean })
+                  }
+                />
+                <Label htmlFor="edit-foundation" className="font-normal cursor-pointer">
+                  Foundation
+                </Label>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="edit-offshore"
+                  checked={editData.offshore_sector}
+                  onCheckedChange={(checked) =>
+                    setEditData({ ...editData, offshore_sector: checked as boolean })
+                  }
+                />
+                <Label htmlFor="edit-offshore" className="font-normal cursor-pointer">
+                  Offshore
+                </Label>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="edit-mining"
+                  checked={editData.mining_sector}
+                  onCheckedChange={(checked) =>
+                    setEditData({ ...editData, mining_sector: checked as boolean })
+                  }
+                />
+                <Label htmlFor="edit-mining" className="font-normal cursor-pointer">
+                  Mining
+                </Label>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="edit-prospecting"
+                  checked={editData.prospecting_sector}
+                  onCheckedChange={(checked) =>
+                    setEditData({ ...editData, prospecting_sector: checked as boolean })
+                  }
+                />
+                <Label htmlFor="edit-prospecting" className="font-normal cursor-pointer">
+                  Prospecting
+                </Label>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="edit-infrastructure"
+                  checked={editData.infrastructure_sector}
+                  onCheckedChange={(checked) =>
+                    setEditData({ ...editData, infrastructure_sector: checked as boolean })
+                  }
+                />
+                <Label htmlFor="edit-infrastructure" className="font-normal cursor-pointer">
+                  Infrastructure
+                </Label>
+              </div>
+            </div>
+          </Card>
+
           <div className="flex gap-4">
             <Button onClick={handleSave} disabled={saving} className="flex-1">
               {saving ? (
@@ -364,6 +455,45 @@ const CompanyProfile = () => {
             </div>
           </div>
         </Card>
+
+        {(companyData.foundation_sector ||
+          companyData.offshore_sector ||
+          companyData.mining_sector ||
+          companyData.prospecting_sector ||
+          companyData.infrastructure_sector) && (
+          <Card className="ad-card">
+            <h3 className="text-xl font-semibold mb-4">Industry Sectors</h3>
+            <div className="flex flex-wrap gap-2">
+              {companyData.foundation_sector && <Badge>Foundation</Badge>}
+              {companyData.offshore_sector && <Badge>Offshore</Badge>}
+              {companyData.mining_sector && <Badge>Mining</Badge>}
+              {companyData.prospecting_sector && <Badge>Prospecting</Badge>}
+              {companyData.infrastructure_sector && <Badge>Infrastructure</Badge>}
+            </div>
+          </Card>
+        )}
+
+        {contacts.length > 0 && (
+          <Card className="ad-card">
+            <h3 className="text-xl font-semibold mb-4">Contact Persons</h3>
+            <div className="space-y-4">
+              {contacts.map((contact: any) => (
+                <Card key={contact.id} className="p-4 bg-secondary/50">
+                  <div>
+                    <p className="font-semibold">{contact.full_name}</p>
+                    <p className="text-sm text-muted-foreground">{contact.role}</p>
+                    {contact.email && (
+                      <p className="text-sm text-muted-foreground mt-1">📧 {contact.email}</p>
+                    )}
+                    {contact.phone && (
+                      <p className="text-sm text-muted-foreground">📱 {contact.phone}</p>
+                    )}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </Card>
+        )}
 
         {companyData.description && (
           <Card className="ad-card">

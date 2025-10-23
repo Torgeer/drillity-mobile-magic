@@ -68,7 +68,12 @@ const Auth = () => {
           toast.error(error.message);
         } else {
           toast.success("Account created successfully!");
-          navigate("/dashboard");
+          // Direct new companies to onboarding, talents to dashboard
+          if (userType === 'company') {
+            navigate("/company/onboarding");
+          } else {
+            navigate("/dashboard");
+          }
         }
       }
     } catch (error: any) {

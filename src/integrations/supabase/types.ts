@@ -72,18 +72,60 @@ export type Database = {
           },
         ]
       }
+      company_contacts: {
+        Row: {
+          avatar_url: string | null
+          company_id: string
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          phone: string | null
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          company_id: string
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          company_id?: string
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       company_profiles: {
         Row: {
           company_name: string
           company_size: string | null
           created_at: string
           description: string | null
+          foundation_sector: boolean | null
           id: string
           industry: string | null
+          infrastructure_sector: boolean | null
           latitude: number | null
           location: string | null
           logo_url: string | null
           longitude: number | null
+          mining_sector: boolean | null
+          offshore_sector: boolean | null
+          onboarding_completed: boolean | null
+          prospecting_sector: boolean | null
           updated_at: string
           user_id: string
           website: string | null
@@ -93,12 +135,18 @@ export type Database = {
           company_size?: string | null
           created_at?: string
           description?: string | null
+          foundation_sector?: boolean | null
           id?: string
           industry?: string | null
+          infrastructure_sector?: boolean | null
           latitude?: number | null
           location?: string | null
           logo_url?: string | null
           longitude?: number | null
+          mining_sector?: boolean | null
+          offshore_sector?: boolean | null
+          onboarding_completed?: boolean | null
+          prospecting_sector?: boolean | null
           updated_at?: string
           user_id: string
           website?: string | null
@@ -108,12 +156,18 @@ export type Database = {
           company_size?: string | null
           created_at?: string
           description?: string | null
+          foundation_sector?: boolean | null
           id?: string
           industry?: string | null
+          infrastructure_sector?: boolean | null
           latitude?: number | null
           location?: string | null
           logo_url?: string | null
           longitude?: number | null
+          mining_sector?: boolean | null
+          offshore_sector?: boolean | null
+          onboarding_completed?: boolean | null
+          prospecting_sector?: boolean | null
           updated_at?: string
           user_id?: string
           website?: string | null
