@@ -110,8 +110,11 @@ export type Database = {
       }
       company_profiles: {
         Row: {
+          address: string | null
           company_name: string
           company_size: string | null
+          contact_email: string | null
+          contact_phone: string | null
           created_at: string
           description: string | null
           foundation_sector: boolean | null
@@ -131,8 +134,11 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          address?: string | null
           company_name: string
           company_size?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           description?: string | null
           foundation_sector?: boolean | null
@@ -152,8 +158,11 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          address?: string | null
           company_name?: string
           company_size?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           description?: string | null
           foundation_sector?: boolean | null

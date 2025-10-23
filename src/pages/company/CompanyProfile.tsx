@@ -27,6 +27,9 @@ const CompanyProfile = () => {
     company_name: "",
     description: "",
     website: "",
+    contact_email: "",
+    contact_phone: "",
+    address: "",
     industry: "",
     location: "",
     company_size: "",
@@ -153,6 +156,57 @@ const CompanyProfile = () => {
     }
   };
 
+  // Contact person helpers
+  const handleAddContact = () => {
+    setContacts((prev) => [
+      ...prev,
+      { id: undefined, full_name: "", role: "", email: "", phone: "", company_id: companyData.id },
+    ]);
+  };
+
+  const handleRemoveContact = async (index: number) => {
+    const contact = contacts[index];
+    try {
+      if (contact?.id) {
+        await supabase.from("company_contacts").delete().eq("id", contact.id);
+      }
+    } catch (e) {
+      console.error("Error removing contact:", e);
+      toast.error("Failed to remove contact");
+      return;
+    }
+    setContacts((prev) => prev.filter((_, i) => i !== index));
+    toast.success("Contact removed");
+  };
+
+  const upsertContacts = async () => {
+    if (!companyData.id) return;
+    const ops = contacts.map(async (c) => {
+      const payload = {
+        full_name: c.full_name?.trim() || null,
+        role: c.role?.trim() || null,
+        email: c.email?.trim() || null,
+        phone: c.phone?.trim() || null,
+        company_id: companyData.id,
+      };
+      if (c.id) {
+        const { error } = await supabase.from("company_contacts").update(payload).eq("id", c.id);
+        if (error) throw error;
+        return c;
+      } else {
+        const { data, error } = await supabase
+          .from("company_contacts")
+          .insert(payload)
+          .select()
+          .single();
+        if (error) throw error;
+        return data;
+      }
+    });
+    const results = await Promise.all(ops);
+    setContacts(results);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -162,6 +216,9 @@ const CompanyProfile = () => {
           company_name: editData.company_name,
           description: editData.description,
           website: editData.website,
+          contact_email: editData.contact_email,
+          contact_phone: editData.contact_phone,
+          address: editData.address,
           industry: editData.industry,
           location: editData.location,
           company_size: editData.company_size,
@@ -174,6 +231,9 @@ const CompanyProfile = () => {
         .eq("id", companyData.id);
 
       if (error) throw error;
+
+      // Save contacts too
+      await upsertContacts();
 
       setCompanyData(editData);
       setIsEditing(false);
@@ -297,6 +357,35 @@ const CompanyProfile = () => {
               </div>
 
               <div>
+                <Label>Contact Email</Label>
+                <Input
+                  value={editData.contact_email || ""}
+                  onChange={(e) => setEditData({ ...editData, contact_email: e.target.value })}
+                  placeholder="contact@company.com"
+                  type="email"
+                />
+              </div>
+
+              <div>
+                <Label>Contact Phone</Label>
+                <Input
+                  value={editData.contact_phone || ""}
+                  onChange={(e) => setEditData({ ...editData, contact_phone: e.target.value })}
+                  placeholder="+1 555 555 555"
+                  type="tel"
+                />
+              </div>
+
+              <div>
+                <Label>Address</Label>
+                <Input
+                  value={editData.address || ""}
+                  onChange={(e) => setEditData({ ...editData, address: e.target.value })}
+                  placeholder="Street, City, Country"
+                />
+              </div>
+
+              <div>
                 <Label>Description</Label>
                 <Textarea
                   value={editData.description || ""}
@@ -378,6 +467,51 @@ const CompanyProfile = () => {
             </div>
           </Card>
 
+          <Card className="ad-card">
+            <h3 className="text-lg sm:text-xl font-semibold mb-4">Contact Persons</h3>
+            <div className="space-y-4">
+              {contacts.map((c, idx) => (
+                <div key={c.id ?? idx} className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <Input
+                    placeholder="Full name"
+                    value={c.full_name || ""}
+                    onChange={(e) => {
+                      const v = e.target.value; setContacts((prev) => prev.map((it, i) => i === idx ? { ...it, full_name: v } : it));
+                    }}
+                  />
+                  <Input
+                    placeholder="Role"
+                    value={c.role || ""}
+                    onChange={(e) => {
+                      const v = e.target.value; setContacts((prev) => prev.map((it, i) => i === idx ? { ...it, role: v } : it));
+                    }}
+                  />
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    value={c.email || ""}
+                    onChange={(e) => {
+                      const v = e.target.value; setContacts((prev) => prev.map((it, i) => i === idx ? { ...it, email: v } : it));
+                    }}
+                  />
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Phone"
+                      value={c.phone || ""}
+                      onChange={(e) => {
+                        const v = e.target.value; setContacts((prev) => prev.map((it, i) => i === idx ? { ...it, phone: v } : it));
+                      }}
+                    />
+                    <Button type="button" variant="outline" onClick={() => handleRemoveContact(idx)}>Remove</Button>
+                  </div>
+                </div>
+              ))}
+              <div>
+                <Button type="button" variant="outline" onClick={handleAddContact}>Add contact</Button>
+              </div>
+            </div>
+          </Card>
+
           <div className="flex gap-4">
             <Button onClick={handleSave} disabled={saving} className="flex-1">
               {saving ? (
@@ -436,14 +570,19 @@ const CompanyProfile = () => {
                 {companyData.company_name || "Company Name"}
               </h2>
               {companyData.location && (
-                <p className="text-muted-foreground mb-2 text-sm">
-                  📍 {companyData.location}
-                </p>
+                <p className="text-muted-foreground mb-2 text-sm">📍 {companyData.location}</p>
+              )}
+              {companyData.address && (
+                <p className="text-muted-foreground mb-2 text-sm">🏢 {companyData.address}</p>
+              )}
+              {companyData.contact_email && (
+                <p className="text-muted-foreground mb-2 text-sm">📧 {companyData.contact_email}</p>
+              )}
+              {companyData.contact_phone && (
+                <p className="text-muted-foreground mb-2 text-sm">📞 {companyData.contact_phone}</p>
               )}
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start mb-4">
-                {companyData.industry && (
-                  <Badge variant="outline">{companyData.industry}</Badge>
-                )}
+                {companyData.industry && <Badge variant="outline">{companyData.industry}</Badge>}
                 {companyData.company_size && (
                   <Badge variant="outline">{companyData.company_size} employees</Badge>
                 )}
