@@ -189,17 +189,50 @@ Senior Drilling Engineer,Job description...,Houston TX,full_time,senior,100000,1
         </div>
 
         <Card className="p-6 bg-primary/5 border-primary/20">
-          <h3 className="font-semibold mb-2">API Import (Avancerat)</h3>
+          <h3 className="font-semibold mb-2">API Integration</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Om du har många jobb på din befintliga hemsida kan du använda vårt API för automatisk import.
+            För att automatiskt synkronisera jobb från er hemsida eller ATS-system, använd vårt REST API.
           </p>
-          <div className="space-y-2 text-sm font-mono bg-background p-4 rounded-lg">
-            <p>POST https://kjfjsgzllpqgmpcqpvuz.supabase.co/rest/v1/jobs</p>
-            <p className="text-muted-foreground">Headers: Authorization: Bearer YOUR_API_KEY</p>
+          
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-semibold mb-2">Steg 1: Skapa ett jobb via API</p>
+              <div className="space-y-2 text-sm font-mono bg-background p-4 rounded-lg overflow-x-auto">
+                <p className="text-primary">POST /rest/v1/jobs</p>
+                <p className="text-muted-foreground text-xs">
+                  Använd Supabase auth token för autentisering
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold mb-2">Steg 2: Exempel på request body</p>
+              <pre className="text-xs font-mono bg-background p-4 rounded-lg overflow-x-auto">
+{`{
+  "title": "Senior Drilling Engineer",
+  "description": "Job description...",
+  "location": "Houston, TX",
+  "job_type": "full_time",
+  "experience_level": "senior",
+  "salary_min": 100000,
+  "salary_max": 150000,
+  "skills": ["Drilling", "Safety"],
+  "remote": false
+}`}
+              </pre>
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold mb-2">Steg 3: Automatisk synkronisering</p>
+              <p className="text-sm text-muted-foreground">
+                För automatisk synkronisering av 100+ jobb eller integration med ATS-system, kontakta vårt team för dedikerad support och API-dokumentation.
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground mt-4">
-            Kontakta support för API-nyckel och dokumentation för bulk-import av 100+ jobb.
-          </p>
+
+          <Button variant="outline" className="mt-4 w-full sm:w-auto" asChild>
+            <a href="mailto:support@drillity.com">Kontakta Support för API-dokumentation</a>
+          </Button>
         </Card>
       </div>
     </CompanyLayout>
