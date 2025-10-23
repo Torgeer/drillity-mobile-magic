@@ -19,6 +19,8 @@ import CompanyApplications from "./pages/company/CompanyApplications";
 import BrowseTalent from "./pages/company/BrowseTalent";
 import CompanyTeam from "./pages/company/CompanyTeam";
 import CompanySettings from "./pages/company/CompanySettings";
+import CompanyMessages from "./pages/company/CompanyMessages";
+import CompanyProfile from "./pages/company/CompanyProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,8 +51,8 @@ const App = () => (
           <Route path="/company/applications" element={<CompanyApplications />} />
           <Route path="/company/talents" element={<BrowseTalent />} />
           <Route path="/company/team" element={<CompanyTeam />} />
-          <Route path="/company/messages" element={<Messages />} />
-          <Route path="/company/profile" element={<Profile />} />
+          <Route path="/company/messages" element={<CompanyMessages />} />
+          <Route path="/company/profile" element={<CompanyProfile />} />
           <Route path="/company/settings" element={<CompanySettings />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
