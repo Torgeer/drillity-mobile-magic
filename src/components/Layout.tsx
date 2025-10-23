@@ -1,9 +1,10 @@
-import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, LogOut } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import drillityLogo from "@/assets/drillity-logo.png";
+import { useAuth } from "@/hooks/useAuth";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
@@ -17,6 +18,13 @@ const navigation = [
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/auth");
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -65,6 +73,16 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               );
             })}
           </nav>
+
+          <div className="p-4 border-t border-sidebar-border">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
+            >
+              <LogOut className="h-5 w-5" />
+              Log Out
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -98,6 +116,16 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                   );
                 })}
               </nav>
+
+              <div className="p-4 border-t border-sidebar-border">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
+                >
+                  <LogOut className="h-5 w-5" />
+                  Log Out
+                </button>
+              </div>
             </div>
           </aside>
         </div>
