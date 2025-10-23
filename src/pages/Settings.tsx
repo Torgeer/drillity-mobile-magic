@@ -3,8 +3,19 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/hooks/useAuth";
+import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Settings = () => {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/auth");
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -18,16 +29,21 @@ const Settings = () => {
           
           <div className="space-y-4">
             <div>
-              <Label className="text-primary">Name</Label>
-              <p className="mt-1">Alex Driller</p>
-            </div>
-            
-            <div>
               <Label className="text-primary">Email</Label>
-              <p className="mt-1">alex.driller@gmail.com</p>
+              <p className="mt-1">{user?.email}</p>
             </div>
             
-            <Button className="mt-4">Change Password</Button>
+            <div className="flex gap-3">
+              <Button className="mt-4">Change Password</Button>
+              <Button 
+                variant="destructive" 
+                className="mt-4"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logga ut
+              </Button>
+            </div>
           </div>
         </Card>
 

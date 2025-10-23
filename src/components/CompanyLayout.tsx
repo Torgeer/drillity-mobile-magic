@@ -1,4 +1,4 @@
-import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch } from "lucide-react";
+import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch, Upload, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -8,8 +8,10 @@ import drillityLogo from "@/assets/drillity-logo.png";
 const navigation = [
   { name: "Dashboard", href: "/company/dashboard", icon: Home },
   { name: "My Jobs", href: "/company/jobs", icon: Briefcase },
+  { name: "Import Jobs", href: "/company/jobs/import", icon: Upload },
   { name: "Applications", href: "/company/applications", icon: FileText },
   { name: "Browse Talent", href: "/company/talents", icon: UserSearch },
+  { name: "Team", href: "/company/team", icon: Users },
   { name: "Messages", href: "/company/messages", icon: MessageSquare },
   { name: "Company Profile", href: "/company/profile", icon: User },
   { name: "Settings", href: "/company/settings", icon: Settings },
@@ -23,9 +25,6 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex min-h-screen bg-background">
       {/* Mobile header */}
       <div className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b border-sidebar-border bg-sidebar px-4 lg:hidden">
-        <div className="flex items-center">
-          <img src={drillityLogo} alt="Drillity" className="h-8" />
-        </div>
         <Button
           variant="ghost"
           size="icon"
@@ -34,6 +33,9 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
         >
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </Button>
+        <div className="flex items-center">
+          <img src={drillityLogo} alt="Drillity" className="h-8" />
+        </div>
       </div>
 
       {/* Sidebar - Desktop */}
