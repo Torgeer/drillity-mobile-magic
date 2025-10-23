@@ -15,22 +15,24 @@ export function useAuth() {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user profile to get user type BEFORE setting loading to false
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('user_type')
-            .eq('id', session.user.id)
-            .single();
-          
-          if (profile) {
-            setUserType(profile.user_type as UserType);
-          }
-          setLoading(false);
+          // Fetch user profile to get user type using setTimeout to avoid deadlock
+          setTimeout(async () => {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('user_type')
+              .eq('id', session.user.id)
+              .single();
+            
+            if (profile) {
+              setUserType(profile.user_type as UserType);
+            }
+            setLoading(false);
+          }, 0);
         } else {
           setUserType(null);
           setLoading(false);
