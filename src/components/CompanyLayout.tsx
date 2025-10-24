@@ -174,7 +174,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
               className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors hover:bg-accent"
             >
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="text-xs">{getUserInitials()}</AvatarFallback>
+                <AvatarFallback className="text-xs bg-[#f59e0b] text-white">{getUserInitials()}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col items-start flex-1 min-w-0">
                 <span className="text-sm font-medium truncate w-full">{user?.email?.split('@')[0] || "User"}</span>
