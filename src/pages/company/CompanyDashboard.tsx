@@ -207,7 +207,7 @@ const CompanyDashboard = () => {
                   {fakeApplications.map((app) => (
                     <div key={app.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-black/10 transition-all duration-200 group border-0">
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary font-semibold group-hover:bg-primary/30 transition-all">
-                        <span className="group-hover:brightness-150 transition-all">{app.name.charAt(0).toUpperCase()}</span>
+                        <span className={cn("transition-all", theme === "light" ? "group-hover:text-black" : "group-hover:brightness-150")}>{app.name.charAt(0).toUpperCase()}</span>
                       </div>
                       <div className="flex-1 min-w-0 space-y-1">
                         <p className="text-sm font-medium leading-none group-hover:font-bold transition-all">{app.name}</p>
@@ -248,7 +248,7 @@ const CompanyDashboard = () => {
                     <div key={job.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-black/10 transition-all duration-200 group border-0">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary font-bold text-sm group-hover:bg-primary/30 transition-all">
-                          <span className="group-hover:brightness-150 transition-all">{index + 1}</span>
+                          <span className={cn("transition-all", theme === "light" ? "group-hover:text-black" : "group-hover:brightness-150")}>{index + 1}</span>
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate group-hover:font-bold transition-all">{job.title}</p>
