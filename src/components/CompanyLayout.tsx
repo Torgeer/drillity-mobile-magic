@@ -64,7 +64,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       </div>
 
       {/* Sidebar - Desktop */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[240px] border-r bg-background lg:block">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[240px] border-r bg-gradient-to-br from-background via-background to-primary/20 lg:block">
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-14 items-center border-b px-3">
@@ -190,7 +190,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-          <aside className="fixed top-14 left-0 right-0 bg-background border-b shadow-lg">
+          <aside className="fixed top-14 left-0 right-0 bg-gradient-to-br from-background via-background to-primary/20 border-b shadow-lg">
             <div className="flex flex-col max-h-[calc(100vh-3.5rem)] overflow-y-auto">
               <div className="p-3">
                 <Button 
@@ -279,7 +279,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       )}
 
       <main className="flex-1 pt-14 lg:pl-[240px] lg:pt-0 overflow-x-hidden w-full">
-        <div className="mx-auto max-w-7xl p-4 md:p-6 w-full">{children}</div>
+        <div className="mx-auto max-w-7xl p-4 md:p-6 w-full bg-gradient-to-br from-background via-background to-primary/10 min-h-screen">{children}</div>
       </main>
     </div>
   );

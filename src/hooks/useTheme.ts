@@ -5,7 +5,7 @@ export type Theme = "dark" | "gray" | "light";
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => {
     const stored = localStorage.getItem("drillity-theme") as Theme;
-    return stored || "dark";
+    return stored || "gray";
   });
 
   useEffect(() => {
