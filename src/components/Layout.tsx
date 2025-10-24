@@ -41,7 +41,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       {/* Mobile header */}
       <div className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b border-sidebar-border bg-sidebar px-4 lg:hidden">
         <div className="flex items-center">
-          <img src={theme === "light" ? drillityLogoLight : drillityLogoDark} alt="Drillity" className="h-8" />
+          <img src={theme === "light" ? drillityLogoDark : drillityLogoLight} alt="Drillity" className="h-8" />
         </div>
         <Button
           variant="ghost"
@@ -57,7 +57,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 bg-sidebar border-r border-sidebar-border lg:block">
         <div className="flex h-full flex-col">
           <div className="flex h-16 items-center border-b border-sidebar-border px-6">
-            <img src={theme === "light" ? drillityLogoLight : drillityLogoDark} alt="Drillity" className="h-8" />
+            <img src={theme === "light" ? drillityLogoDark : drillityLogoLight} alt="Drillity" className="h-8" />
           </div>
 
           <nav className="flex-1 space-y-1 p-4">
