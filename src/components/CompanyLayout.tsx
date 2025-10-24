@@ -56,14 +56,14 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       </div>
 
       {/* Sidebar - Desktop */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 bg-sidebar border-r border-sidebar-border lg:block">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 bg-gradient-to-b from-sidebar via-sidebar to-sidebar/95 border-r border-sidebar-border lg:block backdrop-blur-sm">
         <div className="flex h-full flex-col">
-          <div className="flex h-16 items-center border-b border-sidebar-border px-6">
+          <div className="flex h-16 items-center border-b border-sidebar-border px-6 bg-sidebar-accent/30">
             <img src={drillityLogo} alt="Drillity" className="h-8" />
           </div>
 
-          <nav className="flex-1 space-y-1 p-4">
-            <div className="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-primary">
+          <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
+            <div className="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-sidebar-primary">
               Company
             </div>
             {navigation.map((item) => {
@@ -73,10 +73,10 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                     isActive
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-lg shadow-sidebar-primary/50"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:translate-x-1"
                   )}
                 >
                   <item.icon className="h-5 w-5" />
@@ -86,17 +86,17 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
             })}
           </nav>
 
-          <div className="p-4 border-t border-sidebar-border space-y-2">
+          <div className="p-4 border-t border-sidebar-border space-y-2 bg-sidebar-accent/20">
             <button
               onClick={cycleTheme}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 text-sidebar-foreground hover:bg-sidebar-accent/50 w-full hover:translate-x-1"
             >
               <Lightbulb className="h-5 w-5" />
               Theme: {theme.charAt(0).toUpperCase() + theme.slice(1)}
             </button>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 text-sidebar-foreground hover:bg-sidebar-accent/50 w-full hover:translate-x-1"
             >
               <LogOut className="h-5 w-5" />
               Log Out

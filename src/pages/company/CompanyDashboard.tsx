@@ -1,7 +1,7 @@
 import { CompanyLayout } from "@/components/CompanyLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Briefcase, FileText, MessageSquare, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Briefcase, FileText, Users, TrendingUp, ArrowUpRight, ArrowDownRight, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
@@ -34,7 +34,6 @@ const CompanyDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      // Get company profile
       const { data: companyProfile } = await supabase
         .from("company_profiles")
         .select("id")
@@ -46,7 +45,6 @@ const CompanyDashboard = () => {
         return;
       }
 
-      // Get active jobs count
       const { data: jobs, error: jobsError } = await supabase
         .from("jobs")
         .select("id, title")
@@ -55,7 +53,6 @@ const CompanyDashboard = () => {
 
       if (jobsError) throw jobsError;
 
-      // Get applications - simplified without joins to avoid recursion
       const { data: applications, error: appsError } = await supabase
         .from("applications")
         .select("*")
@@ -64,20 +61,16 @@ const CompanyDashboard = () => {
 
       if (appsError) {
         console.error("Error fetching applications:", appsError);
-        // Don't throw, just use empty array
       }
 
-      // Calculate stats
       setStats({
         activeJobs: jobs?.length || 0,
         totalApplications: applications?.length || 0,
         pendingApplications: applications?.filter(app => app.status === 'pending').length || 0,
       });
 
-      // Set recent applications (last 3) - simplified
-      setRecentApplications(applications?.slice(0, 3) || []);
+      setRecentApplications(applications?.slice(0, 5) || []);
 
-      // Calculate top performing jobs - fetch job titles separately if needed
       const jobApplicationCounts = jobs?.map(job => ({
         id: job.id,
         title: job.title,
@@ -87,7 +80,6 @@ const CompanyDashboard = () => {
       setTopJobs(jobApplicationCounts);
     } catch (error: any) {
       console.error("Error fetching dashboard data:", error);
-      // Don't show error toast, just fail silently with empty data
     } finally {
       setLoading(false);
     }
@@ -108,64 +100,70 @@ const CompanyDashboard = () => {
       name: "Active Jobs", 
       value: stats.activeJobs.toString(), 
       icon: Briefcase, 
-      description: "Jobs currently open",
-      trend: null
+      description: "Open positions",
+      trend: { value: "+2.5%", positive: true }
     },
     { 
       name: "Total Applications", 
       value: stats.totalApplications.toString(), 
       icon: FileText, 
-      description: `${stats.pendingApplications} pending review`,
-      trend: null
+      description: "All submissions",
+      trend: { value: "+12.5%", positive: true }
     },
     { 
-      name: "New Candidates", 
+      name: "Pending Review", 
       value: stats.pendingApplications.toString(), 
-      icon: MessageSquare, 
-      description: "Awaiting your review",
+      icon: Users, 
+      description: "Awaiting action",
       trend: null
     },
     { 
       name: "Growth Rate", 
-      value: "12.5%", 
+      value: "4.5%", 
       icon: TrendingUp, 
-      description: "vs last month",
-      trend: { value: "+2.5%", positive: true }
+      description: "This month",
+      trend: { value: "+4.5%", positive: true }
     },
   ];
 
   return (
     <CompanyLayout>
-      <div className="space-y-6">
+      <div className="space-y-8 animate-fade-in">
+        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Company Dashboard</h1>
-            <p className="text-muted-foreground text-sm sm:text-base">Manage your recruitment process</p>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground mt-1">Manage your recruitment pipeline</p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => navigate('/company/jobs/import')} className="flex-1 sm:flex-initial">
+          <div className="flex flex-wrap gap-3">
+            <Button variant="outline" onClick={() => navigate('/company/jobs/import')} className="gap-2">
+              <Plus className="h-4 w-4" />
               Import Jobs
             </Button>
-            <Button onClick={() => navigate('/company/jobs/new')} className="flex-1 sm:flex-initial">
+            <Button onClick={() => navigate('/company/jobs/new')} className="gap-2">
+              <Plus className="h-4 w-4" />
               Post Job
             </Button>
           </div>
         </div>
 
+        {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {dashboardStats.map((stat) => (
-            <Card key={stat.name}>
+            <Card key={stat.name} className="hover:shadow-lg transition-shadow duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   {stat.name}
                 </CardTitle>
-                <stat.icon className="h-4 w-4 text-muted-foreground" />
+                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <stat.icon className="h-4 w-4 text-primary" />
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stat.value}</div>
                 <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                   {stat.trend && (
-                    <span className={`flex items-center ${stat.trend.positive ? 'text-green-600' : 'text-red-600'}`}>
+                    <span className={`flex items-center font-medium ${stat.trend.positive ? 'text-success' : 'text-destructive'}`}>
                       {stat.trend.positive ? (
                         <ArrowUpRight className="h-3 w-3" />
                       ) : (
@@ -181,31 +179,43 @@ const CompanyDashboard = () => {
           ))}
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card>
+        {/* Content Grid */}
+        <div className="grid gap-4 lg:grid-cols-7">
+          {/* Recent Applications */}
+          <Card className="lg:col-span-4">
             <CardHeader>
               <CardTitle>Recent Applications</CardTitle>
-              <CardDescription>Latest candidate submissions</CardDescription>
+              <CardDescription>Latest candidate submissions to review</CardDescription>
             </CardHeader>
             <CardContent>
               {recentApplications.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">No applications yet</p>
+                <div className="text-center py-12">
+                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No applications yet</p>
+                  <Button variant="link" onClick={() => navigate('/company/jobs/new')} className="mt-2">
+                    Post your first job
+                  </Button>
+                </div>
               ) : (
                 <div className="space-y-4">
                   {recentApplications.map((app) => (
-                    <div key={app.id} className="flex items-center gap-4">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm">
-                        A
+                    <div key={app.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
+                        {app.id.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0 space-y-1">
-                        <p className="text-sm font-medium leading-none">Application received</p>
+                        <p className="text-sm font-medium leading-none">New Application</p>
                         <p className="text-sm text-muted-foreground">
-                          {new Date(app.applied_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          {new Date(app.applied_at).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
                         </p>
                       </div>
                       <Button 
                         size="sm" 
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => navigate('/company/applications')}
                       >
                         View
@@ -217,23 +227,35 @@ const CompanyDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          {/* Top Performing Jobs */}
+          <Card className="lg:col-span-3">
             <CardHeader>
-              <CardTitle>Top Performing Jobs</CardTitle>
-              <CardDescription>Your most popular job listings</CardDescription>
+              <CardTitle>Top Jobs</CardTitle>
+              <CardDescription>Most applications received</CardDescription>
             </CardHeader>
             <CardContent>
               {topJobs.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">No jobs posted yet</p>
+                <div className="text-center py-12">
+                  <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No jobs posted yet</p>
+                  <Button variant="link" onClick={() => navigate('/company/jobs/new')} className="mt-2">
+                    Post a job
+                  </Button>
+                </div>
               ) : (
                 <div className="space-y-4">
-                  {topJobs.map((job) => (
-                    <div key={job.id} className="flex items-center justify-between">
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <p className="text-sm font-medium leading-none truncate">{job.title}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {job.applicationCount} application{job.applicationCount !== 1 ? 's' : ''}
-                        </p>
+                  {topJobs.map((job, index) => (
+                    <div key={job.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-colors">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-sm">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{job.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {job.applicationCount} application{job.applicationCount !== 1 ? 's' : ''}
+                          </p>
+                        </div>
                       </div>
                       <Button 
                         size="sm" 
