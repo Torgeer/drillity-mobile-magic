@@ -207,7 +207,7 @@ const CompanyDashboard = () => {
                         <span className="group-hover:brightness-150 transition-all">{app.name.charAt(0).toUpperCase()}</span>
                       </div>
                       <div className="flex-1 min-w-0 space-y-1">
-                        <p className="text-sm font-medium leading-none">{app.name}</p>
+                        <p className="text-sm font-medium leading-none group-hover:font-bold transition-all">{app.name}</p>
                         <p className="text-xs text-muted-foreground">{app.position}</p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(app.applied_at).toLocaleDateString('en-US', { 
@@ -221,7 +221,7 @@ const CompanyDashboard = () => {
                         size="sm" 
                         variant="ghost"
                         onClick={() => navigate('/company/applications')}
-                        className="group-hover:text-primary group-hover:brightness-125 transition-all"
+                        className="group-hover:font-bold transition-all"
                       >
                         View
                       </Button>
@@ -248,7 +248,7 @@ const CompanyDashboard = () => {
                           <span className="group-hover:brightness-150 transition-all">{index + 1}</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{job.title}</p>
+                          <p className="text-sm font-medium truncate group-hover:font-bold transition-all">{job.title}</p>
                           <p className="text-xs text-muted-foreground">
                             {job.applicationCount} application{job.applicationCount !== 1 ? 's' : ''}
                           </p>
@@ -258,7 +258,7 @@ const CompanyDashboard = () => {
                         size="sm" 
                         variant="ghost"
                         onClick={() => navigate('/company/jobs')}
-                        className="group-hover:text-primary group-hover:brightness-125 transition-all"
+                        className="group-hover:font-bold transition-all"
                       >
                         View
                       </Button>
