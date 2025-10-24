@@ -378,7 +378,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       )}
 
-      <main className="flex-1 pt-14 lg:pl-[240px] lg:pt-0 overflow-x-hidden w-full min-h-screen bg-gradient-to-br from-black/15 via-transparent to-[hsl(0,0%,90%)]/15">
+      <main className="flex-1 pt-14 lg:pl-[240px] lg:pt-0 overflow-x-hidden w-full min-h-screen bg-gradient-to-br from-black/15 via-black/8 to-[hsl(0,0%,90%)]/15">
         <div className="mx-auto max-w-7xl p-4 md:p-6 w-full">{children}</div>
       </main>
     </div>
