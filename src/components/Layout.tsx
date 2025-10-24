@@ -1,10 +1,11 @@
-import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, LogOut } from "lucide-react";
+import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, LogOut, Lightbulb } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import drillityLogo from "@/assets/drillity-logo.png";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
@@ -19,11 +20,19 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     await signOut();
     navigate("/auth");
+  };
+
+  const cycleTheme = () => {
+    const themes = ["dark", "gray", "light"] as const;
+    const currentIndex = themes.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setTheme(themes[nextIndex]);
   };
 
   return (
@@ -74,7 +83,14 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             })}
           </nav>
 
-          <div className="p-4 border-t border-sidebar-border">
+          <div className="p-4 border-t border-sidebar-border space-y-2">
+            <button
+              onClick={cycleTheme}
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
+            >
+              <Lightbulb className="h-5 w-5" />
+              Theme: {theme.charAt(0).toUpperCase() + theme.slice(1)}
+            </button>
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
@@ -117,7 +133,14 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                 })}
               </nav>
 
-              <div className="p-4 border-t border-sidebar-border">
+              <div className="p-4 border-t border-sidebar-border space-y-2">
+                <button
+                  onClick={cycleTheme}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
+                >
+                  <Lightbulb className="h-5 w-5" />
+                  Theme: {theme.charAt(0).toUpperCase() + theme.slice(1)}
+                </button>
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
