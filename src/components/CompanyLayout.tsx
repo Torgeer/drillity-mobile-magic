@@ -153,9 +153,15 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
             <div className="pt-4 space-y-1">
               <button
                 onClick={() => setResourcesOpen(!resourcesOpen)}
-                className="flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-accent-foreground border border-transparent"
+                className={cn(
+                  "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
+                  "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
+                )}
               >
-                <span className="text-xs font-medium">Resources</span>
+                <div className="flex items-center gap-3">
+                  <Users className="h-4 w-4" />
+                  Resources
+                </div>
                 {resourcesOpen ? (
                   <ChevronDown className="h-4 w-4" />
                 ) : (
@@ -312,9 +318,15 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                 <div className="pt-4 space-y-1">
                   <button
                     onClick={() => setResourcesOpen(!resourcesOpen)}
-                    className="flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-accent-foreground border border-transparent"
+                    className={cn(
+                      "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
+                      "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
+                    )}
                   >
-                    <span className="text-xs font-medium">Resources</span>
+                    <div className="flex items-center gap-3">
+                      <Users className="h-4 w-4" />
+                      Resources
+                    </div>
                     {resourcesOpen ? (
                       <ChevronDown className="h-4 w-4" />
                     ) : (
