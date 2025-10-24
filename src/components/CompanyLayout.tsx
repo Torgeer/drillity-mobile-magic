@@ -70,7 +70,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       </div>
 
       {/* Sidebar - Desktop */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[240px] border-r bg-sidebar-background lg:block">
+      <aside className={cn("fixed inset-y-0 left-0 z-40 hidden w-[240px] border-r lg:block", theme === "light" ? "bg-gradient-to-tl from-background via-background to-primary/20" : "bg-sidebar-background")}>
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-14 items-center border-b px-3">
@@ -234,7 +234,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-          <aside className="fixed top-14 left-0 right-0 bg-sidebar-background border-b shadow-lg">
+          <aside className={cn("fixed top-14 left-0 right-0 border-b shadow-lg", theme === "light" ? "bg-gradient-to-tl from-background via-background to-primary/20" : "bg-sidebar-background")}>
             <div className="flex flex-col max-h-[calc(100vh-3.5rem)]">
               <nav className="flex-1 space-y-1 px-3 py-2">
                 {/* Dashboard with Collapsible Submenu */}

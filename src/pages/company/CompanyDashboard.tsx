@@ -7,10 +7,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useTheme } from "@/hooks/useTheme";
+import { cn } from "@/lib/utils";
 
 const CompanyDashboard = () => {
   const navigate = useNavigate();
   const { user, userType, loading: authLoading } = useAuth();
+  const { theme } = useTheme();
   const [stats, setStats] = useState({
     activeJobs: 0,
     totalApplications: 0,
@@ -161,7 +164,7 @@ const CompanyDashboard = () => {
         {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {dashboardStats.map((stat) => (
-            <Card key={stat.name} className="bg-[hsl(var(--container-bg))]/5 border-0 shadow-none">
+            <Card key={stat.name} className={cn("border-0 shadow-none", theme === "light" ? "bg-[hsl(var(--container-bg))]/50" : "bg-[hsl(var(--container-bg))]/5")}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   {stat.name}
@@ -193,7 +196,7 @@ const CompanyDashboard = () => {
         {/* Content Grid */}
         <div className="grid gap-4 lg:grid-cols-7">
           {/* Recent Applications */}
-          <Card className="lg:col-span-4 bg-[hsl(var(--container-bg))]/5 border-0 shadow-none">
+          <Card className={cn("lg:col-span-4 border-0 shadow-none", theme === "light" ? "bg-[hsl(var(--container-bg))]/50" : "bg-[hsl(var(--container-bg))]/5")}>
             <CardHeader>
               <CardTitle>Recent Applications</CardTitle>
               <CardDescription>Latest candidate submissions to review</CardDescription>
@@ -233,7 +236,7 @@ const CompanyDashboard = () => {
           </Card>
 
           {/* Top Performing Jobs */}
-          <Card className="lg:col-span-3 bg-[hsl(var(--container-bg))]/5 border-0 shadow-none">
+          <Card className={cn("lg:col-span-3 border-0 shadow-none", theme === "light" ? "bg-[hsl(var(--container-bg))]/50" : "bg-[hsl(var(--container-bg))]/5")}>
             <CardHeader>
               <CardTitle>Top Jobs</CardTitle>
               <CardDescription>Most applications received</CardDescription>
