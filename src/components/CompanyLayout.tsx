@@ -23,7 +23,6 @@ const dashboardSubItems = [
 
 const secondaryNavigation = [
   { name: "Browse Talent", href: "/company/talents", icon: UserSearch },
-  { name: "Import Jobs", href: "/company/jobs/import", icon: Upload },
   { name: "Company Profile", href: "/company/profile", icon: User },
 ];
 
@@ -99,14 +98,14 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                   <Home className={cn("h-4 w-4", location.pathname === "/company/dashboard" ? "text-primary" : "")} />
                   Dashboard
                 </div>
-                {dashboardOpen ? (
+                {dashboardOpen && location.pathname === "/company/dashboard" ? (
                   <ChevronDown className="h-4 w-4" />
                 ) : (
                   <ChevronRight className="h-4 w-4" />
                 )}
               </button>
               
-              {dashboardOpen && (
+              {dashboardOpen && location.pathname === "/company/dashboard" && (
                 <div className="ml-6 space-y-1 animate-accordion-down">
                   {dashboardSubItems.map((item) => {
                     const isActive = location.pathname === item.href;
@@ -199,12 +198,6 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
               <HelpCircle className="h-4 w-4" />
               Theme: {theme}
             </button>
-            <button
-              className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-accent-foreground border border-transparent hover:border-primary/20"
-            >
-              <Search className="h-4 w-4" />
-              Search
-            </button>
           </div>
 
           {/* User Profile */}
@@ -252,14 +245,14 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                       <Home className={cn("h-4 w-4", location.pathname === "/company/dashboard" ? "text-primary" : "")} />
                       Dashboard
                     </div>
-                    {dashboardOpen ? (
+                    {dashboardOpen && location.pathname === "/company/dashboard" ? (
                       <ChevronDown className="h-4 w-4" />
                     ) : (
                       <ChevronRight className="h-4 w-4" />
                     )}
                   </button>
                   
-                  {dashboardOpen && (
+                  {dashboardOpen && location.pathname === "/company/dashboard" && (
                     <div className="ml-6 space-y-1 animate-accordion-down">
                       {dashboardSubItems.map((item) => {
                         const isActive = location.pathname === item.href;
@@ -360,7 +353,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       )}
 
-      <main className="flex-1 pt-14 lg:pl-[240px] lg:pt-0 overflow-x-hidden w-full bg-gradient-to-br from-background via-background to-primary/10 min-h-screen">
+      <main className="flex-1 pt-14 lg:pl-[240px] lg:pt-0 overflow-x-hidden w-full bg-gradient-to-br from-background via-background to-primary/15 min-h-screen">
         <div className="mx-auto max-w-7xl p-4 md:p-6 w-full">{children}</div>
       </main>
     </div>
