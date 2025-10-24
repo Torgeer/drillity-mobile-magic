@@ -213,8 +213,8 @@ All colors MUST be HSL.
     --popover: 0 0% 10%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 120 100% 50%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 19 100% 49%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 14%;
     --secondary-foreground: 0 0% 98%;
@@ -231,21 +231,21 @@ All colors MUST be HSL.
     --success: 142 76% 36%;
     --success-foreground: 0 0% 98%;
 
-    --warning: 120 100% 50%;
-    --warning-foreground: 0 0% 0%;
+    --warning: 19 100% 49%;
+    --warning-foreground: 0 0% 100%;
 
     --border: 0 0% 14%;
     --input: 0 0% 14%;
-    --ring: 120 100% 50%;
+    --ring: 19 100% 49%;
 
     --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 120 100% 50%;
-    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-primary: 19 100% 49%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 14%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 0 0% 14%;
-    --sidebar-ring: 120 100% 50%;
+    --sidebar-ring: 19 100% 49%;
     
     --container-bg: 0 0% 0%;
   }
