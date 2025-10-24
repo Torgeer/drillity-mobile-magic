@@ -198,7 +198,7 @@ const CompanyDashboard = () => {
               <div className="max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
                 <div className="space-y-2">
                   {fakeApplications.map((app) => (
-                    <div key={app.id} className={cn("flex items-center gap-4 p-4 rounded-xl transition-all duration-300 group border", theme === "light" ? "hover:bg-slate-50 hover:border-primary/30 border-slate-200/50" : "hover:bg-zinc-900/50 hover:border-primary/30 border-border/30")}>
+                    <div key={app.id} className={cn("flex items-center gap-4 p-4 rounded-xl transition-all duration-300 group border", theme === "light" ? "hover:bg-slate-50/10 hover:border-primary/30 border-slate-200/50" : "hover:bg-zinc-900/50 hover:border-primary/30 border-border/30")}>
                       <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-bold text-lg ring-1 ring-primary/20 group-hover:ring-primary/40 transition-all">
                         <span>{app.name.charAt(0).toUpperCase()}</span>
                       </div>
@@ -217,7 +217,7 @@ const CompanyDashboard = () => {
                         size="sm" 
                         variant="ghost"
                         onClick={() => navigate('/company/applications')}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity font-medium"
+                        className={cn("font-medium transition-all", theme === "light" ? "hover:font-bold" : "")}
                       >
                         View
                       </Button>
@@ -238,7 +238,7 @@ const CompanyDashboard = () => {
               <div className="max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
                 <div className="space-y-2">
                   {fakeTopJobs.map((job, index) => (
-                    <div key={job.id} className={cn("flex items-center justify-between p-4 rounded-xl transition-all duration-300 group border", theme === "light" ? "hover:bg-slate-50 hover:border-primary/30 border-slate-200/50" : "hover:bg-zinc-900/50 hover:border-primary/30 border-border/30")}>
+                    <div key={job.id} className={cn("flex items-center justify-between p-4 rounded-xl transition-all duration-300 group border", theme === "light" ? "hover:bg-slate-50/10 hover:border-primary/30 border-slate-200/50" : "hover:bg-zinc-900/50 hover:border-primary/30 border-border/30")}>
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-bold ring-1 ring-primary/20 group-hover:ring-primary/40 transition-all">
                           <span>{index + 1}</span>
@@ -254,7 +254,7 @@ const CompanyDashboard = () => {
                         size="sm" 
                         variant="ghost"
                         onClick={() => navigate('/company/jobs')}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity font-medium"
+                        className={cn("font-medium transition-all", theme === "light" ? "hover:font-bold" : "")}
                       >
                         View
                       </Button>

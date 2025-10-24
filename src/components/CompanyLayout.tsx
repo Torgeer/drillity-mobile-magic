@@ -70,10 +70,10 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       </div>
 
       {/* Sidebar - Desktop */}
-      <aside className={cn("fixed inset-y-0 left-0 z-40 hidden w-[240px] border-r lg:block", theme === "light" ? "bg-white/50 backdrop-blur-sm" : theme === "black" ? "bg-gradient-to-b from-black/20 via-[hsl(19,100%,49%)]/5 to-black/20 backdrop-blur-sm" : "bg-sidebar-background")}>
+      <aside className={cn("fixed inset-y-0 left-0 z-40 hidden w-[240px] border-r lg:block", theme === "light" ? "bg-white/50 backdrop-blur-sm" : theme === "black" ? "bg-gradient-to-b from-black/90 via-black/80 to-black/90 backdrop-blur-sm" : "bg-sidebar-background")}>
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-14 items-center border-b px-3">
+          <div className="flex h-14 items-center justify-center border-b px-3">
             <Link to="/company/dashboard" className="flex items-center gap-2">
               <img src={theme === "light" ? drillityLogoDark : drillityLogoLight} alt="Drillity" className="h-8" />
             </Link>
@@ -106,7 +106,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                 )}
               </button>
               
-              {dashboardOpen && location.pathname === "/company/dashboard" && (
+              {dashboardOpen && (
                 <div className="ml-6 space-y-1 animate-accordion-down">
                   {dashboardSubItems.map((item) => {
                     const isActive = location.pathname === item.href;
@@ -240,7 +240,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-          <aside className={cn("fixed top-14 left-0 right-0 border-b shadow-lg", theme === "light" ? "bg-white/50 backdrop-blur-sm" : theme === "black" ? "bg-gradient-to-b from-black/20 via-[hsl(19,100%,49%)]/5 to-black/20 backdrop-blur-sm" : "bg-sidebar-background")}>
+          <aside className={cn("fixed top-14 left-0 right-0 border-b shadow-lg", theme === "light" ? "bg-white/50 backdrop-blur-sm" : theme === "black" ? "bg-gradient-to-b from-black/90 via-black/80 to-black/90 backdrop-blur-sm" : "bg-sidebar-background")}>
             <div className="flex flex-col max-h-[calc(100vh-3.5rem)]">
               <nav className="flex-1 space-y-1 px-3 py-2">
                 {/* Dashboard with Collapsible Submenu */}
@@ -269,7 +269,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                     )}
                   </button>
                   
-                  {dashboardOpen && location.pathname === "/company/dashboard" && (
+                  {dashboardOpen && (
                     <div className="ml-6 space-y-1 animate-accordion-down">
                       {dashboardSubItems.map((item) => {
                         const isActive = location.pathname === item.href;
