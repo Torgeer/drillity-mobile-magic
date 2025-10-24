@@ -316,21 +316,25 @@ All colors MUST be HSL.
 }
 
 @layer components {
-  .ad-card { padding: var(--ad-card-padding) !important; }
+  .ad-card { 
+    padding: var(--ad-card-padding) !important;
+  }
   
   /* Custom Scrollbar */
   .custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+    width: 6px;
+    height: 6px;
   }
   
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+    background: hsl(var(--muted) / 0.3);
+    border-radius: 3px;
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: hsl(var(--primary));
-    border-radius: 2px;
+    background: hsl(var(--primary) / 0.5);
+    border-radius: 3px;
+    transition: background 0.2s;
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
@@ -340,7 +344,7 @@ All colors MUST be HSL.
   /* For Firefox */
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--primary)) transparent;
+    scrollbar-color: hsl(var(--primary) / 0.5) hsl(var(--muted) / 0.3);
   }
 }
 

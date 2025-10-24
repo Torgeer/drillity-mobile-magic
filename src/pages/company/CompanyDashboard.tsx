@@ -155,22 +155,22 @@ const CompanyDashboard = () => {
       <div className="space-y-8 animate-fade-in">
 
         {/* Stats Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {dashboardStats.map((stat) => (
-            <Card key={stat.name} className={cn("border-0 shadow-none", theme === "light" ? "bg-[hsl(var(--container-bg))]/50" : "bg-[hsl(var(--container-bg))]/5")}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+            <Card key={stat.name} className={cn("border border-border/50 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary/30", theme === "light" ? "bg-white/80 backdrop-blur-sm" : "bg-card/50 backdrop-blur-sm")}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground font-heading">
                   {stat.name}
                 </CardTitle>
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <stat.icon className="h-4 w-4 text-primary" />
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
+                  <stat.icon className="h-5 w-5 text-primary" />
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+              <CardContent className="space-y-1">
+                <div className="text-3xl font-bold font-heading tracking-tight">{stat.value}</div>
+                <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-2">
                   {stat.trend && (
-                    <span className={`flex items-center font-medium ${stat.trend.positive ? 'text-success' : 'text-destructive'}`}>
+                    <span className={`flex items-center gap-0.5 font-semibold px-1.5 py-0.5 rounded ${stat.trend.positive ? 'text-success bg-success/10' : 'text-destructive bg-destructive/10'}`}>
                       {stat.trend.positive ? (
                         <ArrowUpRight className="h-3 w-3" />
                       ) : (
@@ -187,24 +187,24 @@ const CompanyDashboard = () => {
         </div>
 
         {/* Content Grid */}
-        <div className="grid gap-4 lg:grid-cols-7">
+        <div className="grid gap-6 lg:grid-cols-7">
           {/* Recent Applications */}
-          <Card className={cn("lg:col-span-4 border-0 shadow-none", theme === "light" ? "bg-[hsl(var(--container-bg))]/50" : "bg-[hsl(var(--container-bg))]/5")}>
-            <CardHeader>
-              <CardTitle>Recent Applications</CardTitle>
-              <CardDescription>Latest candidate submissions to review</CardDescription>
+          <Card className={cn("lg:col-span-4 border border-border/50 shadow-sm", theme === "light" ? "bg-white/80 backdrop-blur-sm" : "bg-card/50 backdrop-blur-sm")}>
+            <CardHeader className="space-y-2 pb-4">
+              <CardTitle className="text-xl font-heading">Recent Applications</CardTitle>
+              <CardDescription className="text-sm">Latest candidate submissions to review</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
-                <div className="space-y-4">
+              <div className="max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
+                <div className="space-y-2">
                   {fakeApplications.map((app) => (
-                    <div key={app.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-black/10 transition-all duration-200 group border-0">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary font-semibold group-hover:bg-primary/30 transition-all">
-                        <span className={cn("transition-all", theme === "light" ? "group-hover:text-black" : "group-hover:brightness-150")}>{app.name.charAt(0).toUpperCase()}</span>
+                    <div key={app.id} className={cn("flex items-center gap-4 p-4 rounded-xl transition-all duration-300 group border", theme === "light" ? "hover:bg-slate-50 hover:border-primary/30 border-slate-200/50" : "hover:bg-zinc-900/50 hover:border-primary/30 border-border/30")}>
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-bold text-lg ring-1 ring-primary/20 group-hover:ring-primary/40 transition-all">
+                        <span>{app.name.charAt(0).toUpperCase()}</span>
                       </div>
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <p className="text-sm font-medium leading-none group-hover:font-bold transition-all">{app.name}</p>
-                        <p className="text-xs text-muted-foreground">{app.position}</p>
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        <p className="text-sm font-semibold leading-none group-hover:text-primary transition-colors font-heading">{app.name}</p>
+                        <p className="text-xs text-muted-foreground font-medium">{app.position}</p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(app.applied_at).toLocaleDateString('en-US', { 
                             month: 'short', 
@@ -217,7 +217,7 @@ const CompanyDashboard = () => {
                         size="sm" 
                         variant="ghost"
                         onClick={() => navigate('/company/applications')}
-                        className="group-hover:font-bold transition-all"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity font-medium"
                       >
                         View
                       </Button>
@@ -229,23 +229,23 @@ const CompanyDashboard = () => {
           </Card>
 
           {/* Top Performing Jobs */}
-          <Card className={cn("lg:col-span-3 border-0 shadow-none", theme === "light" ? "bg-[hsl(var(--container-bg))]/50" : "bg-[hsl(var(--container-bg))]/5")}>
-            <CardHeader>
-              <CardTitle>Top Jobs</CardTitle>
-              <CardDescription>Most applications received</CardDescription>
+          <Card className={cn("lg:col-span-3 border border-border/50 shadow-sm", theme === "light" ? "bg-white/80 backdrop-blur-sm" : "bg-card/50 backdrop-blur-sm")}>
+            <CardHeader className="space-y-2 pb-4">
+              <CardTitle className="text-xl font-heading">Top Jobs</CardTitle>
+              <CardDescription className="text-sm">Most applications received</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
-                <div className="space-y-4">
+              <div className="max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
+                <div className="space-y-2">
                   {fakeTopJobs.map((job, index) => (
-                    <div key={job.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-black/10 transition-all duration-200 group border-0">
+                    <div key={job.id} className={cn("flex items-center justify-between p-4 rounded-xl transition-all duration-300 group border", theme === "light" ? "hover:bg-slate-50 hover:border-primary/30 border-slate-200/50" : "hover:bg-zinc-900/50 hover:border-primary/30 border-border/30")}>
                       <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary font-bold text-sm group-hover:bg-primary/30 transition-all">
-                          <span className={cn("transition-all", theme === "light" ? "group-hover:text-black" : "group-hover:brightness-150")}>{index + 1}</span>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-bold ring-1 ring-primary/20 group-hover:ring-primary/40 transition-all">
+                          <span>{index + 1}</span>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate group-hover:font-bold transition-all">{job.title}</p>
-                          <p className="text-xs text-muted-foreground">
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors font-heading">{job.title}</p>
+                          <p className="text-xs text-muted-foreground font-medium">
                             {job.applicationCount} application{job.applicationCount !== 1 ? 's' : ''}
                           </p>
                         </div>
@@ -254,7 +254,7 @@ const CompanyDashboard = () => {
                         size="sm" 
                         variant="ghost"
                         onClick={() => navigate('/company/jobs')}
-                        className="group-hover:font-bold transition-all"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity font-medium"
                       >
                         View
                       </Button>

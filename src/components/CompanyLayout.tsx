@@ -1,4 +1,4 @@
-import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch, Upload, Users, LogOut, Search, HelpCircle, MoreHorizontal, Plus, ChevronDown, ChevronRight } from "lucide-react";
+import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch, Upload, Users, LogOut, Search, Lightbulb, MoreHorizontal, Plus, ChevronDown, ChevronRight } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -212,7 +212,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
               onClick={cycleTheme}
               className={cn("flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors border border-transparent hover:border-primary/20", theme === "black" ? "hover:bg-black hover:text-accent-foreground" : "hover:bg-accent/50 hover:text-accent-foreground")}
             >
-              <HelpCircle className="h-4 w-4" />
+              <Lightbulb className="h-4 w-4" />
               Theme: {theme}
             </button>
           </div>
@@ -381,7 +381,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                   }}
                   className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 border border-transparent hover:border-primary/20"
                 >
-                  <HelpCircle className="h-4 w-4" />
+                  <Lightbulb className="h-4 w-4" />
                   Theme: {theme}
                 </button>
               </div>
@@ -390,8 +390,13 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       )}
 
-      <main className="flex-1 pt-14 lg:pl-[240px] lg:pt-0 overflow-x-hidden w-full min-h-screen">
-        <div className="mx-auto max-w-7xl p-4 md:p-6 w-full">{children}</div>
+      {/* Main content */}
+      <main className="flex-1 lg:pl-[240px] pt-14 lg:pt-0">
+        <div className={cn("min-h-screen", theme === "light" ? "bg-gradient-to-br from-slate-50 via-white to-slate-100" : theme === "black" ? "bg-gradient-to-br from-black via-zinc-950 to-black" : "bg-background")}>
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 max-w-7xl">
+            {children}
+          </div>
+        </div>
       </main>
     </div>
   );
