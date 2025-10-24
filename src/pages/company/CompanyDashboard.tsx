@@ -156,22 +156,12 @@ const CompanyDashboard = () => {
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-muted-foreground mt-1">Manage your recruitment pipeline</p>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <Button variant="outline" onClick={() => navigate('/company/jobs/import')} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Import Jobs
-            </Button>
-            <Button onClick={() => navigate('/company/jobs/new')} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Post Job
-            </Button>
-          </div>
         </div>
 
         {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {dashboardStats.map((stat) => (
-            <Card key={stat.name} className="bg-background/50 backdrop-blur-sm border-4 shadow-[0_8px_16px_rgba(0,0,0,0.4)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.5)] transition-all duration-200">
+            <Card key={stat.name} className="bg-background/10 backdrop-blur-md border border-white/70 shadow-none">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   {stat.name}
@@ -203,7 +193,7 @@ const CompanyDashboard = () => {
         {/* Content Grid */}
         <div className="grid gap-4 lg:grid-cols-7">
           {/* Recent Applications */}
-          <Card className="lg:col-span-4 bg-background/50 backdrop-blur-sm border-4 shadow-[0_8px_16px_rgba(0,0,0,0.4)]">
+          <Card className="lg:col-span-4 bg-background/10 backdrop-blur-md border border-white/70 shadow-none">
             <CardHeader>
               <CardTitle>Recent Applications</CardTitle>
               <CardDescription>Latest candidate submissions to review</CardDescription>
@@ -242,7 +232,7 @@ const CompanyDashboard = () => {
           </Card>
 
           {/* Top Performing Jobs */}
-          <Card className="lg:col-span-3 bg-background/50 backdrop-blur-sm border-4 shadow-[0_8px_16px_rgba(0,0,0,0.4)]">
+          <Card className="lg:col-span-3 bg-background/10 backdrop-blur-md border border-white/70 shadow-none">
             <CardHeader>
               <CardTitle>Top Jobs</CardTitle>
               <CardDescription>Most applications received</CardDescription>

@@ -1,4 +1,4 @@
-import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch, Upload, Users, LogOut, Search, HelpCircle, MoreHorizontal, Plus } from "lucide-react";
+import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch, Upload, Users, LogOut, Search, HelpCircle, MoreHorizontal, Plus, ChevronDown, ChevronRight } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -10,11 +10,15 @@ import { useTheme } from "@/hooks/useTheme";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const mainNavigation = [
-  { name: "Dashboard", href: "/company/dashboard", icon: Home },
   { name: "My Jobs", href: "/company/jobs", icon: Briefcase },
   { name: "Applications", href: "/company/applications", icon: FileText },
   { name: "Messages", href: "/company/messages", icon: MessageSquare },
   { name: "Team", href: "/company/team", icon: Users },
+];
+
+const dashboardSubItems = [
+  { name: "Post Job", href: "/company/jobs/new", icon: Plus },
+  { name: "Import Jobs", href: "/company/jobs/import", icon: Upload },
 ];
 
 const secondaryNavigation = [
@@ -26,6 +30,7 @@ const secondaryNavigation = [
 export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dashboardOpen, setDashboardOpen] = useState(true);
   const { signOut, user } = useAuth();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
@@ -74,20 +79,57 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
             </Link>
           </div>
 
-          {/* Quick Action Button */}
-          <div className="p-3">
-            <Button 
-              onClick={() => navigate('/company/jobs/new')}
-              className="w-full justify-start gap-2 bg-primary text-primary-foreground hover:bg-primary/90 border border-primary/20 shadow-sm"
-              size="sm"
-            >
-              <Plus className="h-4 w-4 text-primary-foreground" />
-              Post Job
-            </Button>
-          </div>
-
           {/* Main Navigation */}
           <nav className="flex-1 space-y-1 px-3 py-2 overflow-y-auto">
+            {/* Dashboard with Collapsible Submenu */}
+            <div className="space-y-1">
+              <button
+                onClick={() => {
+                  setDashboardOpen(!dashboardOpen);
+                  navigate('/company/dashboard');
+                }}
+                className={cn(
+                  "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
+                  location.pathname === "/company/dashboard"
+                    ? "bg-accent text-accent-foreground border-primary/20 shadow-sm"
+                    : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <Home className={cn("h-4 w-4", location.pathname === "/company/dashboard" ? "text-primary" : "")} />
+                  Dashboard
+                </div>
+                {dashboardOpen ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </button>
+              
+              {dashboardOpen && (
+                <div className="ml-6 space-y-1 animate-accordion-down">
+                  {dashboardSubItems.map((item) => {
+                    const isActive = location.pathname === item.href;
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        className={cn(
+                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
+                          isActive
+                            ? "bg-accent text-accent-foreground border-primary/20 shadow-sm"
+                            : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
+                        )}
+                      >
+                        <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "")} />
+                        {item.name}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             {mainNavigation.map((item) => {
               const isActive = location.pathname === item.href;
               return (
@@ -190,21 +232,58 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
           <aside className="fixed top-14 left-0 right-0 bg-gradient-to-br from-background via-background to-primary/20 border-b shadow-lg">
             <div className="flex flex-col max-h-[calc(100vh-3.5rem)] overflow-y-auto">
-              <div className="p-3">
-                <Button 
-                  onClick={() => {
-                    navigate('/company/jobs/new');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full justify-start gap-2 bg-primary text-primary-foreground hover:bg-primary/90 border border-primary/20 shadow-sm"
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4 text-primary-foreground" />
-                  Post Job
-                </Button>
-              </div>
-
               <nav className="flex-1 space-y-1 px-3 py-2">
+                {/* Dashboard with Collapsible Submenu */}
+                <div className="space-y-1">
+                  <button
+                    onClick={() => {
+                      setDashboardOpen(!dashboardOpen);
+                      navigate('/company/dashboard');
+                      setMobileMenuOpen(false);
+                    }}
+                    className={cn(
+                      "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
+                      location.pathname === "/company/dashboard"
+                        ? "bg-accent text-accent-foreground border-primary/20 shadow-sm"
+                        : "text-muted-foreground hover:bg-accent/50 border-transparent"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Home className={cn("h-4 w-4", location.pathname === "/company/dashboard" ? "text-primary" : "")} />
+                      Dashboard
+                    </div>
+                    {dashboardOpen ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </button>
+                  
+                  {dashboardOpen && (
+                    <div className="ml-6 space-y-1 animate-accordion-down">
+                      {dashboardSubItems.map((item) => {
+                        const isActive = location.pathname === item.href;
+                        return (
+                          <Link
+                            key={item.name}
+                            to={item.href}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={cn(
+                              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
+                              isActive
+                                ? "bg-accent text-accent-foreground border-primary/20 shadow-sm"
+                                : "text-muted-foreground hover:bg-accent/50 border-transparent"
+                            )}
+                          >
+                            <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "")} />
+                            {item.name}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
                 {mainNavigation.map((item) => {
                   const isActive = location.pathname === item.href;
                   return (
