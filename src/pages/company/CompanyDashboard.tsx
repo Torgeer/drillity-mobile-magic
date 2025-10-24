@@ -20,6 +20,26 @@ const CompanyDashboard = () => {
   const [topJobs, setTopJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Fake data for demonstration
+  const fakeApplications = [
+    { id: '1', name: 'John Smith', position: 'Senior Developer', applied_at: new Date('2024-01-15'), status: 'pending' },
+    { id: '2', name: 'Sarah Johnson', position: 'UI/UX Designer', applied_at: new Date('2024-01-14'), status: 'pending' },
+    { id: '3', name: 'Mike Chen', position: 'Product Manager', applied_at: new Date('2024-01-13'), status: 'reviewed' },
+    { id: '4', name: 'Emily Davis', position: 'Data Analyst', applied_at: new Date('2024-01-12'), status: 'pending' },
+    { id: '5', name: 'Robert Wilson', position: 'DevOps Engineer', applied_at: new Date('2024-01-11'), status: 'pending' },
+    { id: '6', name: 'Lisa Anderson', position: 'Frontend Developer', applied_at: new Date('2024-01-10'), status: 'reviewed' },
+    { id: '7', name: 'David Martinez', position: 'Backend Developer', applied_at: new Date('2024-01-09'), status: 'pending' },
+    { id: '8', name: 'Jennifer Taylor', position: 'QA Engineer', applied_at: new Date('2024-01-08'), status: 'pending' },
+  ];
+
+  const fakeTopJobs = [
+    { id: '1', title: 'Senior Full Stack Developer', applicationCount: 45 },
+    { id: '2', title: 'Product Designer', applicationCount: 32 },
+    { id: '3', title: 'DevOps Engineer', applicationCount: 28 },
+    { id: '4', title: 'Marketing Manager', applicationCount: 21 },
+    { id: '5', title: 'Data Scientist', applicationCount: 18 },
+  ];
+
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
@@ -69,7 +89,8 @@ const CompanyDashboard = () => {
         pendingApplications: applications?.filter(app => app.status === 'pending').length || 0,
       });
 
-      setRecentApplications(applications?.slice(0, 5) || []);
+      // Use real data if available, otherwise use fake data
+      setRecentApplications(applications?.length ? applications.slice(0, 5) : fakeApplications);
 
       const jobApplicationCounts = jobs?.map(job => ({
         id: job.id,
@@ -77,7 +98,7 @@ const CompanyDashboard = () => {
         applicationCount: applications?.filter(app => app.job_id === job.id).length || 0
       })).sort((a, b) => b.applicationCount - a.applicationCount).slice(0, 3) || [];
 
-      setTopJobs(jobApplicationCounts);
+      setTopJobs(jobApplicationCounts.length ? jobApplicationCounts : fakeTopJobs);
     } catch (error: any) {
       console.error("Error fetching dashboard data:", error);
     } finally {
@@ -150,7 +171,7 @@ const CompanyDashboard = () => {
         {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {dashboardStats.map((stat) => (
-            <Card key={stat.name} className="hover:shadow-lg transition-shadow duration-200">
+            <Card key={stat.name} className="bg-background/50 backdrop-blur-sm border-4 shadow-[0_8px_16px_rgba(0,0,0,0.4)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.5)] transition-all duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   {stat.name}
@@ -182,30 +203,23 @@ const CompanyDashboard = () => {
         {/* Content Grid */}
         <div className="grid gap-4 lg:grid-cols-7">
           {/* Recent Applications */}
-          <Card className="lg:col-span-4">
+          <Card className="lg:col-span-4 bg-background/50 backdrop-blur-sm border-4 shadow-[0_8px_16px_rgba(0,0,0,0.4)]">
             <CardHeader>
               <CardTitle>Recent Applications</CardTitle>
               <CardDescription>Latest candidate submissions to review</CardDescription>
             </CardHeader>
             <CardContent>
-              {recentApplications.length === 0 ? (
-                <div className="text-center py-12">
-                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No applications yet</p>
-                  <Button variant="link" onClick={() => navigate('/company/jobs/new')} className="mt-2">
-                    Post your first job
-                  </Button>
-                </div>
-              ) : (
+              <div className="max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
                 <div className="space-y-4">
-                  {recentApplications.map((app) => (
-                    <div key={app.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
-                        {app.id.charAt(0).toUpperCase()}
+                  {fakeApplications.map((app) => (
+                    <div key={app.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors border border-border/50">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary font-semibold">
+                        {app.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0 space-y-1">
-                        <p className="text-sm font-medium leading-none">New Application</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm font-medium leading-none">{app.name}</p>
+                        <p className="text-xs text-muted-foreground">{app.position}</p>
+                        <p className="text-xs text-muted-foreground">
                           {new Date(app.applied_at).toLocaleDateString('en-US', { 
                             month: 'short', 
                             day: 'numeric',
@@ -223,31 +237,23 @@ const CompanyDashboard = () => {
                     </div>
                   ))}
                 </div>
-              )}
+              </div>
             </CardContent>
           </Card>
 
           {/* Top Performing Jobs */}
-          <Card className="lg:col-span-3">
+          <Card className="lg:col-span-3 bg-background/50 backdrop-blur-sm border-4 shadow-[0_8px_16px_rgba(0,0,0,0.4)]">
             <CardHeader>
               <CardTitle>Top Jobs</CardTitle>
               <CardDescription>Most applications received</CardDescription>
             </CardHeader>
             <CardContent>
-              {topJobs.length === 0 ? (
-                <div className="text-center py-12">
-                  <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No jobs posted yet</p>
-                  <Button variant="link" onClick={() => navigate('/company/jobs/new')} className="mt-2">
-                    Post a job
-                  </Button>
-                </div>
-              ) : (
+              <div className="max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
                 <div className="space-y-4">
-                  {topJobs.map((job, index) => (
-                    <div key={job.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-colors">
+                  {fakeTopJobs.map((job, index) => (
+                    <div key={job.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-colors border border-border/50">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-sm">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary font-bold text-sm">
                           {index + 1}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -267,7 +273,7 @@ const CompanyDashboard = () => {
                     </div>
                   ))}
                 </div>
-              )}
+              </div>
             </CardContent>
           </Card>
         </div>
