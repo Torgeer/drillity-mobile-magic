@@ -161,7 +161,7 @@ const CompanyDashboard = () => {
         {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {dashboardStats.map((stat) => (
-            <Card key={stat.name} className="bg-primary/10 backdrop-blur-md border-0 shadow-none">
+            <Card key={stat.name} className="bg-[hsl(var(--container-bg))]/10 border-0 shadow-none">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   {stat.name}
@@ -193,7 +193,7 @@ const CompanyDashboard = () => {
         {/* Content Grid */}
         <div className="grid gap-4 lg:grid-cols-7">
           {/* Recent Applications */}
-          <Card className="lg:col-span-4 bg-primary/10 backdrop-blur-md border-0 shadow-none">
+          <Card className="lg:col-span-4 bg-[hsl(var(--container-bg))]/10 border-0 shadow-none">
             <CardHeader>
               <CardTitle>Recent Applications</CardTitle>
               <CardDescription>Latest candidate submissions to review</CardDescription>
@@ -202,9 +202,9 @@ const CompanyDashboard = () => {
               <div className="max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
                 <div className="space-y-4">
                   {fakeApplications.map((app) => (
-                    <div key={app.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-primary/20 transition-all duration-200 group border-0">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary font-semibold group-hover:bg-primary/30 transition-colors">
-                        {app.name.charAt(0).toUpperCase()}
+                    <div key={app.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-black/10 transition-all duration-200 group border-0">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary font-semibold group-hover:bg-primary/30 transition-all">
+                        <span className="group-hover:brightness-150 transition-all">{app.name.charAt(0).toUpperCase()}</span>
                       </div>
                       <div className="flex-1 min-w-0 space-y-1">
                         <p className="text-sm font-medium leading-none">{app.name}</p>
@@ -233,7 +233,7 @@ const CompanyDashboard = () => {
           </Card>
 
           {/* Top Performing Jobs */}
-          <Card className="lg:col-span-3 bg-primary/10 backdrop-blur-md border-0 shadow-none">
+          <Card className="lg:col-span-3 bg-[hsl(var(--container-bg))]/10 border-0 shadow-none">
             <CardHeader>
               <CardTitle>Top Jobs</CardTitle>
               <CardDescription>Most applications received</CardDescription>
@@ -242,10 +242,10 @@ const CompanyDashboard = () => {
               <div className="max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
                 <div className="space-y-4">
                   {fakeTopJobs.map((job, index) => (
-                    <div key={job.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-primary/20 transition-all duration-200 group border-0">
+                    <div key={job.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-black/10 transition-all duration-200 group border-0">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary font-bold text-sm group-hover:bg-primary/30 group-hover:brightness-125 transition-all">
-                          {index + 1}
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary font-bold text-sm group-hover:bg-primary/30 transition-all">
+                          <span className="group-hover:brightness-150 transition-all">{index + 1}</span>
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{job.title}</p>
