@@ -106,11 +106,6 @@ const PostJob = () => {
   return (
     <CompanyLayout>
       <div className="max-w-4xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Post a New Job</h1>
-          <p className="text-muted-foreground">Fill in the details to create a job posting</p>
-        </div>
-
         <form onSubmit={handleSubmit}>
           <Card className="ad-card space-y-6">
             <div className="space-y-4">

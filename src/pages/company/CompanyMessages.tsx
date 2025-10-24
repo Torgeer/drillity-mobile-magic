@@ -99,11 +99,6 @@ const CompanyMessages = () => {
   return (
     <CompanyLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Messages</h1>
-          <p className="text-muted-foreground">Company communications</p>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-auto lg:h-[calc(100vh-200px)]">
           <Card className="p-4 max-h-[300px] lg:max-h-none overflow-auto">
             <h2 className="font-semibold mb-4">Conversations</h2>

@@ -91,8 +91,8 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                 className={cn(
                   "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
                   location.pathname === "/company/dashboard"
-                    ? "bg-accent text-accent-foreground border-primary/20 shadow-sm"
-                    : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
+                    ? (theme === "black" ? "bg-black/80 text-accent-foreground border-primary/50" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
+                    : (theme === "black" ? "text-muted-foreground hover:bg-black hover:text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent")
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -117,8 +117,8 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                         className={cn(
                           "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
                           isActive
-                            ? "bg-accent text-accent-foreground border-primary/20 shadow-sm"
-                            : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
+                            ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
+                            : (theme === "black" ? "text-muted-foreground hover:bg-black hover:text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent")
                         )}
                       >
                         <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "")} />
@@ -139,8 +139,8 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                   className={cn(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
                     isActive
-                      ? "bg-accent text-accent-foreground border-primary/20 shadow-sm"
-                      : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
+                      ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
+                      : (theme === "black" ? "text-muted-foreground hover:bg-black hover:text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent")
                   )}
                 >
                   <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "")} />
@@ -155,7 +155,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                 onClick={() => setResourcesOpen(!resourcesOpen)}
                 className={cn(
                   "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
-                  "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
+                  theme === "black" ? "text-muted-foreground hover:bg-black hover:text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -180,8 +180,8 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                         className={cn(
                           "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
                           isActive
-                            ? "bg-accent text-accent-foreground border-primary/20 shadow-sm"
-                            : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
+                            ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
+                            : (theme === "black" ? "text-muted-foreground hover:bg-black hover:text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent")
                         )}
                       >
                         <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "")} />
@@ -201,8 +201,8 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
               className={cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
                 location.pathname === "/company/settings"
-                  ? "bg-accent text-accent-foreground border-primary/20 shadow-sm"
-                  : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
+                  ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
+                  : (theme === "black" ? "text-muted-foreground hover:bg-black hover:text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent")
               )}
             >
               <Settings className={cn("h-4 w-4", location.pathname === "/company/settings" ? "text-primary" : "")} />
@@ -210,7 +210,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
             </Link>
             <button
               onClick={cycleTheme}
-              className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-accent-foreground border border-transparent hover:border-primary/20"
+              className={cn("flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors border border-transparent hover:border-primary/20", theme === "black" ? "hover:bg-black hover:text-accent-foreground" : "hover:bg-accent/50 hover:text-accent-foreground")}
             >
               <HelpCircle className="h-4 w-4" />
               Theme: {theme}
@@ -254,8 +254,8 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                     className={cn(
                       "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
                       location.pathname === "/company/dashboard"
-                        ? "bg-accent text-accent-foreground border-primary/20 shadow-sm"
-                        : "text-muted-foreground hover:bg-accent/50 border-transparent"
+                        ? (theme === "black" ? "bg-black/80 text-accent-foreground border-primary/50" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
+                        : (theme === "black" ? "text-muted-foreground hover:bg-black border-transparent" : "text-muted-foreground hover:bg-accent/50 border-transparent")
                     )}
                   >
                     <div className="flex items-center gap-3">
@@ -281,8 +281,8 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                             className={cn(
                               "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
                               isActive
-                                ? "bg-accent text-accent-foreground border-primary/20 shadow-sm"
-                                : "text-muted-foreground hover:bg-accent/50 border-transparent"
+                                ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
+                                : (theme === "black" ? "text-muted-foreground hover:bg-black border-transparent" : "text-muted-foreground hover:bg-accent/50 border-transparent")
                             )}
                           >
                             <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "")} />
@@ -304,8 +304,8 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                       className={cn(
                         "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
                         isActive
-                          ? "bg-accent text-accent-foreground border-primary/20 shadow-sm"
-                          : "text-muted-foreground hover:bg-accent/50 border-transparent"
+                          ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
+                          : (theme === "black" ? "text-muted-foreground hover:bg-black border-transparent" : "text-muted-foreground hover:bg-accent/50 border-transparent")
                       )}
                     >
                       <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "")} />
@@ -320,7 +320,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                     onClick={() => setResourcesOpen(!resourcesOpen)}
                     className={cn(
                       "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
-                      "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
+                      theme === "black" ? "text-muted-foreground hover:bg-black hover:text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
                     )}
                   >
                     <div className="flex items-center gap-3">
@@ -346,8 +346,8 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                             className={cn(
                               "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
                               isActive
-                                ? "bg-accent text-accent-foreground border-primary/20 shadow-sm"
-                                : "text-muted-foreground hover:bg-accent/50 border-transparent"
+                                ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
+                                : (theme === "black" ? "text-muted-foreground hover:bg-black border-transparent" : "text-muted-foreground hover:bg-accent/50 border-transparent")
                             )}
                           >
                             <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "")} />
@@ -367,8 +367,8 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                   className={cn(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
                     location.pathname === "/company/settings"
-                      ? "bg-accent text-accent-foreground border-primary/20 shadow-sm"
-                      : "text-muted-foreground hover:bg-accent/50 border-transparent"
+                      ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
+                      : (theme === "black" ? "text-muted-foreground hover:bg-black border-transparent" : "text-muted-foreground hover:bg-accent/50 border-transparent")
                   )}
                 >
                   <Settings className={cn("h-4 w-4", location.pathname === "/company/settings" ? "text-primary" : "")} />

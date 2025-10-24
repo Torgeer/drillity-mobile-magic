@@ -88,11 +88,6 @@ const CompanyApplications = () => {
   return (
     <CompanyLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Applications</h1>
-          <p className="text-muted-foreground">Review and manage candidate applications</p>
-        </div>
-
         <div className="flex gap-4 border-b border-border pb-2">
           <button onClick={() => setActiveTab("all")} className={`px-4 py-2 text-sm font-medium ${activeTab === "all" ? "border-b-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground"}`}>
             All ({apps.length})

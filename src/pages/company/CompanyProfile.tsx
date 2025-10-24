@@ -260,13 +260,6 @@ const CompanyProfile = () => {
     return (
       <CompanyLayout>
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">Edit Company Profile</h1>
-              <p className="text-muted-foreground text-sm sm:text-base">Update your company information</p>
-            </div>
-          </div>
-
           <Card className="ad-card">
             <h3 className="text-lg sm:text-xl font-semibold mb-4">Company Logo</h3>
             <div className="flex flex-col items-center gap-4">
