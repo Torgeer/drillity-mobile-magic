@@ -213,8 +213,8 @@ All colors MUST be HSL.
     --popover: 0 0% 10%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 38 92% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 120 100% 50%;
+    --primary-foreground: 0 0% 0%;
 
     --secondary: 0 0% 14%;
     --secondary-foreground: 0 0% 98%;
@@ -231,21 +231,21 @@ All colors MUST be HSL.
     --success: 142 76% 36%;
     --success-foreground: 0 0% 98%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 98%;
+    --warning: 120 100% 50%;
+    --warning-foreground: 0 0% 0%;
 
     --border: 0 0% 14%;
     --input: 0 0% 14%;
-    --ring: 38 92% 50%;
+    --ring: 120 100% 50%;
 
     --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 38 92% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: 120 100% 50%;
+    --sidebar-primary-foreground: 0 0% 0%;
     --sidebar-accent: 0 0% 14%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 0 0% 14%;
-    --sidebar-ring: 38 92% 50%;
+    --sidebar-ring: 120 100% 50%;
     
     --container-bg: 0 0% 0%;
   }
@@ -314,7 +314,7 @@ All colors MUST be HSL.
 @layer components {
   .ad-card { padding: var(--ad-card-padding) !important; }
   
-  /* Custom Orange Scrollbar */
+  /* Custom Scrollbar */
   .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
     height: 4px;
@@ -325,18 +325,18 @@ All colors MUST be HSL.
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #f59e0b;
+    background: hsl(var(--primary));
     border-radius: 2px;
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #d97706;
+    background: hsl(var(--primary) / 0.8);
   }
   
   /* For Firefox */
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: #f59e0b transparent;
+    scrollbar-color: hsl(var(--primary)) transparent;
   }
 }
 
