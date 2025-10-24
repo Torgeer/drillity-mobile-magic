@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import drillityLogo from "@/assets/drillity-logo.png";
+import drillityLogoLight from "@/assets/drillity-logo-light.png";
+import drillityLogoDark from "@/assets/drillity-logo-dark.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 
@@ -40,7 +41,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       {/* Mobile header */}
       <div className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b border-sidebar-border bg-sidebar px-4 lg:hidden">
         <div className="flex items-center">
-          <img src={drillityLogo} alt="Drillity" className="h-8" />
+          <img src={theme === "light" ? drillityLogoLight : drillityLogoDark} alt="Drillity" className="h-8" />
         </div>
         <Button
           variant="ghost"
@@ -56,7 +57,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 bg-sidebar border-r border-sidebar-border lg:block">
         <div className="flex h-full flex-col">
           <div className="flex h-16 items-center border-b border-sidebar-border px-6">
-            <img src={drillityLogo} alt="Drillity" className="h-8" />
+            <img src={theme === "light" ? drillityLogoLight : drillityLogoDark} alt="Drillity" className="h-8" />
           </div>
 
           <nav className="flex-1 space-y-1 p-4">

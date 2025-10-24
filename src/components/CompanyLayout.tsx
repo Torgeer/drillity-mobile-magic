@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import drillityLogo from "@/assets/drillity-logo.png";
+import drillityLogoLight from "@/assets/drillity-logo-light.png";
+import drillityLogoDark from "@/assets/drillity-logo-dark.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -51,7 +52,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       {/* Mobile header */}
       <div className="fixed top-0 left-0 right-0 z-50 flex h-14 items-center justify-between border-b bg-background px-4 lg:hidden">
         <div className="flex items-center gap-2">
-          <img src={drillityLogo} alt="Drillity" className="h-6" />
+          <img src={theme === "light" ? drillityLogoLight : drillityLogoDark} alt="Drillity" className="h-8" />
         </div>
         <Button
           variant="ghost"
@@ -69,10 +70,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
           {/* Logo */}
           <div className="flex h-14 items-center border-b px-3">
             <Link to="/company/dashboard" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md border-2 border-foreground">
-                <span className="text-xs font-bold">D</span>
-              </div>
-              <span className="font-semibold">Drillity</span>
+              <img src={theme === "light" ? drillityLogoLight : drillityLogoDark} alt="Drillity" className="h-8" />
             </Link>
           </div>
 
