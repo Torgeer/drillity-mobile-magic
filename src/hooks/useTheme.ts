@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export type Theme = "dark" | "gray" | "light";
+export type Theme = "dark" | "gray" | "light" | "black";
 
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => {
@@ -10,7 +10,7 @@ export function useTheme() {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove("dark", "gray", "light");
+    root.classList.remove("dark", "gray", "light", "black");
     root.classList.add(theme);
     localStorage.setItem("drillity-theme", theme);
   }, [theme]);

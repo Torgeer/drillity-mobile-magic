@@ -29,7 +29,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
   };
 
   const cycleTheme = () => {
-    const themes = ["dark", "gray", "light"] as const;
+    const themes = ["dark", "gray", "light", "black"] as const;
     const currentIndex = themes.indexOf(theme);
     const nextIndex = (currentIndex + 1) % themes.length;
     setTheme(themes[nextIndex]);
