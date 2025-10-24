@@ -53,7 +53,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <div className={cn("flex min-h-screen", theme === "light" ? "bg-gradient-to-br from-black/15 via-black/8 to-[hsl(0,0%,90%)]/15" : theme === "black" ? "bg-gradient-to-br from-black via-[hsl(0,0%,3%)] to-black" : "bg-background")}>
+    <div className={cn("flex min-h-screen", theme === "light" ? "bg-gradient-to-br from-black/15 via-black/8 to-[hsl(0,0%,90%)]/15" : theme === "black" ? "bg-gradient-to-br from-black/20 via-[hsl(120,100%,50%)]/5 to-black/20" : "bg-background")}>
       {/* Mobile header */}
       <div className="fixed top-0 left-0 right-0 z-50 flex h-14 items-center justify-between border-b bg-background px-4 lg:hidden">
         <div className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       </div>
 
       {/* Sidebar - Desktop */}
-      <aside className={cn("fixed inset-y-0 left-0 z-40 hidden w-[240px] border-r lg:block", theme === "light" ? "bg-white/50 backdrop-blur-sm" : theme === "black" ? "bg-sidebar-background/40 backdrop-blur-sm" : "bg-sidebar-background")}>
+      <aside className={cn("fixed inset-y-0 left-0 z-40 hidden w-[240px] border-r lg:block", theme === "light" ? "bg-white/50 backdrop-blur-sm" : theme === "black" ? "bg-gradient-to-b from-black/20 via-[hsl(120,100%,50%)]/5 to-black/20 backdrop-blur-sm" : "bg-sidebar-background")}>
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-14 items-center border-b px-3">
@@ -240,7 +240,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-          <aside className={cn("fixed top-14 left-0 right-0 border-b shadow-lg", theme === "light" ? "bg-white/50 backdrop-blur-sm" : theme === "black" ? "bg-sidebar-background/40 backdrop-blur-sm" : "bg-sidebar-background")}>
+          <aside className={cn("fixed top-14 left-0 right-0 border-b shadow-lg", theme === "light" ? "bg-white/50 backdrop-blur-sm" : theme === "black" ? "bg-gradient-to-b from-black/20 via-[hsl(120,100%,50%)]/5 to-black/20 backdrop-blur-sm" : "bg-sidebar-background")}>
             <div className="flex flex-col max-h-[calc(100vh-3.5rem)]">
               <nav className="flex-1 space-y-1 px-3 py-2">
                 {/* Dashboard with Collapsible Submenu */}
