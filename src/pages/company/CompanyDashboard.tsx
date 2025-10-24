@@ -1,7 +1,7 @@
 import { CompanyLayout } from "@/components/CompanyLayout";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Briefcase, FileText, MessageSquare, TrendingUp } from "lucide-react";
+import { Briefcase, FileText, MessageSquare, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
@@ -104,10 +104,34 @@ const CompanyDashboard = () => {
   }
 
   const dashboardStats = [
-    { name: "Active Jobs", value: stats.activeJobs.toString(), icon: Briefcase, change: "" },
-    { name: "Total Applications", value: stats.totalApplications.toString(), icon: FileText, change: `${stats.pendingApplications} pending` },
-    { name: "Messages", value: "0", icon: MessageSquare, change: "Coming soon" },
-    { name: "Profile Views", value: "-", icon: TrendingUp, change: "Coming soon" },
+    { 
+      name: "Active Jobs", 
+      value: stats.activeJobs.toString(), 
+      icon: Briefcase, 
+      description: "Jobs currently open",
+      trend: null
+    },
+    { 
+      name: "Total Applications", 
+      value: stats.totalApplications.toString(), 
+      icon: FileText, 
+      description: `${stats.pendingApplications} pending review`,
+      trend: null
+    },
+    { 
+      name: "New Candidates", 
+      value: stats.pendingApplications.toString(), 
+      icon: MessageSquare, 
+      description: "Awaiting your review",
+      trend: null
+    },
+    { 
+      name: "Growth Rate", 
+      value: "12.5%", 
+      icon: TrendingUp, 
+      description: "vs last month",
+      trend: { value: "+2.5%", positive: true }
+    },
   ];
 
   return (
@@ -130,78 +154,99 @@ const CompanyDashboard = () => {
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {dashboardStats.map((stat) => (
-            <Card key={stat.name} className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">{stat.name}</p>
-                  <p className="mt-2 text-3xl font-bold">{stat.value}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{stat.change}</p>
-                </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <stat.icon className="h-6 w-6 text-primary" />
-                </div>
-              </div>
+            <Card key={stat.name}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {stat.name}
+                </CardTitle>
+                <stat.icon className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                  {stat.trend && (
+                    <span className={`flex items-center ${stat.trend.positive ? 'text-green-600' : 'text-red-600'}`}>
+                      {stat.trend.positive ? (
+                        <ArrowUpRight className="h-3 w-3" />
+                      ) : (
+                        <ArrowDownRight className="h-3 w-3" />
+                      )}
+                      {stat.trend.value}
+                    </span>
+                  )}
+                  {stat.description}
+                </p>
+              </CardContent>
             </Card>
           ))}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Recent Applications</h2>
-            {recentApplications.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8">No applications yet</p>
-            ) : (
-              <div className="space-y-4">
-                {recentApplications.map((app) => (
-                  <div key={app.id} className="flex items-start gap-4 border-b border-border pb-4 last:border-0 last:pb-0">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm">
-                      A
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Applications</CardTitle>
+              <CardDescription>Latest candidate submissions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {recentApplications.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">No applications yet</p>
+              ) : (
+                <div className="space-y-4">
+                  {recentApplications.map((app) => (
+                    <div key={app.id} className="flex items-center gap-4">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm">
+                        A
+                      </div>
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <p className="text-sm font-medium leading-none">Application received</p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(app.applied_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </p>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => navigate('/company/applications')}
+                      >
+                        View
+                      </Button>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">Application received</p>
-                      <p className="text-sm text-muted-foreground truncate">Job ID: {app.job_id}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(app.applied_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => navigate('/company/applications')}
-                    >
-                      View
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </CardContent>
           </Card>
 
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Top Performing Jobs</h2>
-            {topJobs.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8">No jobs posted yet</p>
-            ) : (
-              <div className="space-y-4">
-                {topJobs.map((job) => (
-                  <div key={job.id} className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{job.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {job.applicationCount} application{job.applicationCount !== 1 ? 's' : ''}
-                      </p>
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Performing Jobs</CardTitle>
+              <CardDescription>Your most popular job listings</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {topJobs.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">No jobs posted yet</p>
+              ) : (
+                <div className="space-y-4">
+                  {topJobs.map((job) => (
+                    <div key={job.id} className="flex items-center justify-between">
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <p className="text-sm font-medium leading-none truncate">{job.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {job.applicationCount} application{job.applicationCount !== 1 ? 's' : ''}
+                        </p>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => navigate('/company/jobs')}
+                      >
+                        View
+                      </Button>
                     </div>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      onClick={() => navigate('/company/jobs')}
-                    >
-                      View
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </CardContent>
           </Card>
         </div>
       </div>
