@@ -177,8 +177,8 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       )}
 
-      <main className="flex-1 pt-16 lg:pl-64 lg:pt-0 overflow-x-hidden w-full">
-        <div className="mx-auto max-w-7xl p-4 md:p-6 w-full">
+      <main className="flex-1 pt-16 lg:pl-64 lg:pt-0 w-full flex justify-center">
+        <div className="w-full max-w-7xl p-4 md:p-6">
           {children}
           <Outlet />
         </div>
