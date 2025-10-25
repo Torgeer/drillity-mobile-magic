@@ -108,6 +108,39 @@ export type Database = {
         }
         Relationships: []
       }
+      company_news: {
+        Row: {
+          company_id: string
+          content: string
+          created_at: string
+          id: string
+          image_url: string | null
+          published: boolean | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          content: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          published?: boolean | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          published?: boolean | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       company_profiles: {
         Row: {
           address: string | null
