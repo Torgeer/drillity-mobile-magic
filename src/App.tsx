@@ -29,6 +29,8 @@ import CompanyContracts from "./pages/company/CompanyContracts";
 import BrowseContracts from "./pages/company/BrowseContracts";
 import News from "./pages/News";
 import NotFound from "./pages/NotFound";
+import { CompanyLayout } from "./components/CompanyLayout";
+import { Layout } from "./components/Layout";
 
 const queryClient = new QueryClient();
 
@@ -44,29 +46,33 @@ const App = () => (
           <Route path="/install" element={<Install />} />
           
           {/* Talent Routes */}
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/jobs" element={<Jobs />} />
-          <Route path="/applications" element={<Applications />} />
-          <Route path="/news" element={<News />} />
-          <Route path="/messages" element={<Messages />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route element={<Layout><div /></Layout>}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/jobs" element={<Jobs />} />
+            <Route path="/applications" element={<Applications />} />
+            <Route path="/news" element={<News />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
           
           {/* Company Routes */}
-          <Route path="/company/dashboard" element={<CompanyDashboard />} />
-          <Route path="/company/jobs" element={<CompanyJobs />} />
-          <Route path="/company/jobs/new" element={<PostJob />} />
-          <Route path="/company/jobs/import" element={<CompanyJobImport />} />
-          <Route path="/company/applications" element={<CompanyApplications />} />
-          <Route path="/company/talents" element={<BrowseTalent />} />
-          <Route path="/company/team" element={<CompanyTeam />} />
-          <Route path="/company/messages" element={<CompanyMessages />} />
-          <Route path="/company/profile" element={<CompanyProfileEnhanced />} />
-          <Route path="/company/subscription" element={<CompanySubscription />} />
-          <Route path="/company/news" element={<CompanyNews />} />
-          <Route path="/company/contracts" element={<CompanyContracts />} />
-          <Route path="/company/browse-contracts" element={<BrowseContracts />} />
-          <Route path="/company/settings" element={<CompanySettings />} />
+          <Route element={<CompanyLayout><div /></CompanyLayout>}>
+            <Route path="/company/dashboard" element={<CompanyDashboard />} />
+            <Route path="/company/jobs" element={<CompanyJobs />} />
+            <Route path="/company/jobs/new" element={<PostJob />} />
+            <Route path="/company/jobs/import" element={<CompanyJobImport />} />
+            <Route path="/company/applications" element={<CompanyApplications />} />
+            <Route path="/company/talents" element={<BrowseTalent />} />
+            <Route path="/company/team" element={<CompanyTeam />} />
+            <Route path="/company/messages" element={<CompanyMessages />} />
+            <Route path="/company/profile" element={<CompanyProfileEnhanced />} />
+            <Route path="/company/subscription" element={<CompanySubscription />} />
+            <Route path="/company/news" element={<CompanyNews />} />
+            <Route path="/company/contracts" element={<CompanyContracts />} />
+            <Route path="/company/browse-contracts" element={<BrowseContracts />} />
+            <Route path="/company/settings" element={<CompanySettings />} />
+          </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

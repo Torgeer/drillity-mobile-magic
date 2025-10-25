@@ -1,5 +1,5 @@
 import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch, Upload, Users, LogOut, CreditCard, Newspaper, Search } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -178,7 +178,10 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       )}
 
       <main className="flex-1 pt-16 lg:pl-64 lg:pt-0 overflow-x-hidden w-full">
-        <div className="mx-auto max-w-7xl p-4 md:p-6 w-full">{children}</div>
+        <div className="mx-auto max-w-7xl p-4 md:p-6 w-full">
+          {children}
+          <Outlet />
+        </div>
       </main>
     </div>
   );
