@@ -294,6 +294,81 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_responses: {
+        Row: {
+          company_id: string
+          contract_id: string
+          created_at: string
+          id: string
+          message: string
+          price_offer: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          contract_id: string
+          created_at?: string
+          id?: string
+          message: string
+          price_offer?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          contract_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          price_offer?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contracts: {
+        Row: {
+          budget_range: string | null
+          company_id: string
+          created_at: string
+          description: string
+          duration: string | null
+          equipment_needed: string | null
+          id: string
+          location: string
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          budget_range?: string | null
+          company_id: string
+          created_at?: string
+          description: string
+          duration?: string | null
+          equipment_needed?: string | null
+          id?: string
+          location: string
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          budget_range?: string | null
+          company_id?: string
+          created_at?: string
+          description?: string
+          duration?: string | null
+          equipment_needed?: string | null
+          id?: string
+          location?: string
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       jobs: {
         Row: {
           certifications: string[] | null

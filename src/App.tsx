@@ -25,6 +25,8 @@ import CompanyProfile from "./pages/company/CompanyProfile";
 import CompanyProfileEnhanced from "./pages/company/CompanyProfileEnhanced";
 import CompanySubscription from "./pages/company/CompanySubscription";
 import CompanyNews from "./pages/company/CompanyNews";
+import CompanyContracts from "./pages/company/CompanyContracts";
+import BrowseContracts from "./pages/company/BrowseContracts";
 import News from "./pages/News";
 import NotFound from "./pages/NotFound";
 
@@ -62,6 +64,8 @@ const App = () => (
           <Route path="/company/profile" element={<CompanyProfileEnhanced />} />
           <Route path="/company/subscription" element={<CompanySubscription />} />
           <Route path="/company/news" element={<CompanyNews />} />
+          <Route path="/company/contracts" element={<CompanyContracts />} />
+          <Route path="/company/browse-contracts" element={<BrowseContracts />} />
           <Route path="/company/settings" element={<CompanySettings />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
