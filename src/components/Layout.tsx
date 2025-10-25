@@ -60,7 +60,6 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           <img src={drillityLogo} alt="Drillity" className="h-8" />
         </div>
         <div className="flex items-center gap-2">
-          <ThemeSwitcher />
           <Button
             variant="ghost"
             size="icon"
@@ -75,14 +74,14 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       {/* Sidebar - Desktop */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 bg-sidebar border-r border-sidebar-border lg:block">
         <div className="flex h-full flex-col">
-          <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-6">
+          <div className="flex h-16 items-center justify-center border-b border-sidebar-border px-6">
             <img src={drillityLogo} alt="Drillity" className="h-8" />
-            <ThemeSwitcher />
           </div>
 
           <nav className="flex-1 space-y-1 p-4">
-            <div className="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-primary">
-              Talent
+            <div className="mb-2 flex items-center justify-between px-3">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary">Talent</span>
+              <ThemeSwitcher />
             </div>
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;
@@ -128,8 +127,9 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           <aside className="fixed top-16 left-0 right-0 bg-sidebar border-b border-sidebar-border animate-slide-in-top shadow-lg">
             <div className="flex flex-col max-h-[calc(100vh-4rem)] overflow-y-auto">
               <nav className="flex-1 space-y-1 p-4">
-                <div className="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-primary">
-                  Talent
+                <div className="mb-2 flex items-center justify-between px-3">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-primary">Talent</span>
+                  <ThemeSwitcher />
                 </div>
                 {navigation.map((item) => {
                   const isActive = location.pathname === item.href;
@@ -171,8 +171,8 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         </div>
       )}
 
-      <main className="flex-1 pt-16 lg:pl-64 lg:pt-0 w-full flex justify-center">
-        <div className="w-full max-w-7xl p-4 md:p-6">
+      <main className="flex-1 pt-16 lg:pl-64 lg:pt-0 w-full">
+        <div className="w-full max-w-7xl mx-auto p-6 md:p-8">
           {children}
           <Outlet />
         </div>
