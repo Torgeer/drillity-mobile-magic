@@ -111,8 +111,8 @@ const CompanyTeam = () => {
 
       if (!invitedProfile) {
         toast({
-          title: "Användare hittades inte",
-          description: "Användaren måste först skapa ett konto på Drillity",
+          title: "User not found",
+          description: "The user must first create an account on Drillity",
           variant: "destructive",
         });
         return;
@@ -188,7 +188,7 @@ const CompanyTeam = () => {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Team</h1>
-          <p className="text-muted-foreground">Hantera användare som har tillgång till företagskontot</p>
+          <p className="text-muted-foreground">Manage users who have access to the company account</p>
         </div>
 
         <Card className="p-6">
@@ -200,12 +200,12 @@ const CompanyTeam = () => {
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <Label>E-postadress</Label>
+                <Label>Email Address</Label>
                 <Input
                   type="email"
                   value={newMemberEmail}
                   onChange={(e) => setNewMemberEmail(e.target.value)}
-                  placeholder="medlem@exempel.se"
+                  placeholder="member@example.com"
                 />
               </div>
 
@@ -216,10 +216,10 @@ const CompanyTeam = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="member">Member - Visa jobb</SelectItem>
-                    <SelectItem value="recruiter">Recruiter - Hantera ansökningar</SelectItem>
-                    <SelectItem value="manager">Manager - Skapa/redigera jobb</SelectItem>
-                    <SelectItem value="admin">Admin - Full åtkomst</SelectItem>
+                    <SelectItem value="member">Member - View jobs</SelectItem>
+                    <SelectItem value="recruiter">Recruiter - Manage applications</SelectItem>
+                    <SelectItem value="manager">Manager - Create/edit jobs</SelectItem>
+                    <SelectItem value="admin">Admin - Full access</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -276,12 +276,12 @@ const CompanyTeam = () => {
         </Card>
 
         <Card className="p-6 bg-muted/50">
-          <h3 className="font-semibold mb-2">Om roller</h3>
+          <h3 className="font-semibold mb-2">About Roles</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><strong>Member:</strong> Kan endast se jobb och statistik</li>
-            <li><strong>Recruiter:</strong> Kan hantera ansökningar och kontakta kandidater</li>
-            <li><strong>Manager:</strong> Kan skapa, redigera och ta bort jobb</li>
-            <li><strong>Admin:</strong> Full åtkomst inkl. företagsinställningar och teamhantering</li>
+            <li><strong>Member:</strong> Can only view jobs and statistics</li>
+            <li><strong>Recruiter:</strong> Can manage applications and contact candidates</li>
+            <li><strong>Manager:</strong> Can create, edit and delete jobs</li>
+            <li><strong>Admin:</strong> Full access including company settings and team management</li>
           </ul>
         </Card>
       </div>

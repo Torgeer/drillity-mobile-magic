@@ -1,4 +1,4 @@
-import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch, Upload, Users, LogOut } from "lucide-react";
+import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch, Upload, Users, LogOut, CreditCard } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -15,6 +15,7 @@ const navigation = [
   { name: "Team", href: "/company/team", icon: Users },
   { name: "Messages", href: "/company/messages", icon: MessageSquare },
   { name: "Company Profile", href: "/company/profile", icon: User },
+  { name: "Subscription", href: "/company/subscription", icon: CreditCard },
   { name: "Settings", href: "/company/settings", icon: Settings },
 ];
 

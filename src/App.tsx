@@ -22,6 +22,8 @@ import CompanyTeam from "./pages/company/CompanyTeam";
 import CompanySettings from "./pages/company/CompanySettings";
 import CompanyMessages from "./pages/company/CompanyMessages";
 import CompanyProfile from "./pages/company/CompanyProfile";
+import CompanyProfileEnhanced from "./pages/company/CompanyProfileEnhanced";
+import CompanySubscription from "./pages/company/CompanySubscription";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,7 +56,8 @@ const App = () => (
           <Route path="/company/talents" element={<BrowseTalent />} />
           <Route path="/company/team" element={<CompanyTeam />} />
           <Route path="/company/messages" element={<CompanyMessages />} />
-          <Route path="/company/profile" element={<CompanyProfile />} />
+          <Route path="/company/profile" element={<CompanyProfileEnhanced />} />
+          <Route path="/company/subscription" element={<CompanySubscription />} />
           <Route path="/company/settings" element={<CompanySettings />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

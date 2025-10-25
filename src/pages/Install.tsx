@@ -11,9 +11,9 @@ export default function Install() {
           <div className="flex justify-center">
             <img src={drillityLogo} alt="Drillity" className="h-16" />
           </div>
-          <CardTitle className="text-2xl sm:text-3xl">Installera Drillity på din telefon</CardTitle>
+          <CardTitle className="text-2xl sm:text-3xl">Install Drillity on your phone</CardTitle>
           <CardDescription className="text-base">
-            Installera appen för bästa upplevelse - fungerar offline och laddas snabbare!
+            Install the app for the best experience - works offline and loads faster!
           </CardDescription>
         </CardHeader>
 
@@ -38,12 +38,12 @@ export default function Install() {
               <li className="flex items-start gap-3">
                 <span className="font-semibold text-foreground min-w-[1.5rem]">3.</span>
                 <span className="flex items-center gap-2">
-                  Scrolla ner och välj <Plus className="h-4 w-4 inline text-primary" /> "Lägg till på hemskärmen"
+                  Scroll down and select <Plus className="h-4 w-4 inline text-primary" /> "Add to Home Screen"
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="font-semibold text-foreground min-w-[1.5rem]">4.</span>
-                <span>Tryck på "Lägg till" för att bekräfta</span>
+                <span>Tap "Add" to confirm</span>
               </li>
             </ol>
           </div>
@@ -62,16 +62,16 @@ export default function Install() {
               <li className="flex items-start gap-3">
                 <span className="font-semibold text-foreground min-w-[1.5rem]">2.</span>
                 <span className="flex items-center gap-2">
-                  Tryck på <MoreVertical className="h-4 w-4 inline text-primary" /> meny-knappen uppe till höger
+                  Tap the <MoreVertical className="h-4 w-4 inline text-primary" /> menu button in the top right
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="font-semibold text-foreground min-w-[1.5rem]">3.</span>
-                <span>Välj "Installera app" eller "Lägg till på startskärmen"</span>
+                <span>Select "Install app" or "Add to home screen"</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="font-semibold text-foreground min-w-[1.5rem]">4.</span>
-                <span>Tryck på "Installera" för att bekräfta</span>
+                <span>Tap "Install" to confirm</span>
               </li>
             </ol>
           </div>
