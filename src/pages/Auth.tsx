@@ -68,12 +68,7 @@ const Auth = () => {
           toast.error(error.message);
         } else {
           toast.success("Account created successfully!");
-          // Direct new companies to onboarding, talents to dashboard
-          if (userType === 'company') {
-            navigate("/company/onboarding");
-          } else {
-            navigate("/dashboard");
-          }
+          navigate("/dashboard");
         }
       }
     } catch (error: any) {
@@ -90,7 +85,7 @@ const Auth = () => {
           <img src={drillityLogo} alt="Drillity" className="h-12" />
         </div>
 
-        <Card className="p-6 sm:p-8">
+        <Card className="p-8">
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold">{isLogin ? "Welcome Back" : "Get Started"}</h1>
             <p className="text-sm text-muted-foreground">

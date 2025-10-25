@@ -72,111 +72,48 @@ export type Database = {
           },
         ]
       }
-      company_contacts: {
-        Row: {
-          avatar_url: string | null
-          company_id: string
-          created_at: string
-          email: string | null
-          full_name: string
-          id: string
-          phone: string | null
-          role: string | null
-          updated_at: string
-        }
-        Insert: {
-          avatar_url?: string | null
-          company_id: string
-          created_at?: string
-          email?: string | null
-          full_name: string
-          id?: string
-          phone?: string | null
-          role?: string | null
-          updated_at?: string
-        }
-        Update: {
-          avatar_url?: string | null
-          company_id?: string
-          created_at?: string
-          email?: string | null
-          full_name?: string
-          id?: string
-          phone?: string | null
-          role?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
       company_profiles: {
         Row: {
-          address: string | null
           company_name: string
           company_size: string | null
-          contact_email: string | null
-          contact_phone: string | null
           created_at: string
           description: string | null
-          foundation_sector: boolean | null
           id: string
           industry: string | null
-          infrastructure_sector: boolean | null
           latitude: number | null
           location: string | null
           logo_url: string | null
           longitude: number | null
-          mining_sector: boolean | null
-          offshore_sector: boolean | null
-          onboarding_completed: boolean | null
-          prospecting_sector: boolean | null
           updated_at: string
           user_id: string
           website: string | null
         }
         Insert: {
-          address?: string | null
           company_name: string
           company_size?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
           created_at?: string
           description?: string | null
-          foundation_sector?: boolean | null
           id?: string
           industry?: string | null
-          infrastructure_sector?: boolean | null
           latitude?: number | null
           location?: string | null
           logo_url?: string | null
           longitude?: number | null
-          mining_sector?: boolean | null
-          offshore_sector?: boolean | null
-          onboarding_completed?: boolean | null
-          prospecting_sector?: boolean | null
           updated_at?: string
           user_id: string
           website?: string | null
         }
         Update: {
-          address?: string | null
           company_name?: string
           company_size?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
           created_at?: string
           description?: string | null
-          foundation_sector?: boolean | null
           id?: string
           industry?: string | null
-          infrastructure_sector?: boolean | null
           latitude?: number | null
           location?: string | null
           logo_url?: string | null
           longitude?: number | null
-          mining_sector?: boolean | null
-          offshore_sector?: boolean | null
-          onboarding_completed?: boolean | null
-          prospecting_sector?: boolean | null
           updated_at?: string
           user_id?: string
           website?: string | null
@@ -311,106 +248,46 @@ export type Database = {
         }
         Relationships: []
       }
-      profile_views: {
-        Row: {
-          company_id: string
-          id: string
-          talent_id: string
-          viewed_at: string
-        }
-        Insert: {
-          company_id: string
-          id?: string
-          talent_id: string
-          viewed_at?: string
-        }
-        Update: {
-          company_id?: string
-          id?: string
-          talent_id?: string
-          viewed_at?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
-          availability_status: string | null
           avatar_url: string | null
           bio: string | null
           created_at: string
-          drilling_experience: boolean | null
           email: string
-          experience_years: number | null
-          facebook_url: string | null
-          foundation_experience: boolean | null
           full_name: string | null
-          has_passport: boolean | null
           id: string
-          instagram_url: string | null
           latitude: number | null
-          linkedin_url: string | null
           location: string | null
           longitude: number | null
-          mining_experience: boolean | null
-          offshore_experience: boolean | null
-          passport_number: string | null
           phone: string | null
-          preferred_work_type: string[] | null
-          prospecting_experience: boolean | null
           updated_at: string
           user_type: Database["public"]["Enums"]["user_type"]
         }
         Insert: {
-          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
-          drilling_experience?: boolean | null
           email: string
-          experience_years?: number | null
-          facebook_url?: string | null
-          foundation_experience?: boolean | null
           full_name?: string | null
-          has_passport?: boolean | null
           id: string
-          instagram_url?: string | null
           latitude?: number | null
-          linkedin_url?: string | null
           location?: string | null
           longitude?: number | null
-          mining_experience?: boolean | null
-          offshore_experience?: boolean | null
-          passport_number?: string | null
           phone?: string | null
-          preferred_work_type?: string[] | null
-          prospecting_experience?: boolean | null
           updated_at?: string
           user_type?: Database["public"]["Enums"]["user_type"]
         }
         Update: {
-          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
-          drilling_experience?: boolean | null
           email?: string
-          experience_years?: number | null
-          facebook_url?: string | null
-          foundation_experience?: boolean | null
           full_name?: string | null
-          has_passport?: boolean | null
           id?: string
-          instagram_url?: string | null
           latitude?: number | null
-          linkedin_url?: string | null
           location?: string | null
           longitude?: number | null
-          mining_experience?: boolean | null
-          offshore_experience?: boolean | null
-          passport_number?: string | null
           phone?: string | null
-          preferred_work_type?: string[] | null
-          prospecting_experience?: boolean | null
           updated_at?: string
           user_type?: Database["public"]["Enums"]["user_type"]
         }

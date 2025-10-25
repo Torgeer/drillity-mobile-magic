@@ -47,7 +47,7 @@ const Messages = () => {
             id: Date.now(),
             sender: "Other",
             text: payload.new.content,
-            time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+            time: new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }),
             isSent: false
           };
           setMessages(prev => [...prev, newMsg]);
@@ -67,7 +67,7 @@ const Messages = () => {
       id: Date.now(),
       sender: "You",
       text: newMessage,
-      time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }),
       isSent: true
     };
     

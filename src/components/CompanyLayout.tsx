@@ -1,38 +1,27 @@
-import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch, Upload, Users, LogOut, Search, Lightbulb, MoreHorizontal, Plus, ChevronDown, ChevronRight } from "lucide-react";
+import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch, Upload, Users, LogOut } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import drillityLogoLight from "@/assets/drillity-logo-light.png";
-import drillityLogoDark from "@/assets/drillity-logo-dark.png";
+import drillityLogo from "@/assets/drillity-logo.png";
 import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/hooks/useTheme";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-const mainNavigation = [
+const navigation = [
+  { name: "Dashboard", href: "/company/dashboard", icon: Home },
   { name: "My Jobs", href: "/company/jobs", icon: Briefcase },
-  { name: "Applications", href: "/company/applications", icon: FileText },
-  { name: "Messages", href: "/company/messages", icon: MessageSquare },
-];
-
-const dashboardSubItems = [
-  { name: "Post Job", href: "/company/jobs/new", icon: Plus },
   { name: "Import Jobs", href: "/company/jobs/import", icon: Upload },
-];
-
-const resourcesSubItems = [
+  { name: "Applications", href: "/company/applications", icon: FileText },
   { name: "Browse Talent", href: "/company/talents", icon: UserSearch },
-  { name: "Company Profile", href: "/company/profile", icon: User },
   { name: "Team", href: "/company/team", icon: Users },
+  { name: "Messages", href: "/company/messages", icon: MessageSquare },
+  { name: "Company Profile", href: "/company/profile", icon: User },
+  { name: "Settings", href: "/company/settings", icon: Settings },
 ];
 
 export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [dashboardOpen, setDashboardOpen] = useState(true);
-  const [resourcesOpen, setResourcesOpen] = useState(false);
-  const { signOut, user } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -40,24 +29,12 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
     navigate("/auth");
   };
 
-  const cycleTheme = () => {
-    const themes = ["light", "black"] as const;
-    const currentIndex = themes.indexOf(theme);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    setTheme(themes[nextIndex]);
-  };
-
-  const getUserInitials = () => {
-    if (!user?.email) return "U";
-    return user.email.charAt(0).toUpperCase();
-  };
-
   return (
-    <div className={cn("flex min-h-screen", theme === "light" ? "bg-gradient-to-br from-black/15 via-black/8 to-[hsl(0,0%,90%)]/15" : theme === "black" ? "bg-gradient-to-br from-black/20 via-[hsl(19,100%,49%)]/5 to-black/20" : "bg-background")}>
+    <div className="flex min-h-screen bg-background">
       {/* Mobile header */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex h-14 items-center justify-between border-b bg-background px-4 lg:hidden">
-        <div className="flex items-center gap-2">
-          <img src={theme === "light" ? drillityLogoDark : drillityLogoLight} alt="Drillity" className="h-8" />
+      <div className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b border-sidebar-border bg-sidebar px-4 lg:hidden">
+        <div className="flex items-center">
+          <img src={drillityLogo} alt="Drillity" className="h-8" />
         </div>
         <Button
           variant="ghost"
@@ -65,172 +42,48 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="lg:hidden"
         >
-          {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </Button>
       </div>
 
       {/* Sidebar - Desktop */}
-      <aside className={cn("fixed inset-y-0 left-0 z-40 hidden w-[240px] border-r lg:block", theme === "light" ? "bg-white/50 backdrop-blur-sm" : theme === "black" ? "bg-gradient-to-b from-black/90 via-black/80 to-black/90 backdrop-blur-sm" : "bg-sidebar-background")}>
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 bg-sidebar border-r border-sidebar-border lg:block">
         <div className="flex h-full flex-col">
-          {/* Logo */}
-          <div className="flex h-14 items-center justify-center border-b px-3">
-            <Link to="/company/dashboard" className="flex items-center gap-2">
-              <img src={theme === "light" ? drillityLogoDark : drillityLogoLight} alt="Drillity" className="h-8" />
-            </Link>
+          <div className="flex h-16 items-center border-b border-sidebar-border px-6">
+            <img src={drillityLogo} alt="Drillity" className="h-8" />
           </div>
 
-          {/* Main Navigation */}
-          <nav className="flex-1 space-y-1 px-3 py-2">
-            {/* Dashboard with Collapsible Submenu */}
-            <div className="space-y-1">
-              <button
-                onClick={() => {
-                  setDashboardOpen(!dashboardOpen);
-                  navigate('/company/dashboard');
-                }}
-                className={cn(
-                  "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
-                  location.pathname === "/company/dashboard"
-                    ? (theme === "black" ? "bg-black/80 text-accent-foreground border-primary/50" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
-                    : (theme === "black" ? "text-muted-foreground hover:bg-black hover:text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent")
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <Home className={cn("h-4 w-4", location.pathname === "/company/dashboard" ? "text-primary" : "")} />
-                  Dashboard
-                </div>
-                {dashboardOpen && location.pathname === "/company/dashboard" ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </button>
-              
-              {dashboardOpen && (
-                <div className="ml-6 space-y-1 animate-accordion-down">
-                  {dashboardSubItems.map((item) => {
-                    const isActive = location.pathname === item.href;
-                    return (
-                      <Link
-                        key={item.name}
-                        to={item.href}
-                        className={cn(
-                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
-                          isActive
-                            ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
-                            : (theme === "black" ? "text-muted-foreground hover:bg-black hover:text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent")
-                        )}
-                      >
-                        <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "")} />
-                        {item.name}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
+          <nav className="flex-1 space-y-1 p-4">
+            <div className="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-primary">
+              Company
             </div>
-
-            {mainNavigation.map((item) => {
+            {navigation.map((item) => {
               const isActive = location.pathname === item.href;
               return (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                     isActive
-                      ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
-                      : (theme === "black" ? "text-muted-foreground hover:bg-black hover:text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent")
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/50"
                   )}
                 >
-                  <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "")} />
+                  <item.icon className="h-5 w-5" />
                   {item.name}
                 </Link>
               );
             })}
-
-            {/* Resources Collapsible Section */}
-            <div className="pt-4 space-y-1">
-              <button
-                onClick={() => setResourcesOpen(!resourcesOpen)}
-                className={cn(
-                  "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
-                  theme === "black" ? "text-muted-foreground hover:bg-black hover:text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <Users className="h-4 w-4" />
-                  Resources
-                </div>
-                {resourcesOpen ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </button>
-              
-              {resourcesOpen && (
-                <div className="ml-6 space-y-1 animate-accordion-down">
-                  {resourcesSubItems.map((item) => {
-                    const isActive = location.pathname === item.href;
-                    return (
-                      <Link
-                        key={item.name}
-                        to={item.href}
-                        className={cn(
-                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
-                          isActive
-                            ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
-                            : (theme === "black" ? "text-muted-foreground hover:bg-black hover:text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent")
-                        )}
-                      >
-                        <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "")} />
-                        {item.name}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
           </nav>
 
-          {/* Bottom Actions */}
-          <div className="border-t p-3 space-y-1">
-            <Link
-              to="/company/settings"
-              className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
-                location.pathname === "/company/settings"
-                  ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
-                  : (theme === "black" ? "text-muted-foreground hover:bg-black hover:text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent")
-              )}
-            >
-              <Settings className={cn("h-4 w-4", location.pathname === "/company/settings" ? "text-primary" : "")} />
-              Settings
-            </Link>
-            <button
-              onClick={cycleTheme}
-              className={cn("flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors border border-transparent hover:border-primary/20", theme === "black" ? "hover:bg-black hover:text-accent-foreground" : "hover:bg-accent/50 hover:text-accent-foreground")}
-            >
-              <Lightbulb className="h-4 w-4" />
-              Theme: {theme}
-            </button>
-          </div>
-
-          {/* User Profile */}
-          <div className="border-t p-3">
+          <div className="p-4 border-t border-sidebar-border">
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors hover:bg-accent"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
             >
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="text-xs bg-[#f59e0b] text-white">{getUserInitials()}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col items-start flex-1 min-w-0">
-                <span className="text-sm font-medium truncate w-full">{user?.email?.split('@')[0] || "User"}</span>
-                <span className="text-xs text-muted-foreground truncate w-full">{user?.email || ""}</span>
-              </div>
-              <LogOut className="h-4 w-4 text-muted-foreground" />
+              <LogOut className="h-5 w-5" />
+              Log Out
             </button>
           </div>
         </div>
@@ -240,61 +93,13 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-          <aside className={cn("fixed top-14 left-0 right-0 border-b shadow-lg", theme === "light" ? "bg-white/50 backdrop-blur-sm" : theme === "black" ? "bg-gradient-to-b from-black/90 via-black/80 to-black/90 backdrop-blur-sm" : "bg-sidebar-background")}>
-            <div className="flex flex-col max-h-[calc(100vh-3.5rem)]">
-              <nav className="flex-1 space-y-1 px-3 py-2">
-                {/* Dashboard with Collapsible Submenu */}
-                <div className="space-y-1">
-                  <button
-                    onClick={() => {
-                      setDashboardOpen(!dashboardOpen);
-                      navigate('/company/dashboard');
-                      setMobileMenuOpen(false);
-                    }}
-                    className={cn(
-                      "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
-                      location.pathname === "/company/dashboard"
-                        ? (theme === "black" ? "bg-black/80 text-accent-foreground border-primary/50" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
-                        : (theme === "black" ? "text-muted-foreground hover:bg-black border-transparent" : "text-muted-foreground hover:bg-accent/50 border-transparent")
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Home className={cn("h-4 w-4", location.pathname === "/company/dashboard" ? "text-primary" : "")} />
-                      Dashboard
-                    </div>
-                    {dashboardOpen && location.pathname === "/company/dashboard" ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </button>
-                  
-                  {dashboardOpen && (
-                    <div className="ml-6 space-y-1 animate-accordion-down">
-                      {dashboardSubItems.map((item) => {
-                        const isActive = location.pathname === item.href;
-                        return (
-                          <Link
-                            key={item.name}
-                            to={item.href}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className={cn(
-                              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
-                              isActive
-                                ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
-                                : (theme === "black" ? "text-muted-foreground hover:bg-black border-transparent" : "text-muted-foreground hover:bg-accent/50 border-transparent")
-                            )}
-                          >
-                            <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "")} />
-                            {item.name}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
+          <aside className="fixed top-16 left-0 right-0 bg-sidebar border-b border-sidebar-border animate-slide-in-top shadow-lg">
+            <div className="flex flex-col max-h-[calc(100vh-4rem)] overflow-y-auto">
+              <nav className="flex-1 space-y-1 p-4">
+                <div className="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-primary">
+                  Company
                 </div>
-
-                {mainNavigation.map((item) => {
+                {navigation.map((item) => {
                   const isActive = location.pathname === item.href;
                   return (
                     <Link
@@ -302,87 +107,26 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                       to={item.href}
                       onClick={() => setMobileMenuOpen(false)}
                       className={cn(
-                        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                         isActive
-                          ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
-                          : (theme === "black" ? "text-muted-foreground hover:bg-black border-transparent" : "text-muted-foreground hover:bg-accent/50 border-transparent")
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent/50"
                       )}
                     >
-                      <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "")} />
+                      <item.icon className="h-5 w-5" />
                       {item.name}
                     </Link>
                   );
                 })}
-
-                {/* Resources Collapsible Section */}
-                <div className="pt-4 space-y-1">
-                  <button
-                    onClick={() => setResourcesOpen(!resourcesOpen)}
-                    className={cn(
-                      "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
-                      theme === "black" ? "text-muted-foreground hover:bg-black hover:text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground border-transparent"
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Users className="h-4 w-4" />
-                      Resources
-                    </div>
-                    {resourcesOpen ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </button>
-                  
-                  {resourcesOpen && (
-                    <div className="ml-6 space-y-1 animate-accordion-down">
-                      {resourcesSubItems.map((item) => {
-                        const isActive = location.pathname === item.href;
-                        return (
-                          <Link
-                            key={item.name}
-                            to={item.href}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className={cn(
-                              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
-                              isActive
-                                ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
-                                : (theme === "black" ? "text-muted-foreground hover:bg-black border-transparent" : "text-muted-foreground hover:bg-accent/50 border-transparent")
-                            )}
-                          >
-                            <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "")} />
-                            {item.name}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
               </nav>
 
-              <div className="border-t p-3 space-y-1">
-                <Link
-                  to="/company/settings"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors border",
-                    location.pathname === "/company/settings"
-                      ? (theme === "black" ? "bg-black text-accent-foreground border-primary/20" : "bg-accent text-accent-foreground border-primary/20 shadow-sm")
-                      : (theme === "black" ? "text-muted-foreground hover:bg-black border-transparent" : "text-muted-foreground hover:bg-accent/50 border-transparent")
-                  )}
-                >
-                  <Settings className={cn("h-4 w-4", location.pathname === "/company/settings" ? "text-primary" : "")} />
-                  Settings
-                </Link>
+              <div className="p-4 border-t border-sidebar-border">
                 <button
-                  onClick={() => {
-                    cycleTheme();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 border border-transparent hover:border-primary/20"
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
                 >
-                  <Lightbulb className="h-4 w-4" />
-                  Theme: {theme}
+                  <LogOut className="h-5 w-5" />
+                  Log Out
                 </button>
               </div>
             </div>
@@ -390,13 +134,8 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       )}
 
-      {/* Main content */}
-      <main className="flex-1 lg:pl-[240px] pt-14 lg:pt-0">
-        <div className={cn("min-h-screen", theme === "light" ? "bg-gradient-to-br from-slate-50 via-white to-slate-100" : theme === "black" ? "bg-gradient-to-br from-black via-zinc-950 to-black" : "bg-background")}>
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 max-w-7xl">
-            {children}
-          </div>
-        </div>
+      <main className="flex-1 pt-16 lg:pl-64 lg:pt-0 overflow-x-hidden w-full">
+        <div className="mx-auto max-w-7xl p-4 md:p-6 w-full">{children}</div>
       </main>
     </div>
   );
