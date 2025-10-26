@@ -171,8 +171,8 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         </div>
       )}
 
-      <main className="flex-1 pt-16 lg:ml-64 lg:pt-0 w-full">
-        <div className="w-full max-w-[1400px] mx-auto px-6 md:px-8 py-6 md:py-8">
+      <main className="flex-1 pt-16 lg:ml-64 lg:pt-0">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 max-w-7xl">
           {children}
           <Outlet />
         </div>
