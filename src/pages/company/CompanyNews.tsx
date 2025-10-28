@@ -12,6 +12,7 @@ import { Plus, Trash2, Edit, Eye } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface NewsItem {
   id: string;
@@ -21,6 +22,10 @@ interface NewsItem {
   published: boolean;
   created_at: string;
   company_id: string;
+  company_profiles?: {
+    company_name: string;
+    logo_url: string | null;
+  };
 }
 
 const CompanyNews = () => {
@@ -28,6 +33,7 @@ const CompanyNews = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [news, setNews] = useState<NewsItem[]>([]);
+  const [industryNews, setIndustryNews] = useState<NewsItem[]>([]);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingNews, setEditingNews] = useState<NewsItem | null>(null);
@@ -57,6 +63,7 @@ const CompanyNews = () => {
   useEffect(() => {
     if (companyId) {
       fetchNews();
+      fetchIndustryNews();
     }
   }, [companyId]);
 
@@ -81,6 +88,25 @@ const CompanyNews = () => {
 
     if (data) {
       setNews(data);
+    }
+  };
+
+  const fetchIndustryNews = async () => {
+    const { data, error } = await supabase
+      .from('company_news')
+      .select(`
+        *,
+        company_profiles (
+          company_name,
+          logo_url
+        )
+      `)
+      .eq('published', true)
+      .neq('company_id', companyId)
+      .order('created_at', { ascending: false });
+
+    if (data) {
+      setIndustryNews(data as any);
     }
   };
 
@@ -190,118 +216,168 @@ const CompanyNews = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Company News</h1>
-            <p className="text-muted-foreground">Share updates with talent</p>
+            <p className="text-muted-foreground">Share updates and stay informed</p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => resetForm()}>
-                <Plus className="h-4 w-4 mr-2" />
-                Post News
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>{editingNews ? "Edit News" : "Create News Post"}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="content">Content</Label>
-                  <Textarea
-                    id="content"
-                    value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    rows={6}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="image_url">Image URL (optional)</Label>
-                  <Input
-                    id="image_url"
-                    type="url"
-                    value={formData.image_url}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="published"
-                    checked={formData.published}
-                    onCheckedChange={(checked) => setFormData({ ...formData, published: checked })}
-                  />
-                  <Label htmlFor="published">Publish immediately</Label>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={resetForm}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">
-                    {editingNews ? "Update" : "Post"}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
         </div>
 
-        <div className="grid gap-6">
-          {news.length === 0 ? (
-            <Card className="p-12 text-center">
-              <p className="text-muted-foreground">No news posted yet</p>
-            </Card>
-          ) : (
-            news.map((item) => (
-              <Card key={item.id} className="p-6">
-                <div className="flex justify-between items-start gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-xl font-semibold">{item.title}</h3>
-                      {!item.published && (
-                        <span className="px-2 py-1 text-xs bg-muted rounded-md">Draft</span>
+        <Tabs defaultValue="my-news" className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="my-news">My News</TabsTrigger>
+            <TabsTrigger value="industry-news">Industry News</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="my-news" className="space-y-6 mt-6">
+            <div className="flex justify-end">
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => resetForm()}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Post News
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>{editingNews ? "Edit News" : "Create News Post"}</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="title">Title</Label>
+                      <Input
+                        id="title"
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="content">Content</Label>
+                      <Textarea
+                        id="content"
+                        value={formData.content}
+                        onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                        rows={6}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="image_url">Image URL (optional)</Label>
+                      <Input
+                        id="image_url"
+                        type="url"
+                        value={formData.image_url}
+                        onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="published"
+                        checked={formData.published}
+                        onCheckedChange={(checked) => setFormData({ ...formData, published: checked })}
+                      />
+                      <Label htmlFor="published">Publish immediately</Label>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button type="button" variant="outline" onClick={resetForm}>
+                        Cancel
+                      </Button>
+                      <Button type="submit">
+                        {editingNews ? "Update" : "Post"}
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="grid gap-6">
+              {news.length === 0 ? (
+                <Card className="p-12 text-center">
+                  <p className="text-muted-foreground">No news posted yet</p>
+                </Card>
+              ) : (
+                news.map((item) => (
+                  <Card key={item.id} className="p-6">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-xl font-semibold">{item.title}</h3>
+                          {!item.published && (
+                            <span className="px-2 py-1 text-xs bg-muted rounded-md">Draft</span>
+                          )}
+                        </div>
+                        {item.image_url && (
+                          <img 
+                            src={item.image_url} 
+                            alt={item.title}
+                            className="w-full h-48 object-cover rounded-lg mb-4"
+                          />
+                        )}
+                        <p className="text-muted-foreground whitespace-pre-wrap mb-4">{item.content}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Posted on {new Date(item.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => handleEdit(item)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="industry-news" className="space-y-6 mt-6">
+            <div className="grid gap-6">
+              {industryNews.length === 0 ? (
+                <Card className="p-12 text-center">
+                  <p className="text-muted-foreground">No industry news available yet</p>
+                </Card>
+              ) : (
+                industryNews.map((item) => (
+                  <Card key={item.id} className="p-6">
+                    <div className="flex items-start gap-4 mb-4">
+                      {item.company_profiles?.logo_url && (
+                        <img 
+                          src={item.company_profiles.logo_url} 
+                          alt={item.company_profiles.company_name}
+                          className="w-12 h-12 rounded-lg object-cover"
+                        />
                       )}
+                      <div>
+                        <h3 className="text-xl font-semibold">{item.title}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {item.company_profiles?.company_name} • {new Date(item.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
                     {item.image_url && (
                       <img 
                         src={item.image_url} 
                         alt={item.title}
-                        className="w-full h-48 object-cover rounded-lg mb-4"
+                        className="w-full h-64 object-cover rounded-lg mb-4"
                       />
                     )}
-                    <p className="text-muted-foreground whitespace-pre-wrap mb-4">{item.content}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Posted on {new Date(item.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      onClick={() => handleEdit(item)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      onClick={() => handleDelete(item.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))
-          )}
-        </div>
+                    <p className="text-muted-foreground whitespace-pre-wrap">{item.content}</p>
+                  </Card>
+                ))
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </CompanyLayout>
   );
