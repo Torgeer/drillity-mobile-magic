@@ -7,7 +7,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth, UserType } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { authenticateWithBiometrics, getBiometricCredentials, setBiometricCredentials } from "@/utils/capacitorPlugins";
-import drillityLogo from "@/assets/drillity-logo.png";
+import drillityLogoDark from "@/assets/drillity-logo-dark.png";
+import drillityLogoLight from "@/assets/drillity-logo-light.png";
+import { useTheme } from "@/hooks/useTheme";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -18,6 +20,8 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { signIn, signUp } = useAuth();
+  const { theme } = useTheme();
+  const logoSrc = theme === 'light' ? drillityLogoLight : drillityLogoDark;
 
   const handleBiometricAuth = async () => {
     try {
@@ -82,7 +86,7 @@ const Auth = () => {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
-          <img src={drillityLogo} alt="Drillity" className="h-12" />
+          <img src={logoSrc} alt="Drillity" className="h-12" />
         </div>
 
         <Card className="p-8">
