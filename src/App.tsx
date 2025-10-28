@@ -26,6 +26,7 @@ import CompanyMessages from "./pages/company/CompanyMessages";
 import CompanyProfile from "./pages/company/CompanyProfile";
 import CompanyProfileEnhanced from "./pages/company/CompanyProfileEnhanced";
 import CompanySubscription from "./pages/company/CompanySubscription";
+import CompanySubscriptionSuccess from "./pages/company/CompanySubscriptionSuccess";
 import CompanyNews from "./pages/company/CompanyNews";
 import CompanyContracts from "./pages/company/CompanyContracts";
 import BrowseContracts from "./pages/company/BrowseContracts";
@@ -76,6 +77,7 @@ const App = () => (
             <Route path="/company/messages" element={<CompanyMessages />} />
             <Route path="/company/profile" element={<CompanyProfileEnhanced />} />
             <Route path="/company/subscription" element={<CompanySubscription />} />
+            <Route path="/company/subscription/success" element={<CompanySubscriptionSuccess />} />
             <Route path="/company/news" element={<CompanyNews />} />
             <Route path="/company/contracts" element={<CompanyContracts />} />
             <Route path="/company/browse-contracts" element={<BrowseContracts />} />

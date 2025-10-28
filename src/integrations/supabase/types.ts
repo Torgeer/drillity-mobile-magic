@@ -276,6 +276,8 @@ export type Database = {
           jobs_used: number | null
           plan_id: string
           start_date: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           trial_end_date: string | null
           updated_at: string
         }
@@ -293,6 +295,8 @@ export type Database = {
           jobs_used?: number | null
           plan_id: string
           start_date?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           trial_end_date?: string | null
           updated_at?: string
         }
@@ -310,6 +314,8 @@ export type Database = {
           jobs_used?: number | null
           plan_id?: string
           start_date?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           trial_end_date?: string | null
           updated_at?: string
         }
@@ -880,6 +886,7 @@ export type Database = {
           job_limit: number
           name: string
           price_eur: number
+          stripe_price_id: string | null
         }
         Insert: {
           created_at?: string
@@ -888,6 +895,7 @@ export type Database = {
           job_limit: number
           name: string
           price_eur: number
+          stripe_price_id?: string | null
         }
         Update: {
           created_at?: string
@@ -896,6 +904,7 @@ export type Database = {
           job_limit?: number
           name?: string
           price_eur?: number
+          stripe_price_id?: string | null
         }
         Relationships: []
       }

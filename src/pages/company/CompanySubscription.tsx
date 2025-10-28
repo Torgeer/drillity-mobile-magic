@@ -89,63 +89,80 @@ const CompanySubscription = () => {
     if (!companyId) return;
 
     try {
-      const selectedPlan = plans.find(p => p.id === planId);
-      if (!selectedPlan) return;
+      setLoadingData(true);
 
-      // Calculate AI matching price based on job limit
-      const aiPrice = selectedPlan.job_limit <= 40 
-        ? Math.round(selectedPlan.price_eur * 0.10) 
-        : Math.round(selectedPlan.price_eur * 0.30);
-
-      // Deactivate current subscription
-      if (currentSubscription) {
-        await supabase
-          .from('company_subscriptions')
-          .update({ is_active: false })
-          .eq('id', currentSubscription.id);
-      }
-
-      // Create new subscription with AI matching disabled by default
-      const { error } = await supabase
-        .from('company_subscriptions')
-        .insert({
-          company_id: companyId,
+      // Call edge function to create Stripe Checkout Session
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: { 
           plan_id: planId,
-          jobs_used: 0,
-          is_active: true,
-          ai_matching_enabled: false,
-          ai_matching_price_eur: aiPrice,
-          ai_matches_used_this_month: 0,
-          trial_end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-          is_trial: true
-        });
+          ai_matching_enabled: false
+        }
+      });
 
       if (error) throw error;
 
-      toast.success("Subscription plan updated successfully!");
-      loadData();
+      // Redirect to Stripe Checkout
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
+
     } catch (error: any) {
-      toast.error("Failed to update subscription");
-      console.error(error);
+      console.error('Error creating checkout:', error);
+      toast.error(error.message || "Failed to start checkout");
+      setLoadingData(false);
     }
   };
 
   const handleToggleAIMatching = async (enabled: boolean) => {
-    if (!currentSubscription) return;
+    if (!currentSubscription || !companyId) return;
 
-    try {
-      const { error } = await supabase
-        .from('company_subscriptions')
-        .update({ ai_matching_enabled: enabled })
-        .eq('id', currentSubscription.id);
+    // If enabling AI matching, create a new checkout with AI addon
+    if (enabled) {
+      try {
+        setLoadingData(true);
 
-      if (error) throw error;
+        const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+          body: { 
+            plan_id: currentSubscription.plan_id,
+            ai_matching_enabled: true
+          }
+        });
 
-      toast.success(enabled ? "AI Matching activated!" : "AI Matching deactivated");
-      loadData();
-    } catch (error: any) {
-      toast.error("Failed to update AI Matching");
-      console.error(error);
+        if (error) throw error;
+
+        if (data?.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error('No checkout URL received');
+        }
+
+      } catch (error: any) {
+        console.error('Error creating checkout:', error);
+        toast.error(error.message || "Failed to start checkout");
+        setLoadingData(false);
+      }
+    } else {
+      // If disabling, just update the database
+      try {
+        setLoadingData(true);
+
+        const { error } = await supabase
+          .from('company_subscriptions')
+          .update({ ai_matching_enabled: false })
+          .eq('id', currentSubscription.id);
+
+        if (error) throw error;
+
+        toast.success("AI Matching disabled");
+        loadData();
+      } catch (error: any) {
+        console.error('Error toggling AI matching:', error);
+        toast.error(error.message || "Failed to update AI matching");
+      } finally {
+        setLoadingData(false);
+      }
     }
   };
 
