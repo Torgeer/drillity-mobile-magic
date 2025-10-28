@@ -1,4 +1,4 @@
-import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch, Upload, Users, LogOut, CreditCard, Newspaper, Search } from "lucide-react";
+import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch, Upload, Users, LogOut, CreditCard, Newspaper, Search, ChevronDown, ChevronRight } from "lucide-react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -28,6 +28,7 @@ const navigation = [
 export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [jobsSectionExpanded, setJobsSectionExpanded] = useState(true);
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState<string>("");
@@ -92,6 +93,40 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;
+              const isMyJobs = item.name === "My Jobs";
+              const shouldHide = item.indent && !jobsSectionExpanded;
+              
+              if (shouldHide) return null;
+              
+              if (isMyJobs) {
+                return (
+                  <div key={item.name}>
+                    <Link
+                      to={item.href}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3",
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {item.name}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setJobsSectionExpanded(!jobsSectionExpanded);
+                        }}
+                        className="ml-auto"
+                      >
+                        {jobsSectionExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                      </button>
+                    </Link>
+                  </div>
+                );
+              }
+              
               return (
                 <Link
                   key={item.name}
@@ -141,6 +176,41 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                 </div>
                 {navigation.map((item) => {
                   const isActive = location.pathname === item.href;
+                  const isMyJobs = item.name === "My Jobs";
+                  const shouldHide = item.indent && !jobsSectionExpanded;
+                  
+                  if (shouldHide) return null;
+                  
+                  if (isMyJobs) {
+                    return (
+                      <div key={item.name}>
+                        <Link
+                          to={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={cn(
+                            "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3",
+                            isActive
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                              : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                          )}
+                        >
+                          <item.icon className="h-5 w-5" />
+                          {item.name}
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setJobsSectionExpanded(!jobsSectionExpanded);
+                            }}
+                            className="ml-auto"
+                          >
+                            {jobsSectionExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                          </button>
+                        </Link>
+                      </div>
+                    );
+                  }
+                  
                   return (
                     <Link
                       key={item.name}
