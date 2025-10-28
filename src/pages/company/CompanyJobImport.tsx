@@ -57,14 +57,14 @@ const CompanyJobImport = () => {
       if (error) throw error;
 
       toast({
-        title: "Framgång!",
-        description: `${jobs.length} jobb har importerats`,
+        title: "Success!",
+        description: `${jobs.length} jobs imported`,
       });
       
       setJsonData("");
     } catch (error: any) {
       toast({
-        title: "Fel",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -106,20 +106,20 @@ const CompanyJobImport = () => {
     <CompanyLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Importera Jobb</h1>
-          <p className="text-muted-foreground">Importera flera jobb samtidigt från JSON eller CSV</p>
+          <h1 className="text-3xl font-bold">Import Jobs</h1>
+          <p className="text-muted-foreground">Import multiple jobs at once from JSON or CSV</p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
           <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <Upload className="h-5 w-5" />
-              Ladda upp fil
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <Upload className="h-5 w-5" />
+                Upload file
             </h2>
             
             <div className="space-y-4">
               <div>
-                <Label>Välj fil (JSON eller CSV)</Label>
+                <Label>Choose file (JSON or CSV)</Label>
                 <input
                   type="file"
                   accept=".json,.csv"
@@ -168,11 +168,11 @@ Senior Drilling Engineer,Job description...,Houston TX,full_time,senior,100000,1
             
             <div className="space-y-4">
               <div>
-                <Label>Klistra in JSON-data</Label>
+                <Label>Paste JSON data</Label>
                 <Textarea
                   value={jsonData}
                   onChange={(e) => setJsonData(e.target.value)}
-                  placeholder="Klistra in din JSON-data här..."
+                  placeholder="Paste your JSON data here..."
                   className="min-h-[400px] font-mono text-xs"
                 />
               </div>
@@ -182,23 +182,23 @@ Senior Drilling Engineer,Job description...,Houston TX,full_time,senior,100000,1
                 disabled={!jsonData || loading}
                 className="w-full"
               >
-                {loading ? "Importerar..." : "Importera Jobb"}
+                {loading ? "Importing..." : "Import Jobs"}
               </Button>
             </div>
           </Card>
         </div>
 
         <Card className="p-6 bg-primary/5 border-primary/20">
-          <h3 className="font-semibold mb-2">API Import (Avancerat)</h3>
+          <h3 className="font-semibold mb-2">API Import (Advanced)</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Om du har många jobb på din befintliga hemsida kan du använda vårt API för automatisk import.
+            If you have many jobs on your existing website, you can use our API for automatic import.
           </p>
           <div className="space-y-2 text-sm font-mono bg-background p-4 rounded-lg">
             <p>POST https://kjfjsgzllpqgmpcqpvuz.supabase.co/rest/v1/jobs</p>
             <p className="text-muted-foreground">Headers: Authorization: Bearer YOUR_API_KEY</p>
           </div>
           <p className="text-xs text-muted-foreground mt-4">
-            Kontakta support för API-nyckel och dokumentation för bulk-import av 100+ jobb.
+            Contact support for an API key and documentation for bulk importing 100+ jobs.
           </p>
         </Card>
       </div>

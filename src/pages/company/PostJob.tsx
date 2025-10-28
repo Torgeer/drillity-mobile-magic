@@ -99,7 +99,7 @@ const PostJob = () => {
 
   return (
     <CompanyLayout>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="w-full max-w-4xl space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Post a New Job</h1>
           <p className="text-muted-foreground">Fill in the details to create a job posting</p>

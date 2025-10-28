@@ -121,7 +121,7 @@ export default function BrowseContracts() {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="p-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Browse Contracts</h1>
         <p className="text-muted-foreground">Find drilling contracts and submit your offers</p>

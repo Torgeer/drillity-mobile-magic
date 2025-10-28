@@ -55,8 +55,8 @@ const Settings = () => {
               <Label className="text-primary">Language</Label>
               <select className="mt-2 w-full rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
                 <option>English</option>
-                <option>Svenska</option>
-                <option>Deutsch</option>
+                <option>Swedish</option>
+                <option>German</option>
               </select>
             </div>
 

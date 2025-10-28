@@ -80,7 +80,7 @@ const CompanyTeam = () => {
       setMembers(membersWithDetails);
     } catch (error: any) {
       toast({
-        title: "Fel",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -130,8 +130,8 @@ const CompanyTeam = () => {
       if (error) throw error;
 
       toast({
-        title: "Framgång!",
-        description: "Teammedlem har lagts till",
+        title: "Success!",
+        description: "Team member added",
       });
 
       setNewMemberEmail("");
@@ -139,7 +139,7 @@ const CompanyTeam = () => {
       loadTeamMembers();
     } catch (error: any) {
       toast({
-        title: "Fel",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -158,14 +158,14 @@ const CompanyTeam = () => {
       if (error) throw error;
 
       toast({
-        title: "Borttagen",
-        description: "Teammedlem har tagits bort",
+        title: "Removed",
+        description: "Team member removed",
       });
 
       loadTeamMembers();
     } catch (error: any) {
       toast({
-        title: "Fel",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -194,7 +194,7 @@ const CompanyTeam = () => {
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <UserPlus className="h-5 w-5" />
-            Bjud in teammedlem
+            Invite team member
           </h2>
 
           <div className="space-y-4">
@@ -210,7 +210,7 @@ const CompanyTeam = () => {
               </div>
 
               <div>
-                <Label>Roll</Label>
+                <Label>Role</Label>
                 <Select value={newMemberRole} onValueChange={setNewMemberRole}>
                   <SelectTrigger>
                     <SelectValue />
@@ -227,13 +227,13 @@ const CompanyTeam = () => {
 
             <Button onClick={inviteMember} disabled={!newMemberEmail || loading}>
               <Mail className="h-4 w-4 mr-2" />
-              {loading ? "Bjuder in..." : "Bjud in"}
+              {loading ? "Inviting..." : "Invite"}
             </Button>
           </div>
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Teammedlemmar ({members.length})</h2>
+          <h2 className="text-xl font-semibold mb-4">Team Members ({members.length})</h2>
 
           <div className="space-y-3">
             {members.map((member) => (
@@ -269,7 +269,7 @@ const CompanyTeam = () => {
 
             {members.length === 0 && (
               <p className="text-center text-muted-foreground py-8">
-                Inga teammedlemmar ännu. Bjud in dina kollegor!
+                No team members yet. Invite your colleagues!
               </p>
             )}
           </div>

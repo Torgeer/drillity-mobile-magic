@@ -22,17 +22,17 @@ export default function Install() {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <Smartphone className="h-6 w-6 text-primary" />
-              <h3 className="text-xl font-semibold">För iPhone (Safari)</h3>
+              <h3 className="text-xl font-semibold">For iPhone (Safari)</h3>
             </div>
             <ol className="space-y-3 text-muted-foreground ml-9">
               <li className="flex items-start gap-3">
                 <span className="font-semibold text-foreground min-w-[1.5rem]">1.</span>
-                <span>Öppna denna sida i Safari-webbläsaren</span>
+                <span>Open this page in the Safari browser</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="font-semibold text-foreground min-w-[1.5rem]">2.</span>
                 <span className="flex items-center gap-2">
-                  Tryck på <Share className="h-4 w-4 inline text-primary" /> dela-knappen längst ner
+                  Tap the <Share className="h-4 w-4 inline text-primary" /> share button at the bottom
                 </span>
               </li>
               <li className="flex items-start gap-3">
@@ -52,12 +52,12 @@ export default function Install() {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <Smartphone className="h-6 w-6 text-primary" />
-              <h3 className="text-xl font-semibold">För Android (Chrome)</h3>
+              <h3 className="text-xl font-semibold">For Android (Chrome)</h3>
             </div>
             <ol className="space-y-3 text-muted-foreground ml-9">
               <li className="flex items-start gap-3">
                 <span className="font-semibold text-foreground min-w-[1.5rem]">1.</span>
-                <span>Öppna denna sida i Chrome-webbläsaren</span>
+                <span>Open this page in the Chrome browser</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="font-semibold text-foreground min-w-[1.5rem]">2.</span>
@@ -78,18 +78,18 @@ export default function Install() {
 
           {/* Benefits */}
           <div className="bg-sidebar rounded-lg p-4 space-y-2">
-            <h4 className="font-semibold text-sidebar-foreground">Fördelar med installerad app:</h4>
+            <h4 className="font-semibold text-sidebar-foreground">Benefits of installing the app:</h4>
             <ul className="space-y-1 text-sm text-sidebar-foreground/80">
-              <li>✓ Fungerar offline</li>
-              <li>✓ Snabbare laddning</li>
-              <li>✓ Egen ikon på hemskärmen</li>
-              <li>✓ Fullskärmsläge utan webbläsarfält</li>
+              <li>✓ Works offline</li>
+              <li>✓ Faster loading</li>
+              <li>✓ Home screen icon</li>
+              <li>✓ Fullscreen without browser bars</li>
             </ul>
           </div>
 
           <div className="text-center pt-4">
             <Button asChild size="lg" className="w-full sm:w-auto">
-              <a href="/">Tillbaka till appen</a>
+              <a href="/">Back to the app</a>
             </Button>
           </div>
         </CardContent>
