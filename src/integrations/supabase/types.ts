@@ -382,6 +382,7 @@ export type Database = {
           latitude: number | null
           location: string
           longitude: number | null
+          project_id: string | null
           remote: boolean | null
           salary_currency: string | null
           salary_max: number | null
@@ -402,6 +403,7 @@ export type Database = {
           latitude?: number | null
           location: string
           longitude?: number | null
+          project_id?: string | null
           remote?: boolean | null
           salary_currency?: string | null
           salary_max?: number | null
@@ -422,6 +424,7 @@ export type Database = {
           latitude?: number | null
           location?: string
           longitude?: number | null
+          project_id?: string | null
           remote?: boolean | null
           salary_currency?: string | null
           salary_max?: number | null
@@ -436,6 +439,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "company_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -574,6 +584,62 @@ export type Database = {
           user_type?: Database["public"]["Enums"]["user_type"]
         }
         Relationships: []
+      }
+      projects: {
+        Row: {
+          additional_info: string | null
+          company_id: string
+          created_at: string
+          first_aider_name: string
+          id: string
+          latitude: number | null
+          location: string
+          longitude: number | null
+          notes: string | null
+          project_name: string
+          site_manager_name: string
+          type_of_works: string
+          updated_at: string
+        }
+        Insert: {
+          additional_info?: string | null
+          company_id: string
+          created_at?: string
+          first_aider_name: string
+          id?: string
+          latitude?: number | null
+          location: string
+          longitude?: number | null
+          notes?: string | null
+          project_name: string
+          site_manager_name: string
+          type_of_works: string
+          updated_at?: string
+        }
+        Update: {
+          additional_info?: string | null
+          company_id?: string
+          created_at?: string
+          first_aider_name?: string
+          id?: string
+          latitude?: number | null
+          location?: string
+          longitude?: number | null
+          notes?: string | null
+          project_name?: string
+          site_manager_name?: string
+          type_of_works?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       push_tokens: {
         Row: {

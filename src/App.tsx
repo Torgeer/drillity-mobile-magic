@@ -28,6 +28,7 @@ import CompanyNews from "./pages/company/CompanyNews";
 import CompanyContracts from "./pages/company/CompanyContracts";
 import BrowseContracts from "./pages/company/BrowseContracts";
 import BrowseJobs from "./pages/company/BrowseJobs";
+import CompanyProjects from "./pages/company/CompanyProjects";
 import News from "./pages/News";
 import NotFound from "./pages/NotFound";
 import { CompanyLayout } from "./components/CompanyLayout";
@@ -73,6 +74,7 @@ const App = () => (
             <Route path="/company/news" element={<CompanyNews />} />
             <Route path="/company/contracts" element={<CompanyContracts />} />
             <Route path="/company/browse-contracts" element={<BrowseContracts />} />
+            <Route path="/company/projects" element={<CompanyProjects />} />
             <Route path="/company/settings" element={<CompanySettings />} />
           </Route>
           

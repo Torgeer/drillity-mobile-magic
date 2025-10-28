@@ -16,6 +16,7 @@ const PostJob = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
+  const [projects, setProjects] = useState<Array<{ id: string; project_name: string }>>([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -27,6 +28,7 @@ const PostJob = () => {
     remote: false,
     skills: "",
     certifications: "",
+    projectId: "",
   });
 
   useEffect(() => {
@@ -39,11 +41,26 @@ const PostJob = () => {
         .eq('user_id', user.id)
         .single();
       
-      if (data) setCompanyId(data.id);
+      if (data) {
+        setCompanyId(data.id);
+        fetchProjects(data.id);
+      }
     };
     
     getCompanyId();
   }, [user]);
+
+  const fetchProjects = async (compId: string) => {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('id, project_name')
+      .eq('company_id', compId)
+      .order('created_at', { ascending: false });
+
+    if (data) {
+      setProjects(data);
+    }
+  };
 
   const handleLocationDetect = async () => {
     const hasPermission = await requestLocationPermission();
@@ -83,6 +100,7 @@ const PostJob = () => {
           remote: formData.remote,
           skills: formData.skills ? formData.skills.split(',').map(s => s.trim()) : [],
           certifications: formData.certifications ? formData.certifications.split(',').map(c => c.trim()) : [],
+          project_id: formData.projectId || null,
           is_active: true
         }]);
 
@@ -197,6 +215,23 @@ const PostJob = () => {
                     />
                   </div>
                 </div>
+              </div>
+
+              <div>
+                <Label htmlFor="projectId">Link to Project (Optional)</Label>
+                <select
+                  id="projectId"
+                  value={formData.projectId}
+                  onChange={(e) => setFormData({ ...formData, projectId: e.target.value })}
+                  className="w-full rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  <option value="">No project selected</option>
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.project_name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>

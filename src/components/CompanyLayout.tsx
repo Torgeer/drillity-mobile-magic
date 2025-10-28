@@ -1,4 +1,4 @@
-import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch, Upload, Users, LogOut, CreditCard, Newspaper, Search, ChevronDown, ChevronRight } from "lucide-react";
+import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, UserSearch, Upload, Users, LogOut, CreditCard, Newspaper, Search, ChevronDown, ChevronRight, FolderKanban } from "lucide-react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -17,6 +17,7 @@ const navigation = [
   { name: "Import Jobs", href: "/company/jobs/import", icon: Upload, indent: true, section: "jobs" },
   { name: "Applications", href: "/company/applications", icon: FileText, indent: true, section: "jobs" },
   { name: "Browse Talent", href: "/company/talents", icon: UserSearch },
+  { name: "Projects", href: "/company/projects", icon: FolderKanban },
   { name: "News", href: "/company/news", icon: Newspaper },
   { name: "Contracts", href: "/company/contracts", icon: FileText, section: "contracts" },
   { name: "My Contracts", href: "/company/contracts", icon: FileText, indent: true, section: "contracts" },
