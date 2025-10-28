@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { SkillSelector } from "@/components/SkillSelector";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -287,22 +288,20 @@ const PostJob = () => {
               </div>
 
               <div>
-                <Label htmlFor="skills">Required Skills (comma separated)</Label>
-                <Input
-                  id="skills"
-                  value={formData.skills}
-                  onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
-                  placeholder="Drilling, IADC WellCAP, H2S"
+                <Label>Required Skills</Label>
+                <SkillSelector
+                  selectedSkills={formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(s => s) : []}
+                  onChange={(skills) => setFormData({ ...formData, skills: skills.join(', ') })}
+                  placeholder="Select required skills..."
                 />
               </div>
 
               <div>
-                <Label htmlFor="certifications">Required Certifications (comma separated)</Label>
-                <Input
-                  id="certifications"
-                  value={formData.certifications}
-                  onChange={(e) => setFormData({ ...formData, certifications: e.target.value })}
-                  placeholder="IADC WellCAP, OSHA 30"
+                <Label>Required Certifications</Label>
+                <SkillSelector
+                  selectedSkills={formData.certifications ? formData.certifications.split(',').map(s => s.trim()).filter(s => s) : []}
+                  onChange={(certifications) => setFormData({ ...formData, certifications: certifications.join(', ') })}
+                  placeholder="Select required certifications..."
                 />
               </div>
 

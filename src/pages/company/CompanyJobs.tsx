@@ -1,11 +1,11 @@
+import { supabase } from "@/integrations/supabase/client";
 import { CompanyLayout } from "@/components/CompanyLayout";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, DollarSign, Users } from "lucide-react";
+import { MapPin, DollarSign, Users, Target } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -230,6 +230,18 @@ const CompanyJobs = () => {
                     )}
 
                     <div className="flex flex-col sm:flex-row gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/company/jobs/${job.id}/matches`);
+                        }}
+                        className="w-full sm:w-auto"
+                      >
+                        <Target className="h-4 w-4 mr-2" />
+                        AI Matches
+                      </Button>
                       <Button
                         size="sm" 
                         onClick={(e) => {
@@ -238,7 +250,8 @@ const CompanyJobs = () => {
                         }} 
                         className="w-full sm:w-auto"
                       >
-                        View Applications
+                        <Users className="h-4 w-4 mr-2" />
+                        Applications ({applicationCounts[job.id] || 0})
                       </Button>
                       <Button 
                         size="sm" 

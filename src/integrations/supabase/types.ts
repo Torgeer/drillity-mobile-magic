@@ -369,6 +369,33 @@ export type Database = {
         }
         Relationships: []
       }
+      industry_skills: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          industry: string
+          skill_name: string
+          skill_type: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry: string
+          skill_name: string
+          skill_type?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string
+          skill_name?: string
+          skill_type?: string | null
+        }
+        Relationships: []
+      }
       jobs: {
         Row: {
           certifications: string[] | null
@@ -446,6 +473,85 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      match_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          match_id: string
+          notification_type: string
+          read_at: string | null
+          recipient_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          match_id: string
+          notification_type: string
+          read_at?: string | null
+          recipient_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          match_id?: string
+          notification_type?: string
+          read_at?: string | null
+          recipient_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_notifications_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "talent_job_matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matching_preferences: {
+        Row: {
+          auto_notify_talents: boolean | null
+          company_id: string
+          created_at: string
+          id: string
+          max_distance_km: number | null
+          min_match_score: number | null
+          preferred_experience_levels: string[] | null
+          required_certifications_strict: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          auto_notify_talents?: boolean | null
+          company_id: string
+          created_at?: string
+          id?: string
+          max_distance_km?: number | null
+          min_match_score?: number | null
+          preferred_experience_levels?: string[] | null
+          required_certifications_strict?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          auto_notify_talents?: boolean | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          max_distance_km?: number | null
+          min_match_score?: number | null
+          preferred_experience_levels?: string[] | null
+          required_certifications_strict?: boolean | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matching_preferences_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "company_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -768,10 +874,76 @@ export type Database = {
           },
         ]
       }
+      talent_job_matches: {
+        Row: {
+          certifications_matched: string[] | null
+          certifications_missing: string[] | null
+          company_viewed_at: string | null
+          created_at: string
+          experience_fit: string | null
+          id: string
+          job_id: string
+          location_score: number | null
+          match_reasoning: string
+          match_score: number
+          notified_at: string | null
+          skills_matched: string[] | null
+          skills_missing: string[] | null
+          talent_id: string
+          talent_interested: boolean | null
+          talent_viewed_at: string | null
+        }
+        Insert: {
+          certifications_matched?: string[] | null
+          certifications_missing?: string[] | null
+          company_viewed_at?: string | null
+          created_at?: string
+          experience_fit?: string | null
+          id?: string
+          job_id: string
+          location_score?: number | null
+          match_reasoning: string
+          match_score: number
+          notified_at?: string | null
+          skills_matched?: string[] | null
+          skills_missing?: string[] | null
+          talent_id: string
+          talent_interested?: boolean | null
+          talent_viewed_at?: string | null
+        }
+        Update: {
+          certifications_matched?: string[] | null
+          certifications_missing?: string[] | null
+          company_viewed_at?: string | null
+          created_at?: string
+          experience_fit?: string | null
+          id?: string
+          job_id?: string
+          location_score?: number | null
+          match_reasoning?: string
+          match_score?: number
+          notified_at?: string | null
+          skills_matched?: string[] | null
+          skills_missing?: string[] | null
+          talent_id?: string
+          talent_interested?: boolean | null
+          talent_viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "talent_job_matches_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       talent_skills: {
         Row: {
           created_at: string
           id: string
+          industry: string | null
           skill_level: Database["public"]["Enums"]["experience_level"]
           skill_name: string
           talent_id: string
@@ -779,6 +951,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          industry?: string | null
           skill_level: Database["public"]["Enums"]["experience_level"]
           skill_name: string
           talent_id: string
@@ -786,6 +959,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          industry?: string | null
           skill_level?: Database["public"]["Enums"]["experience_level"]
           skill_name?: string
           talent_id?: string
