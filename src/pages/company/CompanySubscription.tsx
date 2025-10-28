@@ -114,6 +114,30 @@ const CompanySubscription = () => {
     }
   };
 
+  const openStripeCheckout = (url: string) => {
+    setPreviewDialogOpen(false);
+    
+    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+    
+    // Reset loading after a brief delay
+    setTimeout(() => {
+      setLoadingData(false);
+    }, 500);
+    
+    // Check if popup was blocked
+    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+      toast.error("Pop-up blocked. Please allow pop-ups and try again.", {
+        duration: 5000,
+        action: {
+          label: "Open Checkout",
+          onClick: () => window.open(url, '_blank')
+        }
+      });
+    } else {
+      toast.success("Checkout opened in new tab");
+    }
+  };
+
   const handleOpenPreview = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
     setPreviewAIEnabled(false);
@@ -150,9 +174,9 @@ const CompanySubscription = () => {
 
       if (error) throw error;
 
-      // Redirect to Stripe Checkout
+      // Open Stripe Checkout in new tab
       if (data?.url) {
-        window.location.href = data.url;
+        openStripeCheckout(data.url);
       } else {
         throw new Error('No checkout URL received');
       }
@@ -264,7 +288,7 @@ const CompanySubscription = () => {
         if (error) throw error;
 
         if (data?.url) {
-          window.location.href = data.url;
+          openStripeCheckout(data.url);
         } else {
           throw new Error('No checkout URL received');
         }
