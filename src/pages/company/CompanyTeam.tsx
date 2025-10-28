@@ -57,7 +57,16 @@ const CompanyTeam = () => {
 
       if (error) throw error;
 
-      setMembers(data || []);
+      // Remove duplicates by email
+      const uniqueMembers = (data || []).reduce((acc: TeamMember[], current) => {
+        const exists = acc.find(item => item.email === current.email);
+        if (!exists) {
+          acc.push(current);
+        }
+        return acc;
+      }, []);
+
+      setMembers(uniqueMembers);
     } catch (error: any) {
       toast({
         title: "Error",
