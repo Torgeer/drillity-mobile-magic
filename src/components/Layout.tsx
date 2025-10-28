@@ -172,7 +172,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       )}
 
       <main className="flex-1 pt-16 lg:ml-64 lg:pt-0">
-        <div className="px-2 py-6 md:py-8">
+        <div className="pl-2 pr-4 py-6 md:py-8">
           {children}
           <Outlet />
         </div>
