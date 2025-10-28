@@ -4,9 +4,11 @@ import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import drillityLogo from "@/assets/drillity-logo.png";
+import drillityLogoLight from "@/assets/drillity-logo-light.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { useTheme } from "@/hooks/useTheme";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
@@ -19,6 +21,7 @@ const navigation = [
 ];
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { theme } = useTheme();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { signOut, user } = useAuth();
@@ -52,12 +55,14 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
     navigate("/auth");
   };
 
+  const logoSrc = theme === 'light' ? drillityLogoLight : drillityLogo;
+
   return (
     <div className="flex min-h-screen bg-background">
       {/* Mobile header */}
       <div className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b border-sidebar-border bg-sidebar px-4 lg:hidden">
         <div className="flex items-center">
-          <img src={drillityLogo} alt="Drillity" className="h-8" />
+          <img src={logoSrc} alt="Drillity" className="h-8" />
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -75,7 +80,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 bg-sidebar border-r border-sidebar-border lg:block">
         <div className="flex h-full flex-col">
           <div className="flex h-16 items-center justify-center border-b border-sidebar-border px-6">
-            <img src={drillityLogo} alt="Drillity" className="h-8" />
+            <img src={logoSrc} alt="Drillity" className="h-8" />
           </div>
 
           <nav className="flex-1 space-y-1 p-4">
