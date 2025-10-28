@@ -69,8 +69,8 @@ const News = () => {
     <Layout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Company News</h1>
-          <p className="text-muted-foreground">Latest updates from companies</p>
+          <h1 className="text-3xl font-bold">Industry News</h1>
+          <p className="text-muted-foreground">Latest updates from drilling companies</p>
         </div>
 
         <div className="grid gap-6">
