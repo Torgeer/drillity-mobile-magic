@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -43,6 +45,23 @@ const CompanySubscription = () => {
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [previewAIEnabled, setPreviewAIEnabled] = useState(false);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'invoice'>('card');
+  const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
+  const [invoiceFormData, setInvoiceFormData] = useState({
+    po_number: '',
+    vat_number: '',
+    billing_email: '',
+    company_name: '',
+    payment_terms: 30,
+    address: {
+      line1: '',
+      line2: '',
+      city: '',
+      state: '',
+      postal_code: '',
+      country: ''
+    }
+  });
   
   // Check if user is eligible for early bird discount
   const isEarlyBird = user && new Date(user.created_at || '') < new Date('2026-01-01');
@@ -98,11 +117,24 @@ const CompanySubscription = () => {
   const handleOpenPreview = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
     setPreviewAIEnabled(false);
-    setPreviewDialogOpen(true);
+    
+    // If invoice payment, show invoice form dialog first
+    if (paymentMethod === 'invoice') {
+      setInvoiceDialogOpen(true);
+    } else {
+      setPreviewDialogOpen(true);
+    }
   };
 
   const handleConfirmCheckout = async () => {
     if (!companyId || !selectedPlan) return;
+
+    // If invoice payment, show invoice form instead
+    if (paymentMethod === 'invoice') {
+      setPreviewDialogOpen(false);
+      setInvoiceDialogOpen(true);
+      return;
+    }
 
     try {
       setLoadingData(true);
@@ -128,6 +160,56 @@ const CompanySubscription = () => {
     } catch (error: any) {
       console.error('Error creating checkout:', error);
       toast.error(error.message || "Failed to start checkout");
+      setLoadingData(false);
+    }
+  };
+
+  const handleConfirmInvoice = async () => {
+    if (!companyId || !selectedPlan) return;
+
+    try {
+      setLoadingData(true);
+
+      // Call edge function to create invoice
+      const { data, error } = await supabase.functions.invoke('create-invoice-subscription', {
+        body: { 
+          plan_id: selectedPlan.id,
+          ai_matching_enabled: previewAIEnabled,
+          billing_interval: billingInterval,
+          payment_terms: invoiceFormData.payment_terms,
+          po_number: invoiceFormData.po_number || undefined,
+          vat_number: invoiceFormData.vat_number || undefined,
+          billing_email: invoiceFormData.billing_email || undefined,
+          company_name: invoiceFormData.company_name || undefined,
+          billing_address: invoiceFormData.address.line1 ? invoiceFormData.address : undefined
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast.success("Invoice created and sent to your email!");
+        setInvoiceDialogOpen(false);
+        setPreviewDialogOpen(false);
+        
+        // Show invoice details
+        toast.info(`Invoice amount: €${data.amount_due.toFixed(2)}. Due date: ${new Date(data.due_date).toLocaleDateString()}`);
+        
+        // Optionally open invoice PDF
+        if (data.invoice_pdf) {
+          window.open(data.invoice_pdf, '_blank');
+        }
+        
+        // Reload data to show pending subscription
+        await loadData();
+      } else {
+        throw new Error('Failed to create invoice');
+      }
+
+    } catch (error: any) {
+      console.error('Error creating invoice:', error);
+      toast.error(error.message || "Failed to create invoice");
+    } finally {
       setLoadingData(false);
     }
   };
@@ -288,6 +370,87 @@ const CompanySubscription = () => {
                 </Badge>
               )}
             </span>
+          </div>
+        </Card>
+
+        {/* Payment Method Selector */}
+        <Card className="p-4">
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-semibold mb-2">Payment Method</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Choose how you'd like to pay for your subscription
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Card Payment Option */}
+              <div 
+                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                  paymentMethod === 'card' 
+                    ? 'border-primary bg-primary/5' 
+                    : 'border-border hover:border-primary/50'
+                }`}
+                onClick={() => setPaymentMethod('card')}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                    paymentMethod === 'card' ? 'border-primary' : 'border-muted-foreground'
+                  }`}>
+                    {paymentMethod === 'card' && (
+                      <div className="w-3 h-3 rounded-full bg-primary" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold mb-1">Credit Card Payment</div>
+                    <p className="text-sm text-muted-foreground">
+                      Pay instantly with credit/debit card, Link, or bank transfer
+                    </p>
+                    <Badge variant="secondary" className="mt-2 bg-green-500 text-white">
+                      Instant activation
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Invoice Option */}
+              <div 
+                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                  paymentMethod === 'invoice' 
+                    ? 'border-primary bg-primary/5' 
+                    : 'border-border hover:border-primary/50'
+                }`}
+                onClick={() => setPaymentMethod('invoice')}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                    paymentMethod === 'invoice' ? 'border-primary' : 'border-muted-foreground'
+                  }`}>
+                    {paymentMethod === 'invoice' && (
+                      <div className="w-3 h-3 rounded-full bg-primary" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold mb-1">Invoice Payment (B2B)</div>
+                    <p className="text-sm text-muted-foreground">
+                      Receive an invoice via email. Pay with bank transfer (Net 15/30/45 days)
+                    </p>
+                    <Badge variant="secondary" className="mt-2">
+                      Perfect for companies
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {paymentMethod === 'invoice' && (
+              <div className="p-4 bg-muted/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  💼 <strong>Invoice payment is ideal for:</strong> Companies that need proper accounting documentation, 
+                  PO number tracking, VAT invoices, or can't use corporate cards for large purchases.
+                </p>
+              </div>
+            )}
           </div>
         </Card>
 
@@ -626,7 +789,217 @@ const CompanySubscription = () => {
                     disabled={loadingData}
                     className="flex-1"
                   >
-                    {loadingData ? "Processing..." : "Confirm and Pay"}
+                    {loadingData ? "Processing..." : paymentMethod === 'invoice' ? "Review Invoice Details" : "Confirm and Pay"}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Invoice Form Dialog */}
+        <Dialog open={invoiceDialogOpen} onOpenChange={setInvoiceDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Invoice Payment Details</DialogTitle>
+              <DialogDescription>
+                Please provide your company billing information for the invoice
+              </DialogDescription>
+            </DialogHeader>
+
+            {selectedPlan && (
+              <div className="space-y-6">
+                {/* Selected Plan Summary */}
+                <Card className="p-4 bg-primary/5">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-bold">{selectedPlan.name} Plan</h3>
+                      <Badge>{billingInterval === 'year' ? 'Annual' : 'Monthly'}</Badge>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Subscription Cost</span>
+                      <span className="font-semibold">€{calculatePrice(selectedPlan.price_eur, billingInterval)}</span>
+                    </div>
+                    {previewAIEnabled && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span>AI Matching</span>
+                        <span className="font-semibold">€{calculateAIMatchingPrice(selectedPlan, billingInterval)}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between pt-2 border-t font-bold">
+                      <span>Total</span>
+                      <span className="text-lg text-primary">
+                        €{calculatePrice(selectedPlan.price_eur, billingInterval) + (previewAIEnabled ? calculateAIMatchingPrice(selectedPlan, billingInterval) : 0)}
+                      </span>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Company Information */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold">Company Information</h3>
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="company_name">Company Name</Label>
+                      <Input
+                        id="company_name"
+                        placeholder="Enter company name"
+                        value={invoiceFormData.company_name}
+                        onChange={(e) => setInvoiceFormData({ ...invoiceFormData, company_name: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="billing_email">Billing Email</Label>
+                      <Input
+                        id="billing_email"
+                        type="email"
+                        placeholder="accounting@company.com"
+                        value={invoiceFormData.billing_email}
+                        onChange={(e) => setInvoiceFormData({ ...invoiceFormData, billing_email: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="vat_number">VAT Number (Optional)</Label>
+                      <Input
+                        id="vat_number"
+                        placeholder="DE123456789"
+                        value={invoiceFormData.vat_number}
+                        onChange={(e) => setInvoiceFormData({ ...invoiceFormData, vat_number: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="po_number">PO Number (Optional)</Label>
+                      <Input
+                        id="po_number"
+                        placeholder="PO-2025-001"
+                        value={invoiceFormData.po_number}
+                        onChange={(e) => setInvoiceFormData({ ...invoiceFormData, po_number: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="payment_terms">Payment Terms</Label>
+                    <Select 
+                      value={invoiceFormData.payment_terms.toString()}
+                      onValueChange={(value) => setInvoiceFormData({ ...invoiceFormData, payment_terms: parseInt(value) })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="15">Net 15 (Due in 15 days)</SelectItem>
+                        <SelectItem value="30">Net 30 (Due in 30 days)</SelectItem>
+                        <SelectItem value="45">Net 45 (Due in 45 days)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Billing Address */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold">Billing Address (Optional)</h3>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="address_line1">Address Line 1</Label>
+                    <Input
+                      id="address_line1"
+                      placeholder="Street address"
+                      value={invoiceFormData.address.line1}
+                      onChange={(e) => setInvoiceFormData({ 
+                        ...invoiceFormData, 
+                        address: { ...invoiceFormData.address, line1: e.target.value }
+                      })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="address_line2">Address Line 2</Label>
+                    <Input
+                      id="address_line2"
+                      placeholder="Apartment, suite, etc."
+                      value={invoiceFormData.address.line2}
+                      onChange={(e) => setInvoiceFormData({ 
+                        ...invoiceFormData, 
+                        address: { ...invoiceFormData.address, line2: e.target.value }
+                      })}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="city">City</Label>
+                      <Input
+                        id="city"
+                        placeholder="City"
+                        value={invoiceFormData.address.city}
+                        onChange={(e) => setInvoiceFormData({ 
+                          ...invoiceFormData, 
+                          address: { ...invoiceFormData.address, city: e.target.value }
+                        })}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="postal_code">Postal Code</Label>
+                      <Input
+                        id="postal_code"
+                        placeholder="12345"
+                        value={invoiceFormData.address.postal_code}
+                        onChange={(e) => setInvoiceFormData({ 
+                          ...invoiceFormData, 
+                          address: { ...invoiceFormData.address, postal_code: e.target.value }
+                        })}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="country">Country</Label>
+                      <Input
+                        id="country"
+                        placeholder="DE"
+                        value={invoiceFormData.address.country}
+                        onChange={(e) => setInvoiceFormData({ 
+                          ...invoiceFormData, 
+                          address: { ...invoiceFormData.address, country: e.target.value }
+                        })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Info Box */}
+                <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm text-blue-900 dark:text-blue-100">
+                    📧 <strong>What happens next:</strong> We'll create and send a professional invoice to your email. 
+                    You can pay via bank transfer, SEPA, or other methods. Your subscription activates once payment is received.
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setInvoiceDialogOpen(false);
+                      setPreviewDialogOpen(true); // Go back to preview
+                    }}
+                    className="flex-1"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    onClick={handleConfirmInvoice}
+                    disabled={loadingData}
+                    className="flex-1"
+                  >
+                    {loadingData ? "Creating Invoice..." : "Create Invoice"}
                   </Button>
                 </div>
               </div>
