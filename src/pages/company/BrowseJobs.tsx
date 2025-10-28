@@ -5,6 +5,7 @@ import { MapPin, DollarSign, Briefcase } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface Job {
   id: string;
@@ -25,6 +26,7 @@ interface Job {
 }
 
 const BrowseJobs = () => {
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -126,7 +128,11 @@ const BrowseJobs = () => {
             </Card>
           ) : (
             filteredJobs.map((job) => (
-              <Card key={job.id} className="p-4 sm:p-5 lg:p-6 hover:border-primary/50 transition-colors">
+              <Card 
+                key={job.id} 
+                className="p-4 sm:p-5 lg:p-6 hover:border-primary/50 transition-colors cursor-pointer"
+                onClick={() => navigate(`/company/jobs/${job.id}`, { state: { from: '/company/browse-jobs' } })}
+              >
                 <div className="flex items-start gap-4">
                   {job.company_profiles.logo_url && (
                     <img 

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getCurrentLocation, requestLocationPermission } from "@/utils/capacitorPlugins";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,10 +13,12 @@ import { useAuth } from "@/hooks/useAuth";
 
 const PostJob = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [projects, setProjects] = useState<Array<{ id: string; project_name: string }>>([]);
+  const isEditMode = !!id;
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -44,11 +46,47 @@ const PostJob = () => {
       if (data) {
         setCompanyId(data.id);
         fetchProjects(data.id);
+        
+        // If in edit mode, fetch the job data
+        if (isEditMode) {
+          fetchJobData(id);
+        }
       }
     };
     
     getCompanyId();
-  }, [user]);
+  }, [user, id]);
+
+  const fetchJobData = async (jobId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .eq('id', jobId)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setFormData({
+          title: data.title,
+          description: data.description,
+          location: data.location,
+          jobType: data.job_type,
+          experienceLevel: data.experience_level,
+          salaryMin: data.salary_min?.toString() || "",
+          salaryMax: data.salary_max?.toString() || "",
+          remote: data.remote,
+          skills: data.skills?.join(', ') || "",
+          certifications: data.certifications?.join(', ') || "",
+          projectId: data.project_id || "",
+        });
+      }
+    } catch (error: any) {
+      toast.error("Failed to load job data");
+      console.error(error);
+    }
+  };
 
   const fetchProjects = async (compId: string) => {
     const { data, error } = await supabase
@@ -86,30 +124,42 @@ const PostJob = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase
-        .from('jobs')
-        .insert([{
-          company_id: companyId,
-          title: formData.title,
-          description: formData.description,
-          location: formData.location,
-          job_type: formData.jobType as 'full_time' | 'part_time' | 'contract' | 'rotation',
-          experience_level: formData.experienceLevel as 'entry' | 'intermediate' | 'senior' | 'expert',
-          salary_min: formData.salaryMin ? parseInt(formData.salaryMin) : null,
-          salary_max: formData.salaryMax ? parseInt(formData.salaryMax) : null,
-          remote: formData.remote,
-          skills: formData.skills ? formData.skills.split(',').map(s => s.trim()) : [],
-          certifications: formData.certifications ? formData.certifications.split(',').map(c => c.trim()) : [],
-          project_id: formData.projectId || null,
-          is_active: true
-        }]);
+      const jobData = {
+        company_id: companyId,
+        title: formData.title,
+        description: formData.description,
+        location: formData.location,
+        job_type: formData.jobType as 'full_time' | 'part_time' | 'contract' | 'rotation',
+        experience_level: formData.experienceLevel as 'entry' | 'intermediate' | 'senior' | 'expert',
+        salary_min: formData.salaryMin ? parseInt(formData.salaryMin) : null,
+        salary_max: formData.salaryMax ? parseInt(formData.salaryMax) : null,
+        remote: formData.remote,
+        skills: formData.skills ? formData.skills.split(',').map(s => s.trim()) : [],
+        certifications: formData.certifications ? formData.certifications.split(',').map(c => c.trim()) : [],
+        project_id: formData.projectId || null,
+        is_active: true
+      };
 
-      if (error) throw error;
+      if (isEditMode) {
+        const { error } = await supabase
+          .from('jobs')
+          .update(jobData)
+          .eq('id', id);
 
-      toast.success("Job posted successfully!");
+        if (error) throw error;
+        toast.success("Job updated successfully!");
+      } else {
+        const { error } = await supabase
+          .from('jobs')
+          .insert([jobData]);
+
+        if (error) throw error;
+        toast.success("Job posted successfully!");
+      }
+
       navigate("/company/jobs");
     } catch (error: any) {
-      toast.error(error.message || "Failed to post job");
+      toast.error(error.message || `Failed to ${isEditMode ? 'update' : 'post'} job`);
     } finally {
       setLoading(false);
     }
@@ -119,8 +169,10 @@ const PostJob = () => {
     <CompanyLayout>
       <div className="w-full max-w-4xl space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Post a New Job</h1>
-          <p className="text-muted-foreground">Fill in the details to create a job posting</p>
+          <h1 className="text-3xl font-bold">{isEditMode ? 'Edit Job' : 'Post a New Job'}</h1>
+          <p className="text-muted-foreground">
+            {isEditMode ? 'Update the job details' : 'Fill in the details to create a job posting'}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -270,7 +322,7 @@ const PostJob = () => {
 
             <div className="flex gap-4">
               <Button type="submit" disabled={loading}>
-                {loading ? "Posting..." : "Post Job"}
+                {loading ? (isEditMode ? "Updating..." : "Posting...") : (isEditMode ? "Update Job" : "Post Job")}
               </Button>
               <Button type="button" variant="outline" onClick={() => navigate("/company/jobs")}>
                 Cancel
