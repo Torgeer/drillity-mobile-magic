@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import drillityLogo from "@/assets/drillity-logo.png";
+import drillityLogoDark from "@/assets/drillity-logo-dark.png";
 import drillityLogoLight from "@/assets/drillity-logo-light.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -115,7 +115,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
     navigate("/auth");
   };
 
-  const logoSrc = theme === 'light' ? drillityLogoLight : drillityLogo;
+  const logoSrc = theme === 'light' ? drillityLogoLight : drillityLogoDark;
 
   return (
     <div className="flex min-h-screen bg-background">
