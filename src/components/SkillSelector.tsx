@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { X, Search } from 'lucide-react';
+import { X, Search, Plus } from 'lucide-react';
 import {
   Command,
   CommandEmpty,
@@ -44,6 +44,7 @@ export const SkillSelector = ({
   const [skills, setSkills] = useState<IndustrySkill[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [customSkillInput, setCustomSkillInput] = useState('');
 
   useEffect(() => {
     fetchSkills();
@@ -78,6 +79,21 @@ export const SkillSelector = ({
 
   const handleRemove = (skillName: string) => {
     onChange(selectedSkills.filter(s => s !== skillName));
+  };
+
+  const handleAddCustomSkill = () => {
+    if (!customSkillInput.trim()) return;
+    
+    const trimmedSkill = customSkillInput.trim();
+    if (!selectedSkills.includes(trimmedSkill)) {
+      onChange([...selectedSkills, trimmedSkill]);
+    }
+    setCustomSkillInput('');
+    setSearchQuery('');
+  };
+
+  const isCustomSkill = (skillName: string) => {
+    return !skills.some(s => s.skill_name === skillName);
   };
 
   const groupedSkills = skills.reduce((acc, skill) => {
@@ -116,7 +132,33 @@ export const SkillSelector = ({
               onValueChange={setSearchQuery}
             />
             <CommandList>
-              <CommandEmpty>No skills found.</CommandEmpty>
+              <CommandEmpty>
+                <div className="p-4 space-y-3">
+                  <p className="text-sm text-muted-foreground">No skills found in database.</p>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Add custom skill..."
+                      value={customSkillInput}
+                      onChange={(e) => setCustomSkillInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddCustomSkill();
+                        }
+                      }}
+                      className="h-9"
+                    />
+                    <Button 
+                      type="button" 
+                      size="sm"
+                      onClick={handleAddCustomSkill}
+                      disabled={!customSkillInput.trim()}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CommandEmpty>
               <ScrollArea className="h-[300px]">
                 {Object.entries(groupedSkills).map(([type, typeSkills]) => (
                   <CommandGroup 
@@ -156,18 +198,30 @@ export const SkillSelector = ({
 
       {selectedSkills.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {selectedSkills.map((skill) => (
-            <Badge key={skill} variant="secondary" className="gap-1">
-              {skill}
-              <button
-                type="button"
-                onClick={() => handleRemove(skill)}
-                className="ml-1 hover:bg-secondary-foreground/20 rounded-full"
+          {selectedSkills.map((skill) => {
+            const isCustom = isCustomSkill(skill);
+            return (
+              <Badge 
+                key={skill} 
+                variant="secondary" 
+                className={`gap-1 ${isCustom ? 'border-2 border-green-500' : ''}`}
               >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
+                {skill}
+                {isCustom && (
+                  <span className="text-[10px] ml-1 text-green-600 dark:text-green-400">
+                    Custom
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleRemove(skill)}
+                  className="ml-1 hover:bg-secondary-foreground/20 rounded-full"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            );
+          })}
         </div>
       )}
     </div>
