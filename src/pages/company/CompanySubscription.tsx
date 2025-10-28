@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -38,6 +39,9 @@ const CompanySubscription = () => {
   const [currentSubscription, setCurrentSubscription] = useState<CompanySubscription | null>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [loadingData, setLoadingData] = useState(true);
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+  const [previewAIEnabled, setPreviewAIEnabled] = useState(false);
 
   useEffect(() => {
     if (!loading) {
@@ -85,8 +89,14 @@ const CompanySubscription = () => {
     }
   };
 
-  const handleSelectPlan = async (planId: string) => {
-    if (!companyId) return;
+  const handleOpenPreview = (plan: SubscriptionPlan) => {
+    setSelectedPlan(plan);
+    setPreviewAIEnabled(false);
+    setPreviewDialogOpen(true);
+  };
+
+  const handleConfirmCheckout = async () => {
+    if (!companyId || !selectedPlan) return;
 
     try {
       setLoadingData(true);
@@ -94,8 +104,8 @@ const CompanySubscription = () => {
       // Call edge function to create Stripe Checkout Session
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         body: { 
-          plan_id: planId,
-          ai_matching_enabled: false
+          plan_id: selectedPlan.id,
+          ai_matching_enabled: previewAIEnabled
         }
       });
 
@@ -113,6 +123,11 @@ const CompanySubscription = () => {
       toast.error(error.message || "Failed to start checkout");
       setLoadingData(false);
     }
+  };
+
+  const calculateAIMatchingPrice = (plan: SubscriptionPlan) => {
+    const percentage = plan.job_limit <= 40 ? 0.1 : 0.3;
+    return Math.round(plan.price_eur * percentage);
   };
 
   const handleToggleAIMatching = async (enabled: boolean) => {
@@ -369,7 +384,7 @@ const CompanySubscription = () => {
                   <Button 
                     className="w-full" 
                     variant={isCurrentPlan ? "outline" : "default"}
-                    onClick={() => handleSelectPlan(plan.id)}
+                    onClick={() => handleOpenPreview(plan)}
                     disabled={isCurrentPlan}
                   >
                     {isCurrentPlan ? "Current Plan" : "Select Plan"}
@@ -385,6 +400,101 @@ const CompanySubscription = () => {
           <p className="text-sm text-muted-foreground mb-3">Contact us for a custom enterprise plan</p>
           <Button variant="outline" size="sm">Contact Sales</Button>
         </Card>
+
+        {/* Preview Dialog */}
+        <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">Bekräfta ditt val</DialogTitle>
+              <DialogDescription>
+                Granska din prenumeration innan betalning
+              </DialogDescription>
+            </DialogHeader>
+            
+            {selectedPlan && (
+              <div className="space-y-4">
+                {/* Selected Plan */}
+                <Card className="p-4 border-primary">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-bold">{selectedPlan.name}</h3>
+                      <Badge variant="secondary">{selectedPlan.job_limit} jobb</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Grundpris</span>
+                      <span className="text-2xl font-bold">€{selectedPlan.price_eur}</span>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* AI Matching Toggle */}
+                <Card className="p-4 bg-primary/5">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Sparkles className="h-4 w-4 text-primary" />
+                          <Label htmlFor="preview-ai-toggle" className="font-semibold cursor-pointer">
+                            AI Talent Matching
+                          </Label>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Obegränsade AI-matchningar per månad
+                        </p>
+                      </div>
+                      <Switch
+                        id="preview-ai-toggle"
+                        checked={previewAIEnabled}
+                        onCheckedChange={setPreviewAIEnabled}
+                      />
+                    </div>
+                    
+                    {previewAIEnabled && (
+                      <div className="flex items-center justify-between pt-2 border-t">
+                        <span className="text-sm text-muted-foreground">AI Matching</span>
+                        <span className="font-semibold">€{calculateAIMatchingPrice(selectedPlan)}</span>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+
+                {/* Total */}
+                <div className="space-y-2 pt-2 border-t">
+                  <div className="flex items-center justify-between text-lg">
+                    <span className="font-bold">Totalt per månad</span>
+                    <span className="text-2xl font-bold text-primary">
+                      €{previewAIEnabled 
+                        ? selectedPlan.price_eur + calculateAIMatchingPrice(selectedPlan)
+                        : selectedPlan.price_eur}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Inkluderar {selectedPlan.job_limit} aktiva jobbpubliceringar
+                    {previewAIEnabled && " + obegränsade AI-matchningar"}
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setPreviewDialogOpen(false)}
+                    className="flex-1"
+                  >
+                    Avbryt
+                  </Button>
+                  <Button
+                    onClick={handleConfirmCheckout}
+                    disabled={loadingData}
+                    className="flex-1"
+                  >
+                    {loadingData ? "Laddar..." : "Bekräfta och betala"}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </CompanyLayout>
   );
