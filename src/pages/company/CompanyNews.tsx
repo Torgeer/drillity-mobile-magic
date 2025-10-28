@@ -220,10 +220,10 @@ const CompanyNews = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="my-news" className="w-full">
+        <Tabs defaultValue="industry-news" className="w-full">
           <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="my-news">My News</TabsTrigger>
             <TabsTrigger value="industry-news">Industry News</TabsTrigger>
+            <TabsTrigger value="my-news">My News</TabsTrigger>
           </TabsList>
 
           <TabsContent value="my-news" className="space-y-6 mt-6">
