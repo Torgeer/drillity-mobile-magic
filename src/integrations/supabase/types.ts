@@ -267,8 +267,11 @@ export type Database = {
           ai_matches_used_this_month: number | null
           ai_matching_enabled: boolean | null
           ai_matching_price_eur: number | null
+          annual_discount_applied: boolean | null
+          billing_interval: string | null
           company_id: string
           created_at: string
+          early_bird_discount_applied: boolean | null
           end_date: string | null
           id: string
           is_active: boolean | null
@@ -286,8 +289,11 @@ export type Database = {
           ai_matches_used_this_month?: number | null
           ai_matching_enabled?: boolean | null
           ai_matching_price_eur?: number | null
+          annual_discount_applied?: boolean | null
+          billing_interval?: string | null
           company_id: string
           created_at?: string
+          early_bird_discount_applied?: boolean | null
           end_date?: string | null
           id?: string
           is_active?: boolean | null
@@ -305,8 +311,11 @@ export type Database = {
           ai_matches_used_this_month?: number | null
           ai_matching_enabled?: boolean | null
           ai_matching_price_eur?: number | null
+          annual_discount_applied?: boolean | null
+          billing_interval?: string | null
           company_id?: string
           created_at?: string
+          early_bird_discount_applied?: boolean | null
           end_date?: string | null
           id?: string
           is_active?: boolean | null
@@ -887,6 +896,7 @@ export type Database = {
           name: string
           price_eur: number
           stripe_price_id: string | null
+          stripe_price_id_annual: string | null
         }
         Insert: {
           created_at?: string
@@ -896,6 +906,7 @@ export type Database = {
           name: string
           price_eur: number
           stripe_price_id?: string | null
+          stripe_price_id_annual?: string | null
         }
         Update: {
           created_at?: string
@@ -905,6 +916,7 @@ export type Database = {
           name?: string
           price_eur?: number
           stripe_price_id?: string | null
+          stripe_price_id_annual?: string | null
         }
         Relationships: []
       }

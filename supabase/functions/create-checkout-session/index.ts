@@ -40,9 +40,9 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { plan_id, ai_matching_enabled } = await req.json();
+    const { plan_id, ai_matching_enabled, billing_interval = 'month' } = await req.json();
     if (!plan_id) throw new Error("plan_id is required");
-    logStep("Request params", { plan_id, ai_matching_enabled });
+    logStep("Request params", { plan_id, ai_matching_enabled, billing_interval });
 
     // Get company_id
     const { data: companyData, error: companyError } = await supabaseClient
@@ -63,8 +63,14 @@ serve(async (req) => {
       .single();
     
     if (planError || !planData) throw new Error("Plan not found");
-    if (!planData.stripe_price_id) throw new Error("Plan missing stripe_price_id");
-    logStep("Plan found", { planName: planData.name, stripePriceId: planData.stripe_price_id });
+    
+    // Select price based on billing interval
+    const stripePriceId = billing_interval === 'year' 
+      ? planData.stripe_price_id_annual 
+      : planData.stripe_price_id;
+    
+    if (!stripePriceId) throw new Error(`Plan missing price_id for ${billing_interval}`);
+    logStep("Plan found", { planName: planData.name, stripePriceId, billingInterval: billing_interval });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
@@ -73,10 +79,14 @@ serve(async (req) => {
     let customerId = customers.data.length > 0 ? customers.data[0].id : undefined;
     logStep("Customer check", { customerId, exists: !!customerId });
 
+    // Check if user is eligible for early bird discount (registered before 2026-01-01)
+    const isEarlyBird = new Date(user.created_at || '') < new Date('2026-01-01');
+    logStep("Early bird eligibility", { isEarlyBird, userCreatedAt: user.created_at });
+
     // Build line items
     const lineItems: any[] = [
       {
-        price: planData.stripe_price_id,
+        price: stripePriceId,
         quantity: 1,
       }
     ];
@@ -94,11 +104,26 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "http://localhost:8080";
     
+    // Prepare discounts for early bird campaign
+    const discounts: any[] = [];
+    if (isEarlyBird) {
+      // Apply 50% early bird discount
+      discounts.push({ coupon: '5Hx8r3Cg' });
+      logStep("Applied early bird discount", { couponId: '5Hx8r3Cg' });
+      
+      // Apply additional 30% for annual billing
+      if (billing_interval === 'year') {
+        discounts.push({ coupon: 'GDJHdAmk' });
+        logStep("Applied annual discount", { couponId: 'GDJHdAmk' });
+      }
+    }
+    
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: lineItems,
       mode: "subscription",
+      discounts: discounts.length > 0 ? discounts : undefined,
       success_url: `${origin}/company/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/company/subscription`,
       metadata: {
@@ -106,6 +131,9 @@ serve(async (req) => {
         plan_id: plan_id,
         ai_matching_enabled: ai_matching_enabled ? "true" : "false",
         ai_matching_price_eur: aiMatchingPrice.toString(),
+        billing_interval: billing_interval,
+        early_bird_discount: isEarlyBird ? "true" : "false",
+        annual_discount: (isEarlyBird && billing_interval === 'year') ? "true" : "false",
       },
     });
 

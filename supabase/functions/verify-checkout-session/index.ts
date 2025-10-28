@@ -64,11 +64,14 @@ serve(async (req) => {
     const planId = metadata.plan_id;
     const aiMatchingEnabled = metadata.ai_matching_enabled === "true";
     const aiMatchingPriceEur = parseInt(metadata.ai_matching_price_eur || "0");
+    const billingInterval = metadata.billing_interval || "month";
+    const earlyBirdDiscount = metadata.early_bird_discount === "true";
+    const annualDiscount = metadata.annual_discount === "true";
 
     if (!companyId || !planId) {
       throw new Error("Missing metadata in checkout session");
     }
-    logStep("Metadata extracted", { companyId, planId, aiMatchingEnabled, aiMatchingPriceEur });
+    logStep("Metadata extracted", { companyId, planId, aiMatchingEnabled, aiMatchingPriceEur, billingInterval, earlyBirdDiscount, annualDiscount });
 
     // Verify company belongs to user
     const { data: companyData, error: companyError } = await supabaseClient
@@ -114,6 +117,9 @@ serve(async (req) => {
         ai_matches_reset_date: new Date().toISOString(),
         stripe_subscription_id: session.subscription as string,
         stripe_customer_id: session.customer as string,
+        billing_interval: billingInterval,
+        early_bird_discount_applied: earlyBirdDiscount,
+        annual_discount_applied: annualDiscount,
       })
       .select()
       .single();
