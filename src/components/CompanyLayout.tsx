@@ -28,9 +28,19 @@ const navigation = [
 export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [jobsSectionExpanded, setJobsSectionExpanded] = useState(false);
-  const [contractsSectionExpanded, setContractsSectionExpanded] = useState(false);
-  const [profileSectionExpanded, setProfileSectionExpanded] = useState(false);
+  
+  // Auto-expand sections based on current route
+  const isOnJobsRoute = location.pathname.includes('/company/jobs') || 
+                        location.pathname === '/company/browse-jobs' || 
+                        location.pathname === '/company/applications';
+  const isOnContractsRoute = location.pathname === '/company/contracts' || 
+                             location.pathname === '/company/browse-contracts';
+  const isOnProfileRoute = location.pathname === '/company/profile' || 
+                           location.pathname === '/company/team';
+  
+  const [jobsSectionExpanded, setJobsSectionExpanded] = useState(isOnJobsRoute);
+  const [contractsSectionExpanded, setContractsSectionExpanded] = useState(isOnContractsRoute);
+  const [profileSectionExpanded, setProfileSectionExpanded] = useState(isOnProfileRoute);
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState<string>("");
@@ -44,6 +54,21 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
       fetchSubscriptionPlan();
     }
   }, [user]);
+
+  // Update expanded sections when route changes
+  useEffect(() => {
+    const isOnJobsRoute = location.pathname.includes('/company/jobs') || 
+                          location.pathname === '/company/browse-jobs' || 
+                          location.pathname === '/company/applications';
+    const isOnContractsRoute = location.pathname === '/company/contracts' || 
+                               location.pathname === '/company/browse-contracts';
+    const isOnProfileRoute = location.pathname === '/company/profile' || 
+                             location.pathname === '/company/team';
+    
+    setJobsSectionExpanded(isOnJobsRoute);
+    setContractsSectionExpanded(isOnContractsRoute);
+    setProfileSectionExpanded(isOnProfileRoute);
+  }, [location.pathname]);
 
   const fetchCompanyName = async () => {
     if (!user) return;
