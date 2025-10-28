@@ -27,6 +27,7 @@ import CompanySubscription from "./pages/company/CompanySubscription";
 import CompanyNews from "./pages/company/CompanyNews";
 import CompanyContracts from "./pages/company/CompanyContracts";
 import BrowseContracts from "./pages/company/BrowseContracts";
+import BrowseJobs from "./pages/company/BrowseJobs";
 import News from "./pages/News";
 import NotFound from "./pages/NotFound";
 import { CompanyLayout } from "./components/CompanyLayout";
@@ -60,6 +61,7 @@ const App = () => (
           <Route element={<CompanyLayout><div /></CompanyLayout>}>
             <Route path="/company/dashboard" element={<CompanyDashboard />} />
             <Route path="/company/jobs" element={<CompanyJobs />} />
+            <Route path="/company/browse-jobs" element={<BrowseJobs />} />
             <Route path="/company/jobs/new" element={<PostJob />} />
             <Route path="/company/jobs/import" element={<CompanyJobImport />} />
             <Route path="/company/applications" element={<CompanyApplications />} />

@@ -11,6 +11,7 @@ import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 const navigation = [
   { name: "Dashboard", href: "/company/dashboard", icon: Home },
   { name: "My Jobs", href: "/company/jobs", icon: Briefcase },
+  { name: "Browse All Jobs", href: "/company/browse-jobs", icon: Search },
   { name: "Import Jobs", href: "/company/jobs/import", icon: Upload },
   { name: "Applications", href: "/company/applications", icon: FileText },
   { name: "Browse Talent", href: "/company/talents", icon: UserSearch },
