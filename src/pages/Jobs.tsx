@@ -74,74 +74,76 @@ const Jobs = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Browse Jobs</h1>
-          <p className="text-muted-foreground">Find opportunities</p>
+      <div className="space-y-4 sm:space-y-6 w-full">
+        <div className="space-y-1">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Browse Jobs</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm">Find opportunities</p>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
           <input
             type="text"
             placeholder="Search jobs..."
-            className="flex-1 rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="flex-1 rounded-lg border border-input bg-secondary px-3 sm:px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
-          <select className="rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-            <option>All Locations</option>
-            <option>Houston, TX</option>
-            <option>North Sea</option>
-            <option>Texas</option>
-          </select>
-          <select className="rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-            <option>All Types</option>
-            <option>Full-time</option>
-            <option>Contract</option>
-            <option>Rotation</option>
-          </select>
-          <LocationJobSearch onLocationFound={handleLocationFound} />
+          <div className="flex gap-2 sm:gap-4">
+            <select className="flex-1 sm:flex-initial rounded-lg border border-input bg-secondary px-3 sm:px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+              <option>All Locations</option>
+              <option>Houston, TX</option>
+              <option>North Sea</option>
+              <option>Texas</option>
+            </select>
+            <select className="flex-1 sm:flex-initial rounded-lg border border-input bg-secondary px-3 sm:px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+              <option>All Types</option>
+              <option>Full-time</option>
+              <option>Contract</option>
+              <option>Rotation</option>
+            </select>
+            <LocationJobSearch onLocationFound={handleLocationFound} />
+          </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {sortedJobs.map((job) => {
             const distance = userLocation
               ? calculateDistance(userLocation.lat, userLocation.lng, job.latitude, job.longitude)
               : null;
 
             return (
-              <Card key={job.id} className="p-6 hover:border-primary/50 transition-colors">
+              <Card key={job.id} className="p-4 sm:p-5 lg:p-6 hover:border-primary/50 transition-colors">
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-xs sm:text-sm">
                         {job.type}
                       </Badge>
                     </div>
-                    <h3 className="text-xl font-semibold text-primary mb-1">{job.title}</h3>
-                    <p className="text-muted-foreground mb-3">{job.company}</p>
+                    <h3 className="text-lg sm:text-xl font-semibold text-primary mb-1 break-words">{job.title}</h3>
+                    <p className="text-muted-foreground mb-3 text-sm sm:text-base">{job.company}</p>
                     
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-3">
                       <div className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        {job.location}
-                        {distance && <span className="text-primary ml-1">({distance} km away)</span>}
+                        <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="truncate">{job.location}</span>
+                        {distance && <span className="text-primary ml-1 flex-shrink-0">({distance} km away)</span>}
                       </div>
                       <div className="flex items-center gap-1">
-                        <DollarSign className="h-4 w-4" />
-                        {job.salary}
+                        <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span>{job.salary}</span>
                       </div>
                     </div>
 
-                    <p className="text-sm mb-3">{job.description}</p>
+                    <p className="text-xs sm:text-sm mb-3 line-clamp-2">{job.description}</p>
 
-                    <div className="flex gap-2 mb-4">
+                    <div className="flex gap-2 mb-4 flex-wrap">
                       {job.tags.map((tag) => (
-                        <Badge key={tag} variant="outline" className="bg-secondary">
+                        <Badge key={tag} variant="outline" className="bg-secondary text-xs">
                           {tag}
                         </Badge>
                       ))}
                     </div>
 
-                    <Button>Apply Now</Button>
+                    <Button className="w-full sm:w-auto" size="sm">Apply Now</Button>
                   </div>
                 </div>
               </Card>
