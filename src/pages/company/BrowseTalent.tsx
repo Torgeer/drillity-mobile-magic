@@ -6,47 +6,43 @@ import { MapPin, Mail, Briefcase } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getCurrentLocation, requestLocationPermission } from "@/utils/capacitorPlugins";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-const talents = [
-  {
-    id: 1,
-    name: "Alex Driller",
-    location: "Houston, TX",
-    latitude: 29.7604,
-    longitude: -95.3698,
-    skills: ["Project Management", "Software Development", "Database Design", "Drilling Operations"],
-    experience: "10+ years",
-    available: true,
-  },
-  {
-    id: 2,
-    name: "Jordan Engineer",
-    location: "Aberdeen, UK",
-    latitude: 57.1497,
-    longitude: -2.0943,
-    skills: ["Drilling", "IADC WellCAP", "H2S Safety", "Offshore Operations"],
-    experience: "8 years",
-    available: true,
-  },
-  {
-    id: 3,
-    name: "Sam Supervisor",
-    location: "Stavanger, Norway",
-    latitude: 58.9700,
-    longitude: 5.7331,
-    skills: ["Safety Management", "OSHA 30", "Team Leadership"],
-    experience: "12 years",
-    available: false,
-  },
-];
+interface Talent {
+  id: string;
+  full_name: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  experience_years: number;
+  availability_status: string;
+  avatar_url: string;
+}
 
 const BrowseTalent = () => {
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [sortByDistance, setSortByDistance] = useState(false);
+  const [talents, setTalents] = useState<Talent[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadLocation();
+    fetchTalents();
   }, []);
+
+  const fetchTalents = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, full_name, location, latitude, longitude, experience_years, availability_status, avatar_url')
+      .eq('user_type', 'talent')
+      .not('full_name', 'is', null);
+
+    if (data && !error) {
+      setTalents(data as Talent[]);
+    }
+    setLoading(false);
+  };
 
   const loadLocation = async () => {
     const hasPermission = await requestLocationPermission();
@@ -75,11 +71,21 @@ const BrowseTalent = () => {
 
   const sortedTalents = sortByDistance && userLocation
     ? [...talents].sort((a, b) => {
-        const distA = calculateDistance(userLocation.latitude, userLocation.longitude, a.latitude, a.longitude);
-        const distB = calculateDistance(userLocation.latitude, userLocation.longitude, b.latitude, b.longitude);
+        const distA = a.latitude && a.longitude ? calculateDistance(userLocation.latitude, userLocation.longitude, a.latitude, a.longitude) : Infinity;
+        const distB = b.latitude && b.longitude ? calculateDistance(userLocation.latitude, userLocation.longitude, b.latitude, b.longitude) : Infinity;
         return distA - distB;
       })
     : talents;
+
+  if (loading) {
+    return (
+      <CompanyLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </CompanyLayout>
+    );
+  }
 
   return (
     <CompanyLayout>
@@ -120,67 +126,74 @@ const BrowseTalent = () => {
         </div>
 
         <div className="space-y-4">
-          {sortedTalents.map((talent) => {
-            const distance = userLocation 
-              ? calculateDistance(userLocation.latitude, userLocation.longitude, talent.latitude, talent.longitude)
-              : null;
+          {talents.length === 0 ? (
+            <Card className="p-12 text-center">
+              <p className="text-muted-foreground">No talents found</p>
+            </Card>
+          ) : (
+            sortedTalents.map((talent) => {
+              const distance = userLocation && talent.latitude && talent.longitude
+                ? calculateDistance(userLocation.latitude, userLocation.longitude, talent.latitude, talent.longitude)
+                : null;
 
-            return (
-              <Card key={talent.id} className="p-6 hover:border-primary/50 transition-colors">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-4 flex-1">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-2xl">
-                      {talent.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-xl font-semibold">{talent.name}</h3>
-                        <Badge variant={talent.available ? "default" : "secondary"}>
-                          {talent.available ? "Available" : "Not Available"}
-                        </Badge>
-                      </div>
-                      
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {talent.location}
-                          {distance && <span className="text-primary ml-1">({distance} km away)</span>}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Briefcase className="h-4 w-4" />
-                          {talent.experience}
-                        </div>
-                      </div>
+              const isAvailable = talent.availability_status === 'available';
 
-                      <div className="mb-3">
-                        <h4 className="text-sm font-medium mb-2">Skills</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {talent.skills.map((skill) => (
-                            <Badge key={skill} variant="outline" className="bg-secondary">
-                              {skill}
-                            </Badge>
-                          ))}
+              return (
+                <Card key={talent.id} className="p-6 hover:border-primary/50 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-4 flex-1">
+                      {talent.avatar_url ? (
+                        <img 
+                          src={talent.avatar_url} 
+                          alt={talent.full_name} 
+                          className="h-16 w-16 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-2xl">
+                          {talent.full_name?.split(' ').map(n => n[0]).join('') || '?'}
                         </div>
-                      </div>
+                      )}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-xl font-semibold">{talent.full_name || 'Unknown'}</h3>
+                          <Badge variant={isAvailable ? "default" : "secondary"}>
+                            {isAvailable ? "Available" : "Not Available"}
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                          <div className="flex items-center gap-1">
+                            <MapPin className="h-4 w-4" />
+                            {talent.location || 'Location not set'}
+                            {distance && <span className="text-primary ml-1">({distance} km away)</span>}
+                          </div>
+                          {talent.experience_years && (
+                            <div className="flex items-center gap-1">
+                              <Briefcase className="h-4 w-4" />
+                              {talent.experience_years}+ years
+                            </div>
+                          )}
+                        </div>
 
-                      <div className="flex gap-2">
-                        <Button size="sm">
-                          View Profile
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Mail className="h-4 w-4 mr-2" />
-                          Message
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          Invite to Apply
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button size="sm">
+                            View Profile
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            <Mail className="h-4 w-4 mr-2" />
+                            Message
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            Invite to Apply
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </Card>
-            );
-          })}
+                </Card>
+              );
+            })
+          )}
         </div>
       </div>
     </CompanyLayout>
