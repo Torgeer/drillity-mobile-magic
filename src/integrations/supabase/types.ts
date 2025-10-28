@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_match_usage: {
+        Row: {
+          company_id: string
+          cost_estimate: number | null
+          executed_at: string
+          id: string
+          job_id: string
+          matches_found: number
+          was_free: boolean | null
+        }
+        Insert: {
+          company_id: string
+          cost_estimate?: number | null
+          executed_at?: string
+          id?: string
+          job_id: string
+          matches_found?: number
+          was_free?: boolean | null
+        }
+        Update: {
+          company_id?: string
+          cost_estimate?: number | null
+          executed_at?: string
+          id?: string
+          job_id?: string
+          matches_found?: number
+          was_free?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_match_usage_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_match_usage_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       applications: {
         Row: {
           applied_at: string
@@ -218,36 +263,54 @@ export type Database = {
       }
       company_subscriptions: {
         Row: {
+          ai_matches_reset_date: string | null
+          ai_matches_used_this_month: number | null
+          ai_matching_enabled: boolean | null
+          ai_matching_price_eur: number | null
           company_id: string
           created_at: string
           end_date: string | null
           id: string
           is_active: boolean | null
+          is_trial: boolean | null
           jobs_used: number | null
           plan_id: string
           start_date: string
+          trial_end_date: string | null
           updated_at: string
         }
         Insert: {
+          ai_matches_reset_date?: string | null
+          ai_matches_used_this_month?: number | null
+          ai_matching_enabled?: boolean | null
+          ai_matching_price_eur?: number | null
           company_id: string
           created_at?: string
           end_date?: string | null
           id?: string
           is_active?: boolean | null
+          is_trial?: boolean | null
           jobs_used?: number | null
           plan_id: string
           start_date?: string
+          trial_end_date?: string | null
           updated_at?: string
         }
         Update: {
+          ai_matches_reset_date?: string | null
+          ai_matches_used_this_month?: number | null
+          ai_matching_enabled?: boolean | null
+          ai_matching_price_eur?: number | null
           company_id?: string
           created_at?: string
           end_date?: string | null
           id?: string
           is_active?: boolean | null
+          is_trial?: boolean | null
           jobs_used?: number | null
           plan_id?: string
           start_date?: string
+          trial_end_date?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -979,7 +1042,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      reset_monthly_ai_matches: { Args: never; Returns: undefined }
     }
     Enums: {
       application_status:

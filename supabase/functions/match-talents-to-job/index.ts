@@ -92,7 +92,43 @@ serve(async (req) => {
 
     console.log(`Job details loaded: ${job.title}`);
 
-    // 2. Get matching preferences for company
+    // 2. Check company subscription and AI matching quota
+    const { data: subscription } = await supabase
+      .from('company_subscriptions')
+      .select('*')
+      .eq('company_id', job.company_id)
+      .eq('is_active', true)
+      .single();
+
+    if (!subscription) {
+      throw new Error('No active subscription found');
+    }
+
+    // Check if in trial period
+    const isInTrial = subscription.is_trial && new Date(subscription.trial_end_date) > new Date();
+    
+    // Check AI matching quota
+    const hasUnlimitedAI = subscription.ai_matching_enabled || isInTrial;
+    const monthlyQuotaReached = !hasUnlimitedAI && subscription.ai_matches_used_this_month >= 1;
+
+    if (monthlyQuotaReached) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Monthly AI matching quota reached. Upgrade to unlimited AI matching to continue.',
+          quota_reached: true,
+          success: false,
+          upgrade_url: '/company/subscription'
+        }),
+        { 
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    console.log(`Subscription check passed. Unlimited AI: ${hasUnlimitedAI}, Trial: ${isInTrial}`);
+
+    // 3. Get matching preferences for company
     const { data: preferences } = await supabase
       .from('matching_preferences')
       .select('*')
@@ -383,6 +419,27 @@ Analysera matchen och ge en detaljerad bedömning.`;
 
     console.log(`Matching complete. Found ${matchResults.length} matches above threshold`);
 
+    // Update AI match usage
+    const wasFreeMatch = !hasUnlimitedAI && subscription.ai_matches_used_this_month === 0;
+    
+    await supabase.from('ai_match_usage').insert({
+      job_id: job.id,
+      company_id: job.company_id,
+      matches_found: matchResults.length,
+      cost_estimate: scoredCandidates.length * 0.005, // Estimated cost per match
+      was_free: wasFreeMatch
+    });
+
+    // Increment company's AI matches counter if not unlimited
+    if (!hasUnlimitedAI) {
+      await supabase
+        .from('company_subscriptions')
+        .update({ 
+          ai_matches_used_this_month: subscription.ai_matches_used_this_month + 1 
+        })
+        .eq('id', subscription.id);
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -390,6 +447,12 @@ Analysera matchen och ge en detaljerad bedömning.`;
         candidates_analyzed: scoredCandidates.length,
         matches_found: matchResults.length,
         matches: matchResults,
+        quota_info: {
+          has_unlimited: hasUnlimitedAI,
+          is_trial: isInTrial,
+          matches_used: subscription.ai_matches_used_this_month + 1,
+          was_free: wasFreeMatch
+        }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -1,10 +1,12 @@
 import { CompanyLayout } from "@/components/CompanyLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { AIUsageMetrics } from "@/components/AIUsageMetrics";
 import { Briefcase, FileText, MessageSquare, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const stats = [
   { name: "Active Jobs", value: "8", icon: Briefcase, change: "+2 this week" },
@@ -16,6 +18,7 @@ const stats = [
 const CompanyDashboard = () => {
   const navigate = useNavigate();
   const { user, userType, loading } = useAuth();
+  const [companyId, setCompanyId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading) {
@@ -24,9 +27,25 @@ const CompanyDashboard = () => {
       } else if (userType === 'talent') {
         // Talent users should use talent dashboard
         navigate("/dashboard");
+      } else {
+        fetchCompanyId();
       }
     }
   }, [user, userType, loading, navigate]);
+
+  const fetchCompanyId = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from('company_profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+    
+    if (data) {
+      setCompanyId(data.id);
+    }
+  };
 
   if (loading) {
     return (
@@ -72,6 +91,8 @@ const CompanyDashboard = () => {
             </Card>
           ))}
         </div>
+
+        {companyId && <AIUsageMetrics companyId={companyId} />}
 
         <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
           <Card className="p-4 sm:p-5 lg:p-6">

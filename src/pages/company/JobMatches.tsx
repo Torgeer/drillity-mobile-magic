@@ -102,9 +102,26 @@ export default function JobMatches() {
         body: { job_id: jobId }
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('quota')) {
+          toast.error('Monthly AI matching quota reached. Upgrade to unlimited AI matching!', {
+            action: {
+              label: 'Upgrade',
+              onClick: () => navigate('/company/subscription')
+            }
+          });
+        } else {
+          throw error;
+        }
+        return;
+      }
 
-      toast.success(`Found ${data.matches_found} matching talents!`);
+      if (data.quota_info?.was_free) {
+        toast.success(`Found ${data.matches_found} matches! (Free monthly match used)`);
+      } else {
+        toast.success(`Found ${data.matches_found} matching talents!`);
+      }
+      
       fetchJobAndMatches();
     } catch (error) {
       console.error('Error finding matches:', error);
