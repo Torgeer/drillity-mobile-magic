@@ -172,19 +172,28 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
               if (isProfile) {
                 return (
                   <div key={item.name}>
-                    <button
-                      onClick={() => setProfileSectionExpanded(!profileSectionExpanded)}
+                    <Link
+                      to={item.href}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3 w-full text-left",
-                        "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                        "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3",
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent/50"
                       )}
                     >
                       <item.icon className="h-5 w-5" />
                       {item.name}
-                      <div className="ml-auto">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setProfileSectionExpanded(!profileSectionExpanded);
+                        }}
+                        className="ml-auto"
+                      >
                         {profileSectionExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                      </div>
-                    </button>
+                      </button>
+                    </Link>
                   </div>
                 );
               }
@@ -300,19 +309,29 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                   if (isProfile) {
                     return (
                       <div key={item.name}>
-                        <button
-                          onClick={() => setProfileSectionExpanded(!profileSectionExpanded)}
+                        <Link
+                          to={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
                           className={cn(
-                            "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3 w-full text-left",
-                            "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                            "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3",
+                            isActive
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                              : "text-sidebar-foreground hover:bg-sidebar-accent/50"
                           )}
                         >
                           <item.icon className="h-5 w-5" />
                           {item.name}
-                          <div className="ml-auto">
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setProfileSectionExpanded(!profileSectionExpanded);
+                            }}
+                            className="ml-auto"
+                          >
                             {profileSectionExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                          </div>
-                        </button>
+                          </button>
+                        </Link>
                       </div>
                     );
                   }
