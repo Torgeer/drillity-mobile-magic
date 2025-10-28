@@ -28,9 +28,9 @@ const navigation = [
 export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [jobsSectionExpanded, setJobsSectionExpanded] = useState(true);
-  const [contractsSectionExpanded, setContractsSectionExpanded] = useState(true);
-  const [profileSectionExpanded, setProfileSectionExpanded] = useState(true);
+  const [jobsSectionExpanded, setJobsSectionExpanded] = useState(false);
+  const [contractsSectionExpanded, setContractsSectionExpanded] = useState(false);
+  const [profileSectionExpanded, setProfileSectionExpanded] = useState(false);
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState<string>("");
@@ -132,28 +132,19 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
               if (isMyJobs) {
                 return (
                   <div key={item.name}>
-                    <Link
-                      to={item.href}
+                    <button
+                      onClick={() => setJobsSectionExpanded(!jobsSectionExpanded)}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3",
-                        isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                          : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                        "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3 w-full text-left",
+                        "text-sidebar-foreground hover:bg-sidebar-accent/50"
                       )}
                     >
                       <item.icon className="h-5 w-5" />
                       {item.name}
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setJobsSectionExpanded(!jobsSectionExpanded);
-                        }}
-                        className="ml-auto"
-                      >
+                      <div className="ml-auto">
                         {jobsSectionExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                      </button>
-                    </Link>
+                      </div>
+                    </button>
                   </div>
                 );
               }
@@ -181,28 +172,19 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
               if (isProfile) {
                 return (
                   <div key={item.name}>
-                    <Link
-                      to={item.href}
+                    <button
+                      onClick={() => setProfileSectionExpanded(!profileSectionExpanded)}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3",
-                        isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                          : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                        "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3 w-full text-left",
+                        "text-sidebar-foreground hover:bg-sidebar-accent/50"
                       )}
                     >
                       <item.icon className="h-5 w-5" />
                       {item.name}
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setProfileSectionExpanded(!profileSectionExpanded);
-                        }}
-                        className="ml-auto"
-                      >
+                      <div className="ml-auto">
                         {profileSectionExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                      </button>
-                    </Link>
+                      </div>
+                    </button>
                   </div>
                 );
               }
@@ -278,29 +260,19 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                   if (isMyJobs) {
                     return (
                       <div key={item.name}>
-                        <Link
-                          to={item.href}
-                          onClick={() => setMobileMenuOpen(false)}
+                        <button
+                          onClick={() => setJobsSectionExpanded(!jobsSectionExpanded)}
                           className={cn(
-                            "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3",
-                            isActive
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                              : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                            "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3 w-full text-left",
+                            "text-sidebar-foreground hover:bg-sidebar-accent/50"
                           )}
                         >
                           <item.icon className="h-5 w-5" />
                           {item.name}
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setJobsSectionExpanded(!jobsSectionExpanded);
-                            }}
-                            className="ml-auto"
-                          >
+                          <div className="ml-auto">
                             {jobsSectionExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                          </button>
-                        </Link>
+                          </div>
+                        </button>
                       </div>
                     );
                   }
@@ -328,29 +300,19 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                   if (isProfile) {
                     return (
                       <div key={item.name}>
-                        <Link
-                          to={item.href}
-                          onClick={() => setMobileMenuOpen(false)}
+                        <button
+                          onClick={() => setProfileSectionExpanded(!profileSectionExpanded)}
                           className={cn(
-                            "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3",
-                            isActive
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                              : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                            "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3 w-full text-left",
+                            "text-sidebar-foreground hover:bg-sidebar-accent/50"
                           )}
                         >
                           <item.icon className="h-5 w-5" />
                           {item.name}
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setProfileSectionExpanded(!profileSectionExpanded);
-                            }}
-                            className="ml-auto"
-                          >
+                          <div className="ml-auto">
                             {profileSectionExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                          </button>
-                        </Link>
+                          </div>
+                        </button>
                       </div>
                     );
                   }
