@@ -1,15 +1,19 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Smartphone, Share, Plus, MoreVertical } from "lucide-react";
-import drillityLogo from "@/assets/drillity-logo.png";
+import drillityLogoDark from "@/assets/drillity-logo-dark.png";
+import drillityLogoLight from "@/assets/drillity-logo-light.png";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function Install() {
+  const { theme } = useTheme();
+  const logoSrc = theme === 'light' ? drillityLogoLight : drillityLogoDark;
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <img src={drillityLogo} alt="Drillity" className="h-16" />
+            <img src={logoSrc} alt="Drillity" className="h-16" />
           </div>
           <CardTitle className="text-2xl sm:text-3xl">Install Drillity on your phone</CardTitle>
           <CardDescription className="text-base">
