@@ -319,49 +319,49 @@ const CompanySubscription = () => {
           </>
         )}
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {plans.map((plan) => {
             const isCurrentPlan = currentSubscription?.plan_id === plan.id;
             const isPopular = plan.job_limit === 20 || plan.job_limit === 30;
 
             return (
-              <Card key={plan.id} className={`p-6 relative ${isPopular ? 'border-primary shadow-lg' : ''}`}>
+              <Card key={plan.id} className={`p-4 relative ${isPopular ? 'border-primary shadow-lg' : ''}`}>
                 {isPopular && (
-                  <Badge className="absolute top-4 right-4 bg-primary">
+                  <Badge className="absolute top-3 right-3 bg-primary text-xs">
                     <Zap className="h-3 w-3 mr-1" />
                     Popular
                   </Badge>
                 )}
                 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div>
-                    <h3 className="text-2xl font-bold">{plan.name}</h3>
-                    <p className="text-muted-foreground">{plan.job_limit} job postings</p>
+                    <h3 className="text-xl font-bold">{plan.name}</h3>
+                    <p className="text-sm text-muted-foreground">{plan.job_limit} job postings</p>
                   </div>
 
                   <div>
-                    <p className="text-4xl font-bold">€{plan.price_eur}</p>
-                    <p className="text-sm text-muted-foreground">per month</p>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-3xl font-bold">€{plan.price_eur}</p>
+                    <p className="text-xs text-muted-foreground">per month</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       €{(plan.price_eur / plan.job_limit).toFixed(2)} per job
                     </p>
                   </div>
 
-                  <div className="space-y-2 pt-4">
+                  <div className="space-y-1.5 pt-2">
                     <div className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-primary" />
+                      <Check className="h-3.5 w-3.5 text-primary" />
                       <span>{plan.job_limit} active job postings</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-primary" />
+                      <Check className="h-3.5 w-3.5 text-primary" />
                       <span>Unlimited applications</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-primary" />
+                      <Check className="h-3.5 w-3.5 text-primary" />
                       <span>Candidate management</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-primary" />
+                      <Check className="h-3.5 w-3.5 text-primary" />
                       <span>Team collaboration</span>
                     </div>
                   </div>
@@ -380,10 +380,10 @@ const CompanySubscription = () => {
           })}
         </div>
 
-        <Card className="p-6 text-center bg-muted/50">
-          <h3 className="text-xl font-semibold mb-2">Need more than 100 job postings?</h3>
-          <p className="text-muted-foreground mb-4">Contact us for a custom enterprise plan</p>
-          <Button variant="outline">Contact Sales</Button>
+        <Card className="p-4 text-center bg-muted/50">
+          <h3 className="text-lg font-semibold mb-2">Need more than 100 job postings?</h3>
+          <p className="text-sm text-muted-foreground mb-3">Contact us for a custom enterprise plan</p>
+          <Button variant="outline" size="sm">Contact Sales</Button>
         </Card>
       </div>
     </CompanyLayout>
