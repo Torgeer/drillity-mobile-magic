@@ -11,13 +11,13 @@ import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 const navigation = [
   { name: "Dashboard", href: "/company/dashboard", icon: Home },
   { name: "My Jobs", href: "/company/jobs", icon: Briefcase },
-  { name: "Browse All Jobs", href: "/company/browse-jobs", icon: Search },
-  { name: "Import Jobs", href: "/company/jobs/import", icon: Upload },
-  { name: "Applications", href: "/company/applications", icon: FileText },
+  { name: "Browse All Jobs", href: "/company/browse-jobs", icon: Search, indent: true },
+  { name: "Import Jobs", href: "/company/jobs/import", icon: Upload, indent: true },
+  { name: "Applications", href: "/company/applications", icon: FileText, indent: true },
   { name: "Browse Talent", href: "/company/talents", icon: UserSearch },
   { name: "News", href: "/company/news", icon: Newspaper },
   { name: "My Contracts", href: "/company/contracts", icon: FileText },
-  { name: "Browse Contracts", href: "/company/browse-contracts", icon: Search },
+  { name: "Browse Contracts", href: "/company/browse-contracts", icon: Search, indent: true },
   { name: "Team", href: "/company/team", icon: Users },
   { name: "Messages", href: "/company/messages", icon: MessageSquare },
   { name: "Company Profile", href: "/company/profile", icon: User },
@@ -97,10 +97,11 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                    "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors",
                     isActive
                       ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/50",
+                    item.indent ? "pl-9 pr-3" : "px-3"
                   )}
                 >
                   <item.icon className="h-5 w-5" />
@@ -146,10 +147,11 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                       to={item.href}
                       onClick={() => setMobileMenuOpen(false)}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                        "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors",
                         isActive
                           ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                          : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent/50",
+                        item.indent ? "pl-9 pr-3" : "px-3"
                       )}
                     >
                       <item.icon className="h-5 w-5" />
