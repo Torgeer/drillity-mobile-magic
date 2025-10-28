@@ -19,10 +19,14 @@ interface Job {
   is_active: boolean;
   created_at: string;
   company_id: string;
+  project_id: string | null;
   company_profiles: {
     company_name: string;
     logo_url: string | null;
   };
+  projects?: {
+    project_name: string;
+  } | null;
 }
 
 const BrowseJobs = () => {
@@ -39,17 +43,20 @@ const BrowseJobs = () => {
 
   const fetchJobs = async () => {
     try {
-      const { data, error } = await supabase
-        .from('jobs')
-        .select(`
-          *,
-          company_profiles (
-            company_name,
-            logo_url
-          )
-        `)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('jobs')
+      .select(`
+        *,
+        company_profiles (
+          company_name,
+          logo_url
+        ),
+        projects (
+          project_name
+        )
+      `)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -160,6 +167,24 @@ const BrowseJobs = () => {
                         <span>{formatSalary(job)}</span>
                       </div>
                     </div>
+
+                    {job.projects && (
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-sm font-medium">Project:</span>
+                        <span className="text-sm text-muted-foreground">{job.projects.project_name}</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="bg-orange-500 text-white hover:bg-orange-600"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/company/projects?view=${job.project_id}`);
+                          }}
+                        >
+                          View Project
+                        </Button>
+                      </div>
+                    )}
 
                     <p className="text-xs sm:text-sm mb-3 line-clamp-2">{job.description}</p>
                   </div>

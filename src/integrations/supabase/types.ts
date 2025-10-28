@@ -585,6 +585,35 @@ export type Database = {
         }
         Relationships: []
       }
+      project_team_members: {
+        Row: {
+          assigned_at: string | null
+          id: string
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          id?: string
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string | null
+          id?: string
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_team_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           additional_info: string | null
@@ -595,8 +624,11 @@ export type Database = {
           latitude: number | null
           location: string
           longitude: number | null
+          manager_email: string | null
+          manager_phone: string | null
           notes: string | null
           project_name: string
+          project_photo_url: string | null
           site_manager_name: string
           type_of_works: string
           updated_at: string
@@ -610,8 +642,11 @@ export type Database = {
           latitude?: number | null
           location: string
           longitude?: number | null
+          manager_email?: string | null
+          manager_phone?: string | null
           notes?: string | null
           project_name: string
+          project_photo_url?: string | null
           site_manager_name: string
           type_of_works: string
           updated_at?: string
@@ -625,8 +660,11 @@ export type Database = {
           latitude?: number | null
           location?: string
           longitude?: number | null
+          manager_email?: string | null
+          manager_phone?: string | null
           notes?: string | null
           project_name?: string
+          project_photo_url?: string | null
           site_manager_name?: string
           type_of_works?: string
           updated_at?: string

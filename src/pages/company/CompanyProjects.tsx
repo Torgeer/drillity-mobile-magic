@@ -5,12 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, MapPin, Trash2, Edit, ExternalLink } from "lucide-react";
+import { ChevronDown, MapPin, Trash2, Edit, ExternalLink, Building } from "lucide-react";
 import { getCurrentLocation, requestLocationPermission } from "@/utils/capacitorPlugins";
 import {
   AlertDialog,
@@ -22,6 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 
 interface Project {
   id: string;
@@ -35,6 +36,9 @@ interface Project {
   additional_info: string | null;
   notes: string | null;
   company_id: string;
+  manager_phone: string | null;
+  manager_email: string | null;
+  project_photo_url: string | null;
   created_at: string;
   company_profiles: {
     company_name: string;
@@ -44,22 +48,35 @@ interface Project {
 const CompanyProjects = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const viewProjectId = searchParams.get('view');
+  
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
-  const [submitFormOpen, setSubmitFormOpen] = useState(false);
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<string | null>(null);
   const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
+  const [companies, setCompanies] = useState<Array<{ id: string; company_name: string }>>([]);
+  const [teamMembers, setTeamMembers] = useState<Array<{ id: string; full_name: string; email: string }>>([]);
+  const [assignedMembers, setAssignedMembers] = useState<Set<string>>(new Set());
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [acceptedApplicants, setAcceptedApplicants] = useState<any[]>([]);
+  
   const [formData, setFormData] = useState({
-    project_name: "",
-    type_of_works: "",
-    site_manager_name: "",
-    first_aider_name: "",
+    projectName: "",
+    companyId: "",
+    typeOfWorks: "",
+    siteManagerName: "",
+    firstAiderName: "",
     location: "",
-    latitude: "",
-    longitude: "",
-    additional_info: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
+    additionalInfo: "",
     notes: "",
+    managerPhone: "",
+    managerEmail: "",
+    projectPhotoUrl: "",
   });
 
   useEffect(() => {
@@ -75,21 +92,134 @@ const CompanyProjects = () => {
       if (data) {
         setCompanyId(data.id);
         fetchProjects(data.id);
+        fetchCompanies();
+        fetchTeamMembers(data.id);
       }
     };
     
     getCompanyId();
   }, [user]);
 
-  const fetchProjects = async (compId: string) => {
-    const { data, error } = await supabase
-      .from('projects')
-      .select('*, company_profiles(company_name)')
-      .eq('company_id', compId)
-      .order('created_at', { ascending: false });
+  useEffect(() => {
+    if (viewProjectId && projects.length > 0) {
+      const project = projects.find(p => p.id === viewProjectId);
+      if (project) {
+        setSelectedProject(project);
+        fetchAcceptedApplicants(viewProjectId);
+      }
+    }
+  }, [viewProjectId, projects]);
 
+  const fetchCompanies = async () => {
+    const { data } = await supabase
+      .from('company_profiles')
+      .select('id, company_name')
+      .order('company_name');
+    
     if (data) {
-      setProjects(data as Project[]);
+      setCompanies(data);
+    }
+  };
+
+  const fetchTeamMembers = async (compId: string) => {
+    const { data: companyUsers } = await supabase
+      .from('company_users')
+      .select('user_id')
+      .eq('company_id', compId);
+    
+    if (companyUsers && companyUsers.length > 0) {
+      const userIds = companyUsers.map(u => u.user_id);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .in('id', userIds);
+      
+      if (profiles) {
+        setTeamMembers(profiles);
+      }
+    }
+  };
+
+  const fetchProjects = async (compId: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select(`
+          *,
+          company_profiles (
+            company_name
+          )
+        `)
+        .eq('company_id', compId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProjects(data || []);
+    } catch (error: any) {
+      toast.error("Failed to load projects");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchProjectTeamMembers = async (projectId: string) => {
+    const { data } = await supabase
+      .from('project_team_members')
+      .select('user_id')
+      .eq('project_id', projectId);
+    
+    if (data) {
+      setAssignedMembers(new Set(data.map(m => m.user_id)));
+    }
+  };
+
+  const fetchAcceptedApplicants = async (projectId: string) => {
+    const { data } = await supabase
+      .from('applications')
+      .select(`
+        *,
+        profiles (
+          full_name,
+          email
+        ),
+        jobs (
+          title,
+          project_id
+        )
+      `)
+      .eq('status', 'accepted')
+      .eq('jobs.project_id', projectId);
+    
+    if (data) {
+      setAcceptedApplicants(data);
+    }
+  };
+
+  const toggleTeamMember = async (userId: string) => {
+    if (!editingProject) return;
+    
+    if (assignedMembers.has(userId)) {
+      await supabase
+        .from('project_team_members')
+        .delete()
+        .eq('project_id', editingProject)
+        .eq('user_id', userId);
+      
+      setAssignedMembers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
+      });
+      toast.success("Team member unassigned");
+    } else {
+      await supabase
+        .from('project_team_members')
+        .insert({ project_id: editingProject, user_id: userId });
+      
+      setAssignedMembers(prev => new Set([...prev, userId]));
+      toast.success("Team member assigned");
     }
   };
 
@@ -100,8 +230,8 @@ const CompanyProjects = () => {
         const location = await getCurrentLocation();
         setFormData({
           ...formData,
-          latitude: location.latitude.toString(),
-          longitude: location.longitude.toString(),
+          latitude: location.latitude,
+          longitude: location.longitude,
         });
         toast.success("Location detected successfully!");
       } catch (error) {
@@ -113,8 +243,8 @@ const CompanyProjects = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!companyId) {
-      toast.error("Company profile not found");
+    if (!formData.companyId) {
+      toast.error("Please select a company");
       return;
     }
     
@@ -122,23 +252,26 @@ const CompanyProjects = () => {
 
     try {
       const projectData = {
-        company_id: companyId,
-        project_name: formData.project_name,
-        type_of_works: formData.type_of_works,
-        site_manager_name: formData.site_manager_name,
-        first_aider_name: formData.first_aider_name,
+        company_id: formData.companyId,
+        project_name: formData.projectName,
+        type_of_works: formData.typeOfWorks,
+        site_manager_name: formData.siteManagerName,
+        first_aider_name: formData.firstAiderName,
         location: formData.location,
-        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
-        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
-        additional_info: formData.additional_info || null,
-        notes: formData.notes || null,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+        additional_info: formData.additionalInfo,
+        notes: formData.notes,
+        manager_phone: formData.managerPhone,
+        manager_email: formData.managerEmail,
+        project_photo_url: formData.projectPhotoUrl,
       };
 
       if (editingProject) {
         const { error } = await supabase
           .from('projects')
           .update(projectData)
-          .eq('id', editingProject.id);
+          .eq('id', editingProject);
 
         if (error) throw error;
         toast.success("Project updated successfully!");
@@ -148,45 +281,57 @@ const CompanyProjects = () => {
           .insert([projectData]);
 
         if (error) throw error;
-        toast.success("Project submitted successfully!");
+        toast.success("Project created successfully!");
       }
 
-      // Reset form
       setFormData({
-        project_name: "",
-        type_of_works: "",
-        site_manager_name: "",
-        first_aider_name: "",
+        projectName: "",
+        companyId: "",
+        typeOfWorks: "",
+        siteManagerName: "",
+        firstAiderName: "",
         location: "",
-        latitude: "",
-        longitude: "",
-        additional_info: "",
+        latitude: null,
+        longitude: null,
+        additionalInfo: "",
         notes: "",
+        managerPhone: "",
+        managerEmail: "",
+        projectPhotoUrl: "",
       });
       setEditingProject(null);
-      setSubmitFormOpen(false);
-      if (companyId) fetchProjects(companyId);
+      setIsFormOpen(false);
+      setAssignedMembers(new Set());
+      
+      if (companyId) {
+        fetchProjects(companyId);
+      }
     } catch (error: any) {
-      toast.error(error.message || "Failed to submit project");
+      toast.error(error.message || `Failed to ${editingProject ? 'update' : 'create'} project`);
     } finally {
       setLoading(false);
     }
   };
 
   const handleEdit = (project: Project) => {
-    setEditingProject(project);
     setFormData({
-      project_name: project.project_name,
-      type_of_works: project.type_of_works,
-      site_manager_name: project.site_manager_name,
-      first_aider_name: project.first_aider_name,
+      projectName: project.project_name,
+      companyId: project.company_id,
+      typeOfWorks: project.type_of_works,
+      siteManagerName: project.site_manager_name,
+      firstAiderName: project.first_aider_name,
       location: project.location,
-      latitude: project.latitude?.toString() || "",
-      longitude: project.longitude?.toString() || "",
-      additional_info: project.additional_info || "",
+      latitude: project.latitude,
+      longitude: project.longitude,
+      additionalInfo: project.additional_info || "",
       notes: project.notes || "",
+      managerPhone: project.manager_phone || "",
+      managerEmail: project.manager_email || "",
+      projectPhotoUrl: project.project_photo_url || "",
     });
-    setSubmitFormOpen(true);
+    setEditingProject(project.id);
+    setIsFormOpen(true);
+    fetchProjectTeamMembers(project.id);
   };
 
   const handleDelete = async () => {
@@ -213,6 +358,134 @@ const CompanyProjects = () => {
     window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
   };
 
+  if (selectedProject) {
+    return (
+      <CompanyLayout>
+        <div className="w-full max-w-6xl space-y-6">
+          <Button variant="outline" onClick={() => setSelectedProject(null)}>
+            ← Back to Projects
+          </Button>
+
+          <Card className="p-6 space-y-6">
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold mb-2">{selectedProject.project_name}</h1>
+                <p className="text-muted-foreground flex items-center gap-2">
+                  <Building className="h-4 w-4" />
+                  {selectedProject.company_profiles.company_name}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                className="bg-orange-500 text-white hover:bg-orange-600"
+                onClick={() => navigate(`/company/profile/${selectedProject.company_id}`)}
+              >
+                View Company
+              </Button>
+            </div>
+
+            {selectedProject.project_photo_url && (
+              <img
+                src={selectedProject.project_photo_url}
+                alt={selectedProject.project_name}
+                className="w-full h-64 object-cover rounded-lg"
+              />
+            )}
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <Label className="font-semibold">Type of Works</Label>
+                <p>{selectedProject.type_of_works}</p>
+              </div>
+              <div>
+                <Label className="font-semibold">Site Manager</Label>
+                <p>{selectedProject.site_manager_name}</p>
+              </div>
+              <div>
+                <Label className="font-semibold">First Aider / H&S</Label>
+                <p>{selectedProject.first_aider_name}</p>
+              </div>
+              <div>
+                <Label className="font-semibold">Location</Label>
+                <p className="flex items-center gap-1">
+                  <MapPin className="h-4 w-4" />
+                  {selectedProject.location}
+                </p>
+              </div>
+              {selectedProject.manager_phone && (
+                <div>
+                  <Label className="font-semibold">Manager Phone</Label>
+                  <p>{selectedProject.manager_phone}</p>
+                </div>
+              )}
+              {selectedProject.manager_email && (
+                <div>
+                  <Label className="font-semibold">Manager Email</Label>
+                  <p>{selectedProject.manager_email}</p>
+                </div>
+              )}
+            </div>
+
+            {selectedProject.additional_info && (
+              <div>
+                <Label className="font-semibold mb-2 block">Additional Information</Label>
+                <Card className="p-4 bg-muted/50">
+                  <p className="whitespace-pre-wrap">{selectedProject.additional_info}</p>
+                </Card>
+              </div>
+            )}
+
+            {selectedProject.notes && (
+              <div>
+                <Label className="font-semibold mb-2 block">Notes</Label>
+                <Card className="p-4 bg-muted/50">
+                  <p className="whitespace-pre-wrap">{selectedProject.notes}</p>
+                </Card>
+              </div>
+            )}
+
+            {selectedProject.latitude && selectedProject.longitude && (
+              <div>
+                <Label className="font-semibold mb-2 block">Location Map</Label>
+                <div className="relative rounded-lg overflow-hidden border">
+                  <iframe
+                    src={`https://www.google.com/maps?q=${selectedProject.latitude},${selectedProject.longitude}&output=embed`}
+                    className="w-full h-64"
+                    loading="lazy"
+                  />
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => openInMaps(selectedProject.latitude!, selectedProject.longitude!)}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Open in Maps
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {acceptedApplicants.length > 0 && (
+              <div>
+                <Label className="font-semibold text-lg mb-3 block">Accepted Team Members</Label>
+                <div className="grid md:grid-cols-2 gap-3">
+                  {acceptedApplicants.map((app) => (
+                    <Card key={app.id} className="p-4">
+                      <h4 className="font-semibold">{app.profiles?.full_name || 'Unknown'}</h4>
+                      <p className="text-sm text-muted-foreground">{app.profiles?.email}</p>
+                      <Badge variant="secondary" className="mt-2">{app.jobs?.title}</Badge>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+          </Card>
+        </div>
+      </CompanyLayout>
+    );
+  }
+
   return (
     <CompanyLayout>
       <div className="w-full max-w-6xl space-y-6">
@@ -221,74 +494,122 @@ const CompanyProjects = () => {
           <p className="text-muted-foreground">Manage your company projects</p>
         </div>
 
-        {/* Submit Project Collapsible */}
-        <Collapsible open={submitFormOpen} onOpenChange={setSubmitFormOpen}>
+        <Collapsible open={isFormOpen} onOpenChange={setIsFormOpen}>
           <CollapsibleTrigger asChild>
             <Button variant="default" className="w-full md:w-auto">
               {editingProject ? "Edit Project" : "Submit a Project"}
-              <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${submitFormOpen ? "rotate-180" : ""}`} />
+              <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${isFormOpen ? "rotate-180" : ""}`} />
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-4">
             <form onSubmit={handleSubmit}>
               <Card className="p-6 space-y-6">
                 <div className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="project_name">Project Name</Label>
-                      <Input
-                        id="project_name"
-                        value={formData.project_name}
-                        onChange={(e) => setFormData({ ...formData, project_name: e.target.value })}
-                        placeholder="North Sea Drilling Project"
-                        required
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="projectName">Project Name *</Label>
+                    <Input
+                      id="projectName"
+                      value={formData.projectName}
+                      onChange={(e) => setFormData({ ...formData, projectName: e.target.value })}
+                      placeholder="North Sea Platform Alpha"
+                      required
+                    />
+                  </div>
 
-                    <div>
-                      <Label htmlFor="type_of_works">Type of Works</Label>
-                      <Input
-                        id="type_of_works"
-                        value={formData.type_of_works}
-                        onChange={(e) => setFormData({ ...formData, type_of_works: e.target.value })}
-                        placeholder="Offshore Drilling"
-                        required
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="companyId">Select Company *</Label>
+                    <select
+                      id="companyId"
+                      value={formData.companyId}
+                      onChange={(e) => setFormData({ ...formData, companyId: e.target.value })}
+                      className="w-full rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      required
+                    >
+                      <option value="">Select a company...</option>
+                      {companies.map((company) => (
+                        <option key={company.id} value={company.id}>
+                          {company.company_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="projectPhoto">Project Photo (Optional)</Label>
+                    <Input
+                      id="projectPhoto"
+                      type="url"
+                      value={formData.projectPhotoUrl}
+                      onChange={(e) => setFormData({ ...formData, projectPhotoUrl: e.target.value })}
+                      placeholder="https://example.com/project-photo.jpg"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="typeOfWorks">Type of Works *</Label>
+                    <Input
+                      id="typeOfWorks"
+                      value={formData.typeOfWorks}
+                      onChange={(e) => setFormData({ ...formData, typeOfWorks: e.target.value })}
+                      placeholder="Offshore Drilling"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="siteManagerName">Site Manager / Supervisor *</Label>
+                    <Input
+                      id="siteManagerName"
+                      value={formData.siteManagerName}
+                      onChange={(e) => setFormData({ ...formData, siteManagerName: e.target.value })}
+                      placeholder="John Smith"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="firstAiderName">First Aider / H&S Supervisor *</Label>
+                    <Input
+                      id="firstAiderName"
+                      value={formData.firstAiderName}
+                      onChange={(e) => setFormData({ ...formData, firstAiderName: e.target.value })}
+                      placeholder="Jane Smith"
+                      required
+                    />
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="site_manager_name">Site Manager / Supervisor Name</Label>
+                      <Label htmlFor="managerPhone">Manager Phone</Label>
                       <Input
-                        id="site_manager_name"
-                        value={formData.site_manager_name}
-                        onChange={(e) => setFormData({ ...formData, site_manager_name: e.target.value })}
-                        placeholder="John Smith"
-                        required
+                        id="managerPhone"
+                        type="tel"
+                        value={formData.managerPhone}
+                        onChange={(e) => setFormData({ ...formData, managerPhone: e.target.value })}
+                        placeholder="+1 234 567 8900"
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="first_aider_name">First Aider / Health & Safety Supervisor</Label>
+                      <Label htmlFor="managerEmail">Manager Email</Label>
                       <Input
-                        id="first_aider_name"
-                        value={formData.first_aider_name}
-                        onChange={(e) => setFormData({ ...formData, first_aider_name: e.target.value })}
-                        placeholder="Jane Doe"
-                        required
+                        id="managerEmail"
+                        type="email"
+                        value={formData.managerEmail}
+                        onChange={(e) => setFormData({ ...formData, managerEmail: e.target.value })}
+                        placeholder="manager@company.com"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <Label htmlFor="location">Location</Label>
+                    <Label htmlFor="location">Location *</Label>
                     <div className="flex gap-2">
                       <Input
                         id="location"
                         value={formData.location}
                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                        placeholder="Aberdeen, Scotland"
+                        placeholder="Houston, TX"
                         required
                       />
                       <Button type="button" variant="outline" onClick={handleLocationDetect}>
@@ -297,39 +618,13 @@ const CompanyProjects = () => {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="latitude">Latitude (Optional)</Label>
-                      <Input
-                        id="latitude"
-                        type="number"
-                        step="any"
-                        value={formData.latitude}
-                        onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                        placeholder="57.1497"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="longitude">Longitude (Optional)</Label>
-                      <Input
-                        id="longitude"
-                        type="number"
-                        step="any"
-                        value={formData.longitude}
-                        onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                        placeholder="-2.0943"
-                      />
-                    </div>
-                  </div>
-
                   <div>
-                    <Label htmlFor="additional_info">Additional Information</Label>
+                    <Label htmlFor="additionalInfo">Additional Information</Label>
                     <Textarea
-                      id="additional_info"
-                      value={formData.additional_info}
-                      onChange={(e) => setFormData({ ...formData, additional_info: e.target.value })}
-                      placeholder="Provide any additional details about the project..."
+                      id="additionalInfo"
+                      value={formData.additionalInfo}
+                      onChange={(e) => setFormData({ ...formData, additionalInfo: e.target.value })}
+                      placeholder="Additional project details..."
                       rows={4}
                     />
                   </div>
@@ -340,10 +635,50 @@ const CompanyProjects = () => {
                       id="notes"
                       value={formData.notes}
                       onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                      placeholder="Internal notes for your team..."
-                      rows={4}
+                      placeholder="Additional project notes..."
+                      rows={3}
                     />
                   </div>
+
+                  {editingProject && teamMembers.length > 0 && (
+                    <div>
+                      <Label className="text-lg font-semibold mb-3 block">Assigned to Project</Label>
+                      <div className="grid md:grid-cols-2 gap-3">
+                        {teamMembers.map((member) => (
+                          <Card
+                            key={member.id}
+                            className={`p-3 cursor-pointer transition-all ${
+                              assignedMembers.has(member.id)
+                                ? 'border-green-500 bg-green-50 dark:bg-green-950'
+                                : 'border-muted'
+                            }`}
+                            onClick={() => toggleTeamMember(member.id)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-medium">{member.full_name || 'Unnamed'}</p>
+                                <p className="text-sm text-muted-foreground">{member.email}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {assignedMembers.has(member.id) ? (
+                                  <>
+                                    <span className="text-green-600 text-sm font-medium">Assigned</span>
+                                    <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center">
+                                      <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                      </svg>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <span className="text-muted-foreground text-sm">Unassigned</span>
+                                )}
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-4">
@@ -354,18 +689,23 @@ const CompanyProjects = () => {
                     type="button" 
                     variant="outline" 
                     onClick={() => {
-                      setSubmitFormOpen(false);
+                      setIsFormOpen(false);
                       setEditingProject(null);
+                      setAssignedMembers(new Set());
                       setFormData({
-                        project_name: "",
-                        type_of_works: "",
-                        site_manager_name: "",
-                        first_aider_name: "",
+                        projectName: "",
+                        companyId: "",
+                        typeOfWorks: "",
+                        siteManagerName: "",
+                        firstAiderName: "",
                         location: "",
-                        latitude: "",
-                        longitude: "",
-                        additional_info: "",
+                        latitude: null,
+                        longitude: null,
+                        additionalInfo: "",
                         notes: "",
+                        managerPhone: "",
+                        managerEmail: "",
+                        projectPhotoUrl: "",
                       });
                     }}
                   >
@@ -377,7 +717,6 @@ const CompanyProjects = () => {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Projects List */}
         <div className="grid gap-4">
           {projects.length === 0 ? (
             <Card className="p-8 text-center">
@@ -385,10 +724,16 @@ const CompanyProjects = () => {
             </Card>
           ) : (
             projects.map((project) => (
-              <Card key={project.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
+              <Card key={project.id} className="p-6 hover:shadow-lg transition-shadow">
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <div className="flex-1">
+                    <div 
+                      className="flex-1 cursor-pointer"
+                      onClick={() => {
+                        setSelectedProject(project);
+                        fetchAcceptedApplicants(project.id);
+                      }}
+                    >
                       <h3 className="text-xl font-bold">{project.project_name}</h3>
                       <p className="text-sm text-muted-foreground">
                         {project.company_profiles.company_name}
@@ -418,14 +763,6 @@ const CompanyProjects = () => {
                       <p className="text-sm text-muted-foreground">{project.type_of_works}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium">Site Manager</p>
-                      <p className="text-sm text-muted-foreground">{project.site_manager_name}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">First Aider / H&S</p>
-                      <p className="text-sm text-muted-foreground">{project.first_aider_name}</p>
-                    </div>
-                    <div>
                       <p className="text-sm font-medium">Location</p>
                       <p className="text-sm text-muted-foreground flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
@@ -433,77 +770,27 @@ const CompanyProjects = () => {
                       </p>
                     </div>
                   </div>
-
-                  {project.additional_info && (
-                    <div>
-                      <p className="text-sm font-medium mb-2">Additional Information</p>
-                      <Card className="p-3 bg-muted/50">
-                        <p className="text-sm">{project.additional_info}</p>
-                      </Card>
-                    </div>
-                  )}
-
-                  {project.notes && (
-                    <div>
-                      <p className="text-sm font-medium mb-2">Notes</p>
-                      <Card className="p-3 bg-muted/50">
-                        <p className="text-sm">{project.notes}</p>
-                      </Card>
-                    </div>
-                  )}
-
-                  {project.latitude && project.longitude && (
-                    <div>
-                      <p className="text-sm font-medium mb-2">Location Map</p>
-                      <Card className="p-2 bg-muted/50">
-                        <div className="relative">
-                          <iframe
-                            width="100%"
-                            height="200"
-                            frameBorder="0"
-                            style={{ border: 0 }}
-                            src={`https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${project.latitude},${project.longitude}`}
-                            allowFullScreen
-                            className="rounded"
-                          />
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            className="absolute top-2 right-2"
-                            onClick={() => openInMaps(project.latitude!, project.longitude!)}
-                          >
-                            <ExternalLink className="h-4 w-4 mr-1" />
-                            Open in Maps
-                          </Button>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-2 text-center">
-                          Coordinates: {project.latitude}, {project.longitude}
-                        </p>
-                      </Card>
-                    </div>
-                  )}
                 </div>
               </Card>
             ))
           )}
         </div>
-      </div>
 
-      <AlertDialog open={!!deleteProjectId} onOpenChange={() => setDeleteProjectId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Project</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this project? This action cannot be undone.
-              All jobs linked to this project will no longer be associated with it.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        <AlertDialog open={!!deleteProjectId} onOpenChange={() => setDeleteProjectId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the project.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </CompanyLayout>
   );
 };

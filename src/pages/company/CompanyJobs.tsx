@@ -22,10 +22,14 @@ interface Job {
   is_active: boolean;
   created_at: string;
   company_id: string;
+  project_id: string | null;
   company_profiles: {
     company_name: string;
     logo_url: string | null;
   };
+  projects?: {
+    project_name: string;
+  } | null;
 }
 
 const CompanyJobs = () => {
@@ -204,8 +208,26 @@ const CompanyJobs = () => {
                       </div>
                     </div>
 
+                    {job.projects && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-sm font-medium">Project:</span>
+                        <span className="text-sm text-muted-foreground">{job.projects.project_name}</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="bg-orange-500 text-white hover:bg-orange-600"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/company/projects?view=${job.project_id}`);
+                          }}
+                        >
+                          View Project
+                        </Button>
+                      </div>
+                    )}
+
                     <div className="flex flex-col sm:flex-row gap-2">
-                      <Button 
+                      <Button
                         size="sm" 
                         onClick={(e) => {
                           e.stopPropagation();
