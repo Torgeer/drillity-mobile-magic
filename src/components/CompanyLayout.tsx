@@ -19,10 +19,9 @@ const navigation = [
   { name: "Contracts", href: "/company/contracts", icon: FileText, section: "contracts" },
   { name: "My Contracts", href: "/company/contracts", icon: FileText, indent: true, section: "contracts" },
   { name: "Browse Contracts", href: "/company/browse-contracts", icon: Search, indent: true, section: "contracts" },
-  { name: "Team", href: "/company/team", icon: Users },
   { name: "Messages", href: "/company/messages", icon: MessageSquare },
-  { name: "Company Profile", href: "/company/profile", icon: User },
-  { name: "Subscription", href: "/company/subscription", icon: CreditCard },
+  { name: "Company Profile", href: "/company/profile", icon: User, section: "profile" },
+  { name: "Team", href: "/company/team", icon: Users, indent: true, section: "profile" },
   { name: "Settings", href: "/company/settings", icon: Settings },
 ];
 
@@ -31,15 +30,18 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [jobsSectionExpanded, setJobsSectionExpanded] = useState(true);
   const [contractsSectionExpanded, setContractsSectionExpanded] = useState(true);
+  const [profileSectionExpanded, setProfileSectionExpanded] = useState(true);
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState<string>("");
   const [userEmail, setUserEmail] = useState<string>("");
+  const [subscriptionPlan, setSubscriptionPlan] = useState<string>("");
 
   useEffect(() => {
     if (user) {
       setUserEmail(user.email || "");
       fetchCompanyName();
+      fetchSubscriptionPlan();
     }
   }, [user]);
 
@@ -54,6 +56,29 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
 
     if (data) {
       setCompanyName(data.company_name);
+    }
+  };
+
+  const fetchSubscriptionPlan = async () => {
+    if (!user) return;
+    
+    const { data: companyData } = await supabase
+      .from('company_profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (companyData) {
+      const { data: subscriptionData } = await supabase
+        .from('company_subscriptions')
+        .select('plan_id, subscription_plans(name)')
+        .eq('company_id', companyData.id)
+        .eq('is_active', true)
+        .single();
+
+      if (subscriptionData?.subscription_plans) {
+        setSubscriptionPlan((subscriptionData.subscription_plans as any).name);
+      }
     }
   };
 
@@ -97,10 +122,12 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
               const isActive = location.pathname === item.href;
               const isMyJobs = item.section === "jobs" && !item.indent;
               const isContracts = item.section === "contracts" && !item.indent;
+              const isProfile = item.section === "profile" && !item.indent;
               const shouldHideJobs = item.section === "jobs" && item.indent && !jobsSectionExpanded;
               const shouldHideContracts = item.section === "contracts" && item.indent && !contractsSectionExpanded;
+              const shouldHideProfile = item.section === "profile" && item.indent && !profileSectionExpanded;
               
-              if (shouldHideJobs || shouldHideContracts) return null;
+              if (shouldHideJobs || shouldHideContracts || shouldHideProfile) return null;
               
               if (isMyJobs) {
                 return (
@@ -150,6 +177,35 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                   </div>
                 );
               }
+
+              if (isProfile) {
+                return (
+                  <div key={item.name}>
+                    <Link
+                      to={item.href}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3",
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {item.name}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setProfileSectionExpanded(!profileSectionExpanded);
+                        }}
+                        className="ml-auto"
+                      >
+                        {profileSectionExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                      </button>
+                    </Link>
+                  </div>
+                );
+              }
               
               return (
                 <Link
@@ -171,6 +227,16 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
           </nav>
 
           <div className="p-4 border-t border-sidebar-border">
+            <Link
+              to="/company/subscription"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 mb-3 text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
+            >
+              <CreditCard className="h-5 w-5" />
+              <div className="flex-1">
+                <p className="font-medium">Subscription</p>
+                {subscriptionPlan && <p className="text-xs text-muted-foreground">{subscriptionPlan}</p>}
+              </div>
+            </Link>
             <div className="mb-3 px-3">
               <p className="text-xs font-medium text-muted-foreground">Logged in as</p>
               <p className="text-sm font-semibold truncate">{companyName || userEmail}</p>
@@ -202,10 +268,12 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                   const isActive = location.pathname === item.href;
                   const isMyJobs = item.section === "jobs" && !item.indent;
                   const isContracts = item.section === "contracts" && !item.indent;
+                  const isProfile = item.section === "profile" && !item.indent;
                   const shouldHideJobs = item.section === "jobs" && item.indent && !jobsSectionExpanded;
                   const shouldHideContracts = item.section === "contracts" && item.indent && !contractsSectionExpanded;
+                  const shouldHideProfile = item.section === "profile" && item.indent && !profileSectionExpanded;
                   
-                  if (shouldHideJobs || shouldHideContracts) return null;
+                  if (shouldHideJobs || shouldHideContracts || shouldHideProfile) return null;
                   
                   if (isMyJobs) {
                     return (
@@ -256,6 +324,36 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                       </div>
                     );
                   }
+
+                  if (isProfile) {
+                    return (
+                      <div key={item.name}>
+                        <Link
+                          to={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={cn(
+                            "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3",
+                            isActive
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                              : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                          )}
+                        >
+                          <item.icon className="h-5 w-5" />
+                          {item.name}
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setProfileSectionExpanded(!profileSectionExpanded);
+                            }}
+                            className="ml-auto"
+                          >
+                            {profileSectionExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                          </button>
+                        </Link>
+                      </div>
+                    );
+                  }
                   
                   return (
                     <Link
@@ -278,6 +376,17 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
               </nav>
 
               <div className="p-4 border-t border-sidebar-border">
+                <Link
+                  to="/company/subscription"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 mb-3 text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
+                >
+                  <CreditCard className="h-5 w-5" />
+                  <div className="flex-1">
+                    <p className="font-medium">Subscription</p>
+                    {subscriptionPlan && <p className="text-xs text-muted-foreground">{subscriptionPlan}</p>}
+                  </div>
+                </Link>
                 <div className="mb-3 px-3">
                   <p className="text-xs font-medium text-muted-foreground">Logged in as</p>
                   <p className="text-sm font-semibold truncate">{companyName || userEmail}</p>
