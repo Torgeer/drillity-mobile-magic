@@ -17,10 +17,11 @@ import {
 
 interface TeamMember {
   id: string;
-  user_id: string;
-  role: string;
-  email?: string;
-  full_name?: string;
+  full_name: string;
+  email: string | null;
+  phone: string | null;
+  role: string | null;
+  avatar_url: string | null;
   created_at: string;
 }
 
@@ -49,35 +50,14 @@ const CompanyTeam = () => {
       if (!companyProfile) return;
 
       const { data, error } = await supabase
-        .from("company_users")
-        .select(`
-          id,
-          user_id,
-          role,
-          created_at
-        `)
-        .eq("company_id", companyProfile.id);
+        .from("company_contacts")
+        .select("*")
+        .eq("company_id", companyProfile.id)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
 
-      // Fetch user details for each member
-      const membersWithDetails = await Promise.all(
-        (data || []).map(async (member) => {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("email, full_name")
-            .eq("id", member.user_id)
-            .single();
-
-          return {
-            ...member,
-            email: profile?.email,
-            full_name: profile?.full_name,
-          };
-        })
-      );
-
-      setMembers(membersWithDetails);
+      setMembers(data || []);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -102,29 +82,15 @@ const CompanyTeam = () => {
 
       if (!companyProfile) throw new Error("Company profile not found");
 
-      // Check if user exists
-      const { data: invitedProfile } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("email", newMemberEmail)
-        .single();
-
-      if (!invitedProfile) {
-        toast({
-          title: "User not found",
-          description: "The user must first create an account on Drillity",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Add to company_users
+      // Add to company_contacts
       const { error } = await supabase
-        .from("company_users")
+        .from("company_contacts")
         .insert({
           company_id: companyProfile.id,
-          user_id: invitedProfile.id,
+          email: newMemberEmail,
           role: newMemberRole,
+          full_name: newMemberEmail.split('@')[0],
+          avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${newMemberEmail}`
         });
 
       if (error) throw error;
@@ -151,7 +117,7 @@ const CompanyTeam = () => {
   const removeMember = async (memberId: string) => {
     try {
       const { error } = await supabase
-        .from("company_users")
+        .from("company_contacts")
         .delete()
         .eq("id", memberId);
 
@@ -242,19 +208,30 @@ const CompanyTeam = () => {
                 className="flex items-center justify-between p-4 border border-border rounded-lg"
               >
                 <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
-                    {member.full_name?.[0] || member.email?.[0] || "?"}
-                  </div>
+                  {member.avatar_url ? (
+                    <img 
+                      src={member.avatar_url} 
+                      alt={member.full_name}
+                      className="h-10 w-10 rounded-full"
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
+                      {member.full_name?.[0] || member.email?.[0] || "?"}
+                    </div>
+                  )}
                   <div>
                     <p className="font-medium">{member.full_name || "Unnamed"}</p>
                     <p className="text-sm text-muted-foreground">{member.email}</p>
+                    {member.phone && (
+                      <p className="text-xs text-muted-foreground">{member.phone}</p>
+                    )}
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getRoleBadge(member.role)}`}>
+                  <div className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getRoleBadge(member.role || 'member')}`}>
                     <Shield className="h-3 w-3" />
-                    {member.role}
+                    {member.role || 'member'}
                   </div>
                   <Button
                     variant="ghost"
