@@ -83,7 +83,7 @@ serve(async (req) => {
     const isEarlyBird = new Date(user.created_at || '') < new Date('2026-01-01');
     logStep("Early bird eligibility", { isEarlyBird, userCreatedAt: user.created_at });
 
-    // Build line items
+    // Build line items - add main subscription
     const lineItems: any[] = [
       {
         price: stripePriceId,
@@ -91,15 +91,25 @@ serve(async (req) => {
       }
     ];
 
-    // Calculate AI matching price
+    // Add AI matching as a separate line item if enabled
     let aiMatchingPrice = 0;
     if (ai_matching_enabled) {
+      const aiPriceId = billing_interval === 'year' ? planData.stripe_ai_price_id_annual : planData.stripe_ai_price_id;
+      
+      if (!aiPriceId) {
+        throw new Error(`AI price ID not found for ${billing_interval}ly billing`);
+      }
+      
+      logStep("Adding AI matching line item", { aiPriceId });
+      lineItems.push({
+        price: aiPriceId,
+        quantity: 1,
+      });
+      
+      // Calculate AI price for metadata
       const basePriceEur = planData.price_eur;
       aiMatchingPrice = basePriceEur <= 100 ? Math.round(basePriceEur * 0.10) : Math.round(basePriceEur * 0.30);
-      logStep("AI matching addon", { aiMatchingPrice });
-      
-      // Note: For AI addon, you'd need a separate Stripe Price or use checkout line_items with price_data
-      // For now, we'll store this in metadata and handle it after checkout
+      logStep("AI matching price", { aiMatchingPrice });
     }
 
     const origin = req.headers.get("origin") || "http://localhost:8080";

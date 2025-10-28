@@ -895,6 +895,8 @@ export type Database = {
           job_limit: number
           name: string
           price_eur: number
+          stripe_ai_price_id: string | null
+          stripe_ai_price_id_annual: string | null
           stripe_price_id: string | null
           stripe_price_id_annual: string | null
         }
@@ -905,6 +907,8 @@ export type Database = {
           job_limit: number
           name: string
           price_eur: number
+          stripe_ai_price_id?: string | null
+          stripe_ai_price_id_annual?: string | null
           stripe_price_id?: string | null
           stripe_price_id_annual?: string | null
         }
@@ -915,6 +919,8 @@ export type Database = {
           job_limit?: number
           name?: string
           price_eur?: number
+          stripe_ai_price_id?: string | null
+          stripe_ai_price_id_annual?: string | null
           stripe_price_id?: string | null
           stripe_price_id_annual?: string | null
         }

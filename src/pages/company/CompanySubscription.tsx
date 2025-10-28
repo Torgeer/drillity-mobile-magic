@@ -132,9 +132,14 @@ const CompanySubscription = () => {
     }
   };
 
-  const calculateAIMatchingPrice = (plan: SubscriptionPlan) => {
+  const calculateAIMatchingPrice = (plan: SubscriptionPlan, interval: 'month' | 'year') => {
+    // First calculate discounted price
+    const discountedPrice = calculatePrice(plan.price_eur, interval);
+    const monthlyDiscountedPrice = interval === 'year' ? discountedPrice / 12 : discountedPrice;
+    
+    // Then calculate AI matching on discounted price
     const percentage = plan.job_limit <= 40 ? 0.1 : 0.3;
-    return Math.round(plan.price_eur * percentage);
+    return Math.round(monthlyDiscountedPrice * percentage);
   };
 
   const calculatePrice = (basePrice: number, interval: 'month' | 'year') => {
@@ -245,19 +250,19 @@ const CompanySubscription = () => {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-2xl font-bold">🎉 Exklusivt 2025 Erbjudande!</h3>
+                  <h3 className="text-2xl font-bold">🎉 Exclusive 2025 Offer!</h3>
                   <Badge variant="secondary" className="bg-primary/20">
                     <Clock className="h-3 w-3 mr-1" />
-                    {daysUntilCampaignEnd} dagar kvar
+                    {daysUntilCampaignEnd} days left
                   </Badge>
                 </div>
                 <p className="text-lg mb-3">
-                  <span className="font-bold text-primary">50% rabatt</span> på alla prenumerationer för dig som registrerade dig innan 31/12 2025! 🚀
+                  <span className="font-bold text-primary">50% discount</span> on all subscriptions for those who registered before 12/31/2025! 🚀
                 </p>
                 <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg border border-primary/20">
                   <Calendar className="h-5 w-5 text-primary" />
                   <span className="font-semibold">
-                    Välj årsbetalning och få <span className="text-primary">ytterligare 30% rabatt</span> (totalt 65% rabatt!)
+                    Choose annual billing and get <span className="text-primary">an additional 30% discount</span> (total 65% off!)
                   </span>
                 </div>
               </div>
@@ -269,14 +274,14 @@ const CompanySubscription = () => {
         <Card className="p-4">
           <div className="flex items-center justify-center gap-4">
             <span className={`font-medium ${billingInterval === 'month' ? 'text-primary' : 'text-muted-foreground'}`}>
-              Månadvis
+              Monthly
             </span>
             <Switch
               checked={billingInterval === 'year'}
               onCheckedChange={(checked) => setBillingInterval(checked ? 'year' : 'month')}
             />
             <span className={`font-medium ${billingInterval === 'year' ? 'text-primary' : 'text-muted-foreground'}`}>
-              Årligt
+              Annually
               {isEarlyBird && (
                 <Badge variant="secondary" className="ml-2 bg-green-500 text-white">
                   -30% extra
@@ -444,17 +449,17 @@ const CompanySubscription = () => {
                     )}
                     <p className="text-3xl font-bold">€{displayPrice}</p>
                     <p className="text-xs text-muted-foreground">
-                      per {billingInterval === 'year' ? 'år' : 'månad'}
+                      per {billingInterval === 'year' ? 'year' : 'month'}
                     </p>
                     {isEarlyBird && (
                       <Badge variant="secondary" className="mt-1 bg-green-500 text-white">
                         <Gift className="h-3 w-3 mr-1" />
-                        Spara €{originalPrice - displayPrice}
+                        Save €{originalPrice - displayPrice}
                       </Badge>
                     )}
                     {billingInterval === 'year' && isEarlyBird && savings > 0 && (
                       <p className="text-xs text-primary font-semibold mt-1">
-                        Totalt €{savings} billigare än månadvis!
+                        Total €{savings} cheaper than monthly!
                       </p>
                     )}
                   </div>
@@ -502,9 +507,9 @@ const CompanySubscription = () => {
         <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-2xl">Bekräfta ditt val</DialogTitle>
+              <DialogTitle className="text-2xl">Confirm Your Selection</DialogTitle>
               <DialogDescription>
-                Granska din prenumeration innan betalning
+                Review your subscription before payment
               </DialogDescription>
             </DialogHeader>
             
@@ -516,9 +521,9 @@ const CompanySubscription = () => {
                     <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
                       <Gift className="h-5 w-5" />
                       <div>
-                        <p className="font-semibold">Du får kampanjrabatter!</p>
+                        <p className="font-semibold">You're getting campaign discounts!</p>
                         <p className="text-sm">
-                          50% rabatt {billingInterval === 'year' && '+ 30% extra för årsbetalning'}
+                          50% discount {billingInterval === 'year' && '+ 30% extra for annual billing'}
                         </p>
                       </div>
                     </div>
@@ -530,16 +535,16 @@ const CompanySubscription = () => {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <h3 className="text-xl font-bold">{selectedPlan.name}</h3>
-                      <Badge variant="secondary">{selectedPlan.job_limit} jobb</Badge>
+                      <Badge variant="secondary">{selectedPlan.job_limit} jobs</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Betalningsintervall</span>
-                      <span className="font-semibold">{billingInterval === 'year' ? 'Årligt' : 'Månadvis'}</span>
+                      <span className="text-muted-foreground">Billing Interval</span>
+                      <span className="font-semibold">{billingInterval === 'year' ? 'Annual' : 'Monthly'}</span>
                     </div>
                     {isEarlyBird && (
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground line-through">
-                          Ordinarie pris
+                          Regular price
                         </span>
                         <span className="text-muted-foreground line-through">
                           €{billingInterval === 'year' ? selectedPlan.price_eur * 12 : selectedPlan.price_eur}
@@ -547,7 +552,7 @@ const CompanySubscription = () => {
                       </div>
                     )}
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Kampanjpris</span>
+                      <span className="text-muted-foreground">Campaign Price</span>
                       <span className="text-2xl font-bold text-green-600 dark:text-green-400">
                         €{calculatePrice(selectedPlan.price_eur, billingInterval)}
                       </span>
@@ -567,7 +572,7 @@ const CompanySubscription = () => {
                           </Label>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          Obegränsade AI-matchningar per månad
+                          Unlimited AI matches per month (calculated on discounted price)
                         </p>
                       </div>
                       <Switch
@@ -580,7 +585,7 @@ const CompanySubscription = () => {
                     {previewAIEnabled && (
                       <div className="flex items-center justify-between pt-2 border-t">
                         <span className="text-sm text-muted-foreground">AI Matching</span>
-                        <span className="font-semibold">€{calculateAIMatchingPrice(selectedPlan)}</span>
+                        <span className="font-semibold">€{calculateAIMatchingPrice(selectedPlan, billingInterval)}/month</span>
                       </div>
                     )}
                   </div>
@@ -590,19 +595,19 @@ const CompanySubscription = () => {
                 <div className="space-y-2 pt-2 border-t">
                   <div className="flex items-center justify-between text-lg">
                     <span className="font-bold">
-                      Totalt per {billingInterval === 'year' ? 'år' : 'månad'}
+                      Total per {billingInterval === 'year' ? 'year' : 'month'}
                     </span>
                     <span className="text-2xl font-bold text-primary">
-                      €{calculatePrice(selectedPlan.price_eur, billingInterval) + (previewAIEnabled ? calculateAIMatchingPrice(selectedPlan) : 0)}
+                      €{calculatePrice(selectedPlan.price_eur, billingInterval) + (previewAIEnabled ? calculateAIMatchingPrice(selectedPlan, billingInterval) : 0)}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Inkluderar {selectedPlan.job_limit} aktiva jobbpubliceringar
-                    {previewAIEnabled && " + obegränsade AI-matchningar"}
+                    Includes {selectedPlan.job_limit} active job postings
+                    {previewAIEnabled && " + unlimited AI matches"}
                   </p>
                   {isEarlyBird && billingInterval === 'year' && (
                     <p className="text-sm font-semibold text-green-600 dark:text-green-400">
-                      🎉 Du sparar €{calculateSavings(selectedPlan.price_eur)} jämfört med månadvis!
+                      🎉 You save €{calculateSavings(selectedPlan.price_eur)} compared to monthly!
                     </p>
                   )}
                 </div>
@@ -614,14 +619,14 @@ const CompanySubscription = () => {
                     onClick={() => setPreviewDialogOpen(false)}
                     className="flex-1"
                   >
-                    Avbryt
+                    Cancel
                   </Button>
                   <Button
                     onClick={handleConfirmCheckout}
                     disabled={loadingData}
                     className="flex-1"
                   >
-                    {loadingData ? "Laddar..." : "Bekräfta och betala"}
+                    {loadingData ? "Processing..." : "Confirm and Pay"}
                   </Button>
                 </div>
               </div>
