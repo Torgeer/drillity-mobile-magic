@@ -68,6 +68,9 @@ const CompanyJobs = () => {
           company_profiles (
             company_name,
             logo_url
+          ),
+          projects (
+            project_name
           )
         `)
         .eq('company_id', compId)
