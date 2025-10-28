@@ -101,14 +101,56 @@ const CompanyProjects = () => {
   }, [user]);
 
   useEffect(() => {
-    if (viewProjectId && projects.length > 0) {
-      const project = projects.find(p => p.id === viewProjectId);
-      if (project) {
-        setSelectedProject(project);
-        fetchAcceptedApplicants(viewProjectId);
+    const fetchSingleProject = async () => {
+      if (!viewProjectId) {
+        setSelectedProject(null);
+        return;
       }
-    }
-  }, [viewProjectId, projects]);
+
+      console.log("Fetching project with ID:", viewProjectId);
+
+      // First check if project exists in local state
+      const localProject = projects.find(p => p.id === viewProjectId);
+      if (localProject) {
+        console.log("Found project in local state:", localProject);
+        setSelectedProject(localProject);
+        fetchAcceptedApplicants(viewProjectId);
+        return;
+      }
+
+      // If not in local state, fetch directly from database
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select(`
+            *,
+            company_profiles (
+              company_name
+            )
+          `)
+          .eq('id', viewProjectId)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          console.log("Fetched project from database:", data);
+          setSelectedProject(data);
+          fetchAcceptedApplicants(viewProjectId);
+        } else {
+          console.error("Project not found");
+          toast.error("Project not found");
+          navigate('/company/projects');
+        }
+      } catch (error) {
+        console.error("Error fetching project:", error);
+        toast.error("Failed to load project");
+        navigate('/company/projects');
+      }
+    };
+
+    fetchSingleProject();
+  }, [viewProjectId, projects, navigate]);
 
   const fetchCompanies = async () => {
     const { data } = await supabase
@@ -362,7 +404,13 @@ const CompanyProjects = () => {
     return (
       <CompanyLayout>
         <div className="w-full max-w-6xl space-y-6">
-          <Button variant="outline" onClick={() => setSelectedProject(null)}>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setSelectedProject(null);
+              navigate('/company/projects');
+            }}
+          >
             ← Back to Projects
           </Button>
 
