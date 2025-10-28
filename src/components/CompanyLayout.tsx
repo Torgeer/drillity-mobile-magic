@@ -10,14 +10,15 @@ import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 const navigation = [
   { name: "Dashboard", href: "/company/dashboard", icon: Home },
-  { name: "My Jobs", href: "/company/jobs", icon: Briefcase },
-  { name: "Browse All Jobs", href: "/company/browse-jobs", icon: Search, indent: true },
-  { name: "Import Jobs", href: "/company/jobs/import", icon: Upload, indent: true },
-  { name: "Applications", href: "/company/applications", icon: FileText, indent: true },
+  { name: "My Jobs", href: "/company/jobs", icon: Briefcase, section: "jobs" },
+  { name: "Browse All Jobs", href: "/company/browse-jobs", icon: Search, indent: true, section: "jobs" },
+  { name: "Import Jobs", href: "/company/jobs/import", icon: Upload, indent: true, section: "jobs" },
+  { name: "Applications", href: "/company/applications", icon: FileText, indent: true, section: "jobs" },
   { name: "Browse Talent", href: "/company/talents", icon: UserSearch },
   { name: "News", href: "/company/news", icon: Newspaper },
-  { name: "My Contracts", href: "/company/contracts", icon: FileText },
-  { name: "Browse Contracts", href: "/company/browse-contracts", icon: Search, indent: true },
+  { name: "Contracts", href: "/company/contracts", icon: FileText, section: "contracts" },
+  { name: "My Contracts", href: "/company/contracts", icon: FileText, indent: true, section: "contracts" },
+  { name: "Browse Contracts", href: "/company/browse-contracts", icon: Search, indent: true, section: "contracts" },
   { name: "Team", href: "/company/team", icon: Users },
   { name: "Messages", href: "/company/messages", icon: MessageSquare },
   { name: "Company Profile", href: "/company/profile", icon: User },
@@ -29,6 +30,7 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [jobsSectionExpanded, setJobsSectionExpanded] = useState(true);
+  const [contractsSectionExpanded, setContractsSectionExpanded] = useState(true);
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState<string>("");
@@ -93,10 +95,12 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;
-              const isMyJobs = item.name === "My Jobs";
-              const shouldHide = item.indent && !jobsSectionExpanded;
+              const isMyJobs = item.section === "jobs" && !item.indent;
+              const isContracts = item.section === "contracts" && !item.indent;
+              const shouldHideJobs = item.section === "jobs" && item.indent && !jobsSectionExpanded;
+              const shouldHideContracts = item.section === "contracts" && item.indent && !contractsSectionExpanded;
               
-              if (shouldHide) return null;
+              if (shouldHideJobs || shouldHideContracts) return null;
               
               if (isMyJobs) {
                 return (
@@ -123,6 +127,26 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                         {jobsSectionExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                       </button>
                     </Link>
+                  </div>
+                );
+              }
+              
+              if (isContracts) {
+                return (
+                  <div key={item.name}>
+                    <button
+                      onClick={() => setContractsSectionExpanded(!contractsSectionExpanded)}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3 w-full text-left",
+                        "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {item.name}
+                      <div className="ml-auto">
+                        {contractsSectionExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                      </div>
+                    </button>
                   </div>
                 );
               }
@@ -176,10 +200,12 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                 </div>
                 {navigation.map((item) => {
                   const isActive = location.pathname === item.href;
-                  const isMyJobs = item.name === "My Jobs";
-                  const shouldHide = item.indent && !jobsSectionExpanded;
+                  const isMyJobs = item.section === "jobs" && !item.indent;
+                  const isContracts = item.section === "contracts" && !item.indent;
+                  const shouldHideJobs = item.section === "jobs" && item.indent && !jobsSectionExpanded;
+                  const shouldHideContracts = item.section === "contracts" && item.indent && !contractsSectionExpanded;
                   
-                  if (shouldHide) return null;
+                  if (shouldHideJobs || shouldHideContracts) return null;
                   
                   if (isMyJobs) {
                     return (
@@ -207,6 +233,26 @@ export const CompanyLayout = ({ children }: { children: React.ReactNode }) => {
                             {jobsSectionExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                           </button>
                         </Link>
+                      </div>
+                    );
+                  }
+                  
+                  if (isContracts) {
+                    return (
+                      <div key={item.name}>
+                        <button
+                          onClick={() => setContractsSectionExpanded(!contractsSectionExpanded)}
+                          className={cn(
+                            "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors px-3 w-full text-left",
+                            "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                          )}
+                        >
+                          <item.icon className="h-5 w-5" />
+                          {item.name}
+                          <div className="ml-auto">
+                            {contractsSectionExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                          </div>
+                        </button>
                       </div>
                     );
                   }
