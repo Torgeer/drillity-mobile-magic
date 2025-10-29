@@ -76,6 +76,26 @@ export const ApplyDialog = ({ open, onOpenChange, job, userId, onSuccess }: Appl
     setSubmitting(true);
 
     try {
+      // Check subscription limits
+      const { data: subData, error: subError } = await supabase.functions.invoke('talent-check-subscription');
+      
+      if (subError) throw new Error("Failed to check subscription status");
+      
+      const subscription = subData;
+      const applicationsUsed = subscription.applications_used || 0;
+      const applicationsLimit = subscription.application_limit || 0;
+
+      if (applicationsLimit !== -1 && applicationsUsed >= applicationsLimit) {
+        toast({
+          title: "Application limit reached",
+          description: `You've used all ${applicationsLimit} applications this month. Upgrade to apply for more jobs.`,
+          variant: "destructive",
+          action: <Button variant="outline" size="sm" onClick={() => window.location.href = '/subscription'}>Upgrade</Button>,
+        });
+        setSubmitting(false);
+        return;
+      }
+
       let cvUrl = null;
 
       // Upload CV if new file provided
@@ -126,6 +146,22 @@ export const ApplyDialog = ({ open, onOpenChange, job, userId, onSuccess }: Appl
         });
 
       if (insertError) throw insertError;
+
+      // Update applications used counter
+      const { data: currentSub } = await supabase
+        .from('talent_subscriptions')
+        .select('applications_used_this_month')
+        .eq('talent_id', userId)
+        .eq('is_active', true)
+        .single();
+
+      if (currentSub) {
+        await supabase
+          .from('talent_subscriptions')
+          .update({ applications_used_this_month: (currentSub.applications_used_this_month || 0) + 1 })
+          .eq('talent_id', userId)
+          .eq('is_active', true);
+      }
 
       toast({
         title: "Application submitted!",

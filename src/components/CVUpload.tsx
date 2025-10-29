@@ -19,6 +19,26 @@ export const CVUpload = ({ userId, onUploadComplete }: CVUploadProps) => {
     setUploading(true);
     
     try {
+      // Check current CV count and subscription limits
+      const { data: files } = await supabase.storage
+        .from('cv-documents')
+        .list(userId);
+
+      const cvCount = files?.length || 0;
+
+      const { data: subData, error: subError } = await supabase.functions.invoke('talent-check-subscription');
+      
+      if (subError) throw new Error("Failed to check subscription status");
+      
+      const subscription = subData;
+      const cvLimit = subscription.cv_upload_limit || 1;
+
+      if (cvLimit !== -1 && cvCount >= cvLimit) {
+        toast.error(`You've reached your limit of ${cvLimit} CV upload${cvLimit > 1 ? 's' : ''}. Upgrade to upload more.`);
+        setUploading(false);
+        return;
+      }
+
       // Convert base64 to blob
       const response = await fetch(fileData);
       const blob = await response.blob();

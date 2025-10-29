@@ -34,6 +34,7 @@ import BrowseJobs from "./pages/company/BrowseJobs";
 import CompanyProjects from "./pages/company/CompanyProjects";
 import News from "./pages/News";
 import Subscription from "./pages/Subscription";
+import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 import { CompanyLayout } from "./components/CompanyLayout";
 import { Layout } from "./components/Layout";
@@ -61,6 +62,7 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/subscription" element={<Subscription />} />
+            <Route path="/analytics" element={<Analytics />} />
           </Route>
           
           {/* Company Routes */}

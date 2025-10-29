@@ -1235,6 +1235,7 @@ export type Database = {
     Functions: {
       reset_monthly_ai_matches: { Args: never; Returns: undefined }
       reset_monthly_talent_applications: { Args: never; Returns: undefined }
+      reset_monthly_talent_counters: { Args: never; Returns: undefined }
     }
     Enums: {
       application_status:

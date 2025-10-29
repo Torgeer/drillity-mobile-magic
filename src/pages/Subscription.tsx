@@ -58,6 +58,42 @@ export default function Subscription() {
     }
   }, [user]);
 
+  useEffect(() => {
+    // Handle successful subscription after returning from Stripe
+    const handleSubscriptionSuccess = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('session_id');
+      const success = urlParams.get('success');
+
+      if (success === 'true' && sessionId) {
+        try {
+          toast.info('Verifying your subscription...');
+          
+          const { data, error } = await supabase.functions.invoke('talent-verify-subscription', {
+            body: { session_id: sessionId }
+          });
+
+          if (error) throw error;
+
+          toast.success('Subscription activated successfully!');
+          
+          // Clear URL parameters
+          window.history.replaceState({}, '', '/subscription');
+          
+          // Refresh subscription data
+          await fetchCurrentSubscription();
+        } catch (error) {
+          console.error('Error verifying subscription:', error);
+          toast.error('Failed to verify subscription. Please contact support.');
+        }
+      }
+    };
+
+    if (user) {
+      handleSubscriptionSuccess();
+    }
+  }, [user]);
+
   const fetchPlans = async () => {
     try {
       const { data, error } = await supabase

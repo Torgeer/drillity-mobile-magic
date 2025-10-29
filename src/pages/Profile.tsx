@@ -7,12 +7,13 @@ import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { AddSkillDialog } from "@/components/AddSkillDialog";
 import { AddCertificationDialog } from "@/components/AddCertificationDialog";
 import { SkillSelector } from "@/components/SkillSelector";
+import { ProfileViewers } from "@/components/ProfileViewers";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Tables, Enums } from "@/integrations/supabase/types";
-import { Plus, Trash2, AlertCircle } from "lucide-react";
+import { Plus, Trash2, AlertCircle, CheckCircle2, Star } from "lucide-react";
 import { formatDistanceToNow, isPast, parseISO } from "date-fns";
 
 const Profile = () => {
@@ -21,6 +22,7 @@ const Profile = () => {
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
   const [skills, setSkills] = useState<Tables<"talent_skills">[]>([]);
   const [certifications, setCertifications] = useState<Tables<"talent_certifications">[]>([]);
+  const [subscription, setSubscription] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [addSkillDialogOpen, setAddSkillDialogOpen] = useState(false);
@@ -33,8 +35,19 @@ const Profile = () => {
       fetchProfile();
       fetchSkills();
       fetchCertifications();
+      fetchSubscription();
     }
   }, [user]);
+
+  const fetchSubscription = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('talent-check-subscription');
+      if (error) throw error;
+      setSubscription(data);
+    } catch (error: any) {
+      console.error('Error fetching subscription:', error);
+    }
+  };
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -216,6 +229,18 @@ const Profile = () => {
                 <p className="text-sm text-muted-foreground mb-3">{profile.location}</p>
               )}
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                {subscription?.plan_details?.verified_badge && (
+                  <Badge variant="default" className="bg-primary/20 text-primary border-primary/40">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    Verified
+                  </Badge>
+                )}
+                {subscription?.plan_details?.featured_profile && (
+                  <Badge variant="default" className="bg-warning/20 text-warning border-warning/40">
+                    <Star className="h-3 w-3 mr-1" />
+                    Featured
+                  </Badge>
+                )}
                 {profile.availability_status && (
                   <Badge variant="outline" className={
                     profile.availability_status === 'available' ? 'bg-success/20 text-success' :
@@ -246,6 +271,14 @@ const Profile = () => {
         </Card>
 
         {user && <CVUpload userId={user.id} />}
+
+        {user && subscription && (
+          <ProfileViewers 
+            talentId={user.id}
+            enabled={subscription.plan_details?.profile_views_enabled || false}
+            limit={subscription.plan_details?.profile_views_limit || 5}
+          />
+        )}
 
         <Card className="p-4 sm:p-5 lg:p-6">
           <div className="flex items-center justify-between mb-4">

@@ -97,7 +97,7 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${origin}/subscription?success=true`,
+      success_url: `${origin}/subscription?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/subscription?canceled=true`,
       metadata: {
         talent_id: user.id,

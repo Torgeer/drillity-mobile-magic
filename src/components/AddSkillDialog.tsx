@@ -25,6 +25,30 @@ export const AddSkillDialog = ({ open, onOpenChange, userId, skillName, onSucces
     setLoading(true);
 
     try {
+      // Check current skill count and subscription limits
+      const { count: skillCount } = await supabase
+        .from('talent_skills')
+        .select('*', { count: 'exact', head: true })
+        .eq('talent_id', userId);
+
+      const { data: subData, error: subError } = await supabase.functions.invoke('talent-check-subscription');
+      
+      if (subError) throw new Error("Failed to check subscription status");
+      
+      const subscription = subData;
+      const skillLimit = subscription.skill_limit;
+
+      if (skillLimit !== null && skillLimit !== -1 && (skillCount || 0) >= skillLimit) {
+        toast({
+          title: "Skill limit reached",
+          description: `You've reached your limit of ${skillLimit} skills. Upgrade to add more.`,
+          variant: "destructive",
+          action: <Button variant="outline" size="sm" onClick={() => window.location.href = '/subscription'}>Upgrade</Button>,
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase
         .from('talent_skills')
         .insert({

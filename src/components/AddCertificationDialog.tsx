@@ -37,6 +37,29 @@ export const AddCertificationDialog = ({ open, onOpenChange, userId, onSuccess }
     setLoading(true);
 
     try {
+      // Check current certification count and subscription limits
+      const { count: certCount } = await supabase
+        .from('talent_certifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('talent_id', userId);
+
+      const { data: subData, error: subError } = await supabase.functions.invoke('talent-check-subscription');
+      
+      if (subError) throw new Error("Failed to check subscription status");
+      
+      const subscription = subData;
+      const certLimit = subscription.certification_limit;
+
+      if (certLimit !== null && certLimit !== -1 && (certCount || 0) >= certLimit) {
+        toast({
+          title: "Certification limit reached",
+          description: `You've reached your limit of ${certLimit} certifications. Upgrade to add more.`,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase
         .from('talent_certifications')
         .insert({
