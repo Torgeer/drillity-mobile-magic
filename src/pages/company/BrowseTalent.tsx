@@ -34,8 +34,7 @@ export default function BrowseTalent() {
           talent_skills(skill_name, skill_level),
           talent_certifications(certification_name, expiry_date)
         `)
-        .eq('user_type', 'talent')
-        .eq('profile_visibility', 'public');
+        .eq('user_type', 'talent');
 
       if (filters.location) {
         query = query.ilike('location', `%${filters.location}%`);
