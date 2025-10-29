@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { useAuth, UserType } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { authenticateWithBiometrics, getBiometricCredentials, setBiometricCredentials } from "@/utils/capacitorPlugins";
+import { rateLimiter } from "@/lib/securityUtils";
 import drillityLogoDark from "@/assets/drillity-logo-dark.png";
 import drillityLogoLight from "@/assets/drillity-logo-light.png";
 import { useTheme } from "@/hooks/useTheme";
@@ -23,45 +23,24 @@ const Auth = () => {
   const { theme } = useTheme();
   const logoSrc = theme === 'light' ? drillityLogoLight : drillityLogoDark;
 
-  const handleBiometricAuth = async () => {
-    try {
-      await authenticateWithBiometrics();
-      const credentials = await getBiometricCredentials();
-      
-      if (credentials) {
-        setLoading(true);
-        const { error } = await signIn(credentials.username, credentials.password);
-        
-        if (error) {
-          toast.error(error.message);
-        } else {
-          toast.success("Logged in successfully!");
-          navigate("/dashboard");
-        }
-      }
-    } catch (error: any) {
-      toast.error(error?.message || "Biometric authentication failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       if (isLogin) {
+        // Rate limiting: 5 attempts per 5 minutes per email
+        if (!rateLimiter.check(`login-${email}`, 5, 300000)) {
+          toast.error("Too many login attempts. Please wait 5 minutes.");
+          setLoading(false);
+          return;
+        }
+
         const { error } = await signIn(email, password);
         
         if (error) {
           toast.error(error.message);
         } else {
-          // Offer to save credentials for biometric auth
-          try {
-            await setBiometricCredentials(email, password);
-          } catch {}
-          
           toast.success("Logged in successfully!");
           navigate("/dashboard");
         }
@@ -164,19 +143,6 @@ const Auth = () => {
               {loading ? "Loading..." : isLogin ? "Sign In" : "Create Account"}
             </Button>
           </form>
-
-          {isLogin && (
-            <div className="mt-4">
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="w-full" 
-                onClick={handleBiometricAuth}
-              >
-                Sign in with Biometrics
-              </Button>
-            </div>
-          )}
 
           <div className="mt-6 text-center">
             <button
