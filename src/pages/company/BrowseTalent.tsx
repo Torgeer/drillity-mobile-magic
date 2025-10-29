@@ -27,20 +27,24 @@ export default function BrowseTalent() {
   const fetchTalents = async () => {
     setLoading(true);
     try {
-      let query = (supabase as any)
+      let query = supabase
         .from('profiles')
         .select(`
           *,
           talent_skills(skill_name, skill_level),
           talent_certifications(certification_name, expiry_date)
         `)
-        .eq('user_type', 'talent');
+        .eq('user_type', 'talent')
+        .eq('profile_visibility', 'public');
 
       if (filters.location) {
         query = query.ilike('location', `%${filters.location}%`);
       }
       if (filters.availability) {
         query = query.eq('availability_status', filters.availability);
+      }
+      if (filters.open_to_international) {
+        query = query.eq('open_to_international', true);
       }
 
       const { data, error } = await query;
