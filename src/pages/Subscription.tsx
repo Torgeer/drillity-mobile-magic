@@ -92,6 +92,8 @@ export default function Subscription() {
 
     setCheckingOut(planId);
     try {
+      toast.info('Redirecting to checkout...');
+      
       const { data, error } = await supabase.functions.invoke('talent-create-checkout', {
         body: { plan_id: planId }
       });
@@ -99,12 +101,11 @@ export default function Subscription() {
       if (error) throw error;
 
       if (data?.url) {
-        window.open(data.url, '_blank');
+        window.location.href = data.url;
       }
     } catch (error) {
       console.error('Error creating checkout:', error);
       toast.error('Failed to start checkout process');
-    } finally {
       setCheckingOut(null);
     }
   };
