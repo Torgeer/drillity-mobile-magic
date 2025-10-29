@@ -20,6 +20,7 @@ import CompanyJobImport from "./pages/company/CompanyJobImport";
 import CompanyApplications from "./pages/company/CompanyApplications";
 import JobMatches from "./pages/company/JobMatches";
 import BrowseTalent from "./pages/company/BrowseTalent";
+import TalentDetail from "./pages/company/TalentDetail";
 import CompanyTeam from "./pages/company/CompanyTeam";
 import CompanySettings from "./pages/company/CompanySettings";
 import CompanyMessages from "./pages/company/CompanyMessages";
@@ -79,6 +80,7 @@ const App = () => (
             <Route path="/company/jobs/import" element={<CompanyJobImport />} />
             <Route path="/company/applications" element={<CompanyApplications />} />
             <Route path="/company/talents" element={<BrowseTalent />} />
+            <Route path="/company/talent/:id" element={<TalentDetail />} />
             <Route path="/company/team" element={<CompanyTeam />} />
             <Route path="/company/messages" element={<CompanyMessages />} />
             <Route path="/company/profile" element={<CompanyProfileEnhanced />} />
