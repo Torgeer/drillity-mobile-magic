@@ -138,11 +138,11 @@ export const authenticateWithBiometrics = async () => {
   }
 };
 
-export const setBiometricCredentials = async (username: string, password: string) => {
+export const setBiometricCredentials = async (username: string, refreshToken: string) => {
   try {
     await NativeBiometric.setCredentials({
       username,
-      password,
+      password: refreshToken, // Store refresh token, not password
       server: 'drillity.com',
     });
   } catch (error) {

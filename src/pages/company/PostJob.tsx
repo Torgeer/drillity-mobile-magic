@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { getCurrentLocation, requestLocationPermission } from "@/utils/capacitorPlugins";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { jobPostSchema } from "@/lib/validationSchemas";
 
 const PostJob = () => {
   const navigate = useNavigate();
@@ -121,22 +122,41 @@ const PostJob = () => {
       toast.error("Company profile not found");
       return;
     }
+
+    // Validate input data using Zod schema
+    const validationResult = jobPostSchema.safeParse({
+      title: formData.title,
+      description: formData.description,
+      location: formData.location,
+      salary_min: formData.salaryMin ? parseInt(formData.salaryMin) : null,
+      salary_max: formData.salaryMax ? parseInt(formData.salaryMax) : null,
+      skills: formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(s => s) : [],
+      certifications: formData.certifications ? formData.certifications.split(',').map(c => c.trim()).filter(c => c) : [],
+    });
+
+    if (!validationResult.success) {
+      const errors = validationResult.error.flatten();
+      const firstError = Object.values(errors.fieldErrors)[0]?.[0] || 'Validation failed';
+      toast.error(firstError);
+      setLoading(false);
+      return;
+    }
     
     setLoading(true);
 
     try {
       const jobData = {
         company_id: companyId,
-        title: formData.title,
-        description: formData.description,
-        location: formData.location,
+        title: validationResult.data.title,
+        description: validationResult.data.description,
+        location: validationResult.data.location,
         job_type: formData.jobType as 'full_time' | 'part_time' | 'contract' | 'rotation',
         experience_level: formData.experienceLevel as 'entry' | 'intermediate' | 'senior' | 'expert',
-        salary_min: formData.salaryMin ? parseInt(formData.salaryMin) : null,
-        salary_max: formData.salaryMax ? parseInt(formData.salaryMax) : null,
+        salary_min: validationResult.data.salary_min,
+        salary_max: validationResult.data.salary_max,
         remote: formData.remote,
-        skills: formData.skills ? formData.skills.split(',').map(s => s.trim()) : [],
-        certifications: formData.certifications ? formData.certifications.split(',').map(c => c.trim()) : [],
+        skills: validationResult.data.skills,
+        certifications: validationResult.data.certifications,
         project_id: formData.projectId || null,
         is_active: true
       };
@@ -160,7 +180,8 @@ const PostJob = () => {
 
       navigate("/company/jobs");
     } catch (error: any) {
-      toast.error(error.message || `Failed to ${isEditMode ? 'update' : 'post'} job`);
+      console.error('Error posting job:', error);
+      toast.error(`Failed to ${isEditMode ? 'update' : 'post'} job. Please try again.`);
     } finally {
       setLoading(false);
     }

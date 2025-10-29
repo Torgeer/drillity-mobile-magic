@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
+import { profileSchema } from "@/lib/validationSchemas";
+import { validateFile } from "@/lib/securityUtils";
 
 interface EditProfileDialogProps {
   open: boolean;
@@ -83,10 +85,23 @@ export const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: Ed
   };
 
   const handleSubmit = async () => {
-    if (formData.bio.length > 500) {
+    // Validate input data using Zod schema
+    const validationResult = profileSchema.safeParse({
+      full_name: formData.full_name,
+      bio: formData.bio,
+      location: formData.location,
+      phone: formData.phone,
+      linkedin_url: formData.linkedin_url || "",
+      facebook_url: formData.facebook_url || "",
+      instagram_url: formData.instagram_url || "",
+    });
+
+    if (!validationResult.success) {
+      const errors = validationResult.error.flatten();
+      const firstError = Object.values(errors.fieldErrors)[0]?.[0] || 'Validation failed';
       toast({
-        title: "Bio too long",
-        description: "Bio must be less than 500 characters",
+        title: "Validation Error",
+        description: firstError,
         variant: "destructive",
       });
       return;
@@ -99,6 +114,17 @@ export const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: Ed
 
       // Upload avatar if new file provided
       if (avatarFile) {
+        const fileValidation = validateFile(avatarFile, ['jpg', 'jpeg', 'png', 'webp'], 5);
+        if (!fileValidation.valid) {
+          toast({
+            title: "Invalid File",
+            description: fileValidation.error,
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+
         const fileExt = avatarFile.name.split('.').pop();
         const fileName = `${profile.id}/${Date.now()}.${fileExt}`;
         
@@ -115,20 +141,20 @@ export const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: Ed
         avatar_url = publicUrl;
       }
 
-      // Update profile
+      // Update profile with validated data
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
-          full_name: formData.full_name,
-          bio: formData.bio,
-          location: formData.location,
-          phone: formData.phone,
+          full_name: validationResult.data.full_name,
+          bio: validationResult.data.bio,
+          location: validationResult.data.location,
+          phone: validationResult.data.phone,
           experience_years: formData.experience_years,
           availability_status: formData.availability_status,
           preferred_work_type: formData.preferred_work_type,
-          linkedin_url: formData.linkedin_url,
-          facebook_url: formData.facebook_url,
-          instagram_url: formData.instagram_url,
+          linkedin_url: validationResult.data.linkedin_url,
+          facebook_url: validationResult.data.facebook_url,
+          instagram_url: validationResult.data.instagram_url,
           avatar_url,
           has_passport: formData.has_passport,
           passport_number: formData.passport_number,
@@ -150,7 +176,7 @@ export const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: Ed
       console.error('Error updating profile:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to update profile",
+        description: "Failed to update profile. Please try again.",
         variant: "destructive",
       });
     } finally {

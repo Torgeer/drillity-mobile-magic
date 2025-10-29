@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FileText, Send, Building2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { messageSchema } from "@/lib/validationSchemas";
 
 interface Contract {
   id: string;
@@ -89,17 +90,34 @@ export default function BrowseContracts() {
     e.preventDefault();
     if (!companyId || !respondingTo) return;
 
+    // Validate input data using Zod schema
+    const validationResult = messageSchema.safeParse({
+      content: responseForm.message,
+    });
+
+    if (!validationResult.success) {
+      const errors = validationResult.error.flatten();
+      const firstError = Object.values(errors.fieldErrors)[0]?.[0] || 'Validation failed';
+      toast({
+        title: "Validation Error",
+        description: firstError,
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { error } = await supabase.from("contract_responses").insert({
       contract_id: respondingTo,
       company_id: companyId,
-      message: responseForm.message,
+      message: validationResult.data.content,
       price_offer: responseForm.price_offer || null,
     });
 
     if (error) {
+      console.error("Error submitting response:", error);
       toast({
         title: "Error",
-        description: "Failed to submit response",
+        description: "Failed to submit response. Please try again.",
         variant: "destructive",
       });
     } else {

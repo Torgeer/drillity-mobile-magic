@@ -2,9 +2,39 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// Get allowed origins from environment
+const getAllowedOrigins = () => {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const publicSiteUrl = Deno.env.get("PUBLIC_SITE_URL");
+  return [supabaseUrl, publicSiteUrl].filter(Boolean) as string[];
+};
+
+const getCorsHeaders = (origin: string | null) => {
+  const allowedOrigins = getAllowedOrigins();
+  const isAllowed = origin && allowedOrigins.some(allowed => origin.includes(allowed));
+  
+  return {
+    'Access-Control-Allow-Origin': isAllowed ? origin : (allowedOrigins[0] || '*'),
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Credentials': 'true',
+  };
+};
+
+// Rate limiting storage
+const rateLimitMap = new Map<string, number[]>();
+
+const checkRateLimit = (key: string, maxRequests: number, windowMs: number): boolean => {
+  const now = Date.now();
+  const timestamps = rateLimitMap.get(key) || [];
+  const validTimestamps = timestamps.filter(t => now - t < windowMs);
+  
+  if (validTimestamps.length >= maxRequests) {
+    return false;
+  }
+  
+  validTimestamps.push(now);
+  rateLimitMap.set(key, validTimestamps);
+  return true;
 };
 
 interface TalentCandidate {
@@ -47,6 +77,9 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -58,23 +91,84 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Authenticate user
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      console.error("Authentication failed:", authError?.message);
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    console.log(`User authenticated: ${user.id}`);
+
     const { job_id } = await req.json();
     
     if (!job_id) {
-      throw new Error('job_id is required');
+      return new Response(JSON.stringify({ error: "job_id is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     console.log(`Starting matching process for job: ${job_id}`);
 
-    // 1. Fetch job details
+    // 1. Fetch job details and verify ownership
     const { data: job, error: jobError } = await supabase
       .from('jobs')
-      .select('*')
+      .select('*, company_profiles!inner(user_id)')
       .eq('id', job_id)
       .single();
 
     if (jobError || !job) {
-      throw new Error(`Job not found: ${jobError?.message}`);
+      return new Response(JSON.stringify({ error: "Job not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Verify ownership
+    if (job.company_profiles.user_id !== user.id) {
+      const { data: hasRole } = await supabase
+        .rpc('has_company_role', {
+          _user_id: user.id,
+          _company_id: job.company_id,
+          _role: 'admin'
+        });
+
+      if (!hasRole) {
+        console.error("Authorization failed - user doesn't own this job");
+        return new Response(JSON.stringify({ 
+          error: "Forbidden - you don't have permission to match talents for this job" 
+        }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    console.log("Authorization successful");
+
+    // Rate limiting - max 3 AI matches per minute per company
+    if (!checkRateLimit(`ai-match-${job.company_id}`, 3, 60000)) {
+      return new Response(JSON.stringify({ 
+        error: "Rate limit exceeded. Maximum 3 AI matches per minute.",
+        retry_after: 60
+      }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const jobDetails: JobDetails = {
@@ -461,12 +555,12 @@ Analysera matchen och ge en detaljerad bedömning.`;
     console.error('Error in match-talents-to-job:', error);
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: "An error occurred processing your request",
         success: false 
       }),
       { 
         status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        headers: { ...getCorsHeaders(req.headers.get('origin')), 'Content-Type': 'application/json' } 
       }
     );
   }

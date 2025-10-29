@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, FileText, Eye, Trash2, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { contractSchema } from "@/lib/validationSchemas";
 
 interface Contract {
   id: string;
@@ -96,15 +97,42 @@ export default function CompanyContracts() {
     e.preventDefault();
     if (!companyId) return;
 
+    // Validate input data using Zod schema
+    const validationResult = contractSchema.safeParse({
+      title: formData.title,
+      description: formData.description,
+      location: formData.location,
+      equipment_needed: formData.equipment_needed,
+      budget_range: formData.budget_range,
+    });
+
+    if (!validationResult.success) {
+      const errors = validationResult.error.flatten();
+      const firstError = Object.values(errors.fieldErrors)[0]?.[0] || 'Validation failed';
+      toast({
+        title: "Validation Error",
+        description: firstError,
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { error } = await supabase.from("contracts").insert({
       company_id: companyId,
-      ...formData,
+      title: validationResult.data.title,
+      description: validationResult.data.description,
+      location: validationResult.data.location,
+      equipment_needed: validationResult.data.equipment_needed,
+      budget_range: validationResult.data.budget_range,
+      duration: formData.duration,
+      start_date: formData.start_date,
     });
 
     if (error) {
+      console.error("Error creating contract:", error);
       toast({
         title: "Error",
-        description: "Failed to create contract",
+        description: "Failed to create contract. Please try again.",
         variant: "destructive",
       });
     } else {
