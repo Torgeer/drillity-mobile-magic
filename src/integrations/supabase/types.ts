@@ -1303,16 +1303,64 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      has_company_role: {
+        Args: {
+          _company_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       reset_monthly_ai_matches: { Args: never; Returns: undefined }
       reset_monthly_talent_applications: { Args: never; Returns: undefined }
       reset_monthly_talent_counters: { Args: never; Returns: undefined }
     }
     Enums: {
+      app_role: "admin" | "manager" | "recruiter" | "member"
       application_status:
         | "pending"
         | "reviewing"
@@ -1451,6 +1499,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "manager", "recruiter", "member"],
       application_status: [
         "pending",
         "reviewing",
