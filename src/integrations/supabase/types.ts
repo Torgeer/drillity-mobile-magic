@@ -664,6 +664,39 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_analytics: {
+        Row: {
+          application_views: number | null
+          companies_interested: number | null
+          created_at: string | null
+          date: string
+          id: string
+          job_matches_received: number | null
+          profile_views: number | null
+          talent_id: string
+        }
+        Insert: {
+          application_views?: number | null
+          companies_interested?: number | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          job_matches_received?: number | null
+          profile_views?: number | null
+          talent_id: string
+        }
+        Update: {
+          application_views?: number | null
+          companies_interested?: number | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          job_matches_received?: number | null
+          profile_views?: number | null
+          talent_id?: string
+        }
+        Relationships: []
+      }
       profile_views: {
         Row: {
           company_id: string
@@ -1064,12 +1097,144 @@ export type Database = {
           },
         ]
       }
+      talent_subscription_plans: {
+        Row: {
+          ai_job_matching: boolean | null
+          ai_profile_autofill: boolean | null
+          analytics_dashboard: boolean | null
+          application_limit: number
+          billing_interval: string
+          certification_limit: number | null
+          created_at: string | null
+          cv_upload_limit: number
+          direct_company_contact: boolean | null
+          featured_profile: boolean | null
+          id: string
+          is_active: boolean | null
+          name: string
+          premium_support: boolean | null
+          price_eur: number
+          priority_listing: boolean | null
+          profile_highlight_per_month: number | null
+          profile_views_enabled: boolean | null
+          profile_views_limit: number | null
+          skill_limit: number | null
+          stripe_price_id: string | null
+          verified_badge: boolean | null
+        }
+        Insert: {
+          ai_job_matching?: boolean | null
+          ai_profile_autofill?: boolean | null
+          analytics_dashboard?: boolean | null
+          application_limit: number
+          billing_interval?: string
+          certification_limit?: number | null
+          created_at?: string | null
+          cv_upload_limit: number
+          direct_company_contact?: boolean | null
+          featured_profile?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          premium_support?: boolean | null
+          price_eur: number
+          priority_listing?: boolean | null
+          profile_highlight_per_month?: number | null
+          profile_views_enabled?: boolean | null
+          profile_views_limit?: number | null
+          skill_limit?: number | null
+          stripe_price_id?: string | null
+          verified_badge?: boolean | null
+        }
+        Update: {
+          ai_job_matching?: boolean | null
+          ai_profile_autofill?: boolean | null
+          analytics_dashboard?: boolean | null
+          application_limit?: number
+          billing_interval?: string
+          certification_limit?: number | null
+          created_at?: string | null
+          cv_upload_limit?: number
+          direct_company_contact?: boolean | null
+          featured_profile?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          premium_support?: boolean | null
+          price_eur?: number
+          priority_listing?: boolean | null
+          profile_highlight_per_month?: number | null
+          profile_views_enabled?: boolean | null
+          profile_views_limit?: number | null
+          skill_limit?: number | null
+          stripe_price_id?: string | null
+          verified_badge?: boolean | null
+        }
+        Relationships: []
+      }
+      talent_subscriptions: {
+        Row: {
+          applications_reset_date: string | null
+          applications_used_this_month: number | null
+          created_at: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          plan_id: string
+          profile_highlights_used_this_month: number | null
+          start_date: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          talent_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          applications_reset_date?: string | null
+          applications_used_this_month?: number | null
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          plan_id: string
+          profile_highlights_used_this_month?: number | null
+          start_date?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          talent_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          applications_reset_date?: string | null
+          applications_used_this_month?: number | null
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          plan_id?: string
+          profile_highlights_used_this_month?: number | null
+          start_date?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          talent_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "talent_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "talent_subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       reset_monthly_ai_matches: { Args: never; Returns: undefined }
+      reset_monthly_talent_applications: { Args: never; Returns: undefined }
     }
     Enums: {
       application_status:
