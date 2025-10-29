@@ -20,7 +20,7 @@ export default function BrowseTalent() {
   const [filters, setFilters] = useState({
     location: '',
     experience_level: '',
-    availability: '',
+    availability: 'all',
     open_to_international: false,
   });
 
@@ -40,7 +40,7 @@ export default function BrowseTalent() {
       if (filters.location) {
         query = query.ilike('location', `%${filters.location}%`);
       }
-      if (filters.availability) {
+      if (filters.availability && filters.availability !== 'all') {
         query = query.eq('availability_status', filters.availability);
       }
       if (filters.open_to_international) {
@@ -92,7 +92,7 @@ export default function BrowseTalent() {
                   <SelectValue placeholder="Any" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any</SelectItem>
+                  <SelectItem value="all">Any</SelectItem>
                   <SelectItem value="available">Available Now</SelectItem>
                   <SelectItem value="2weeks">Available in 2 weeks</SelectItem>
                   <SelectItem value="1month">Available in 1 month</SelectItem>
