@@ -1,4 +1,4 @@
-import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, LogOut, Newspaper } from "lucide-react";
+import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, LogOut, Newspaper, CreditCard } from "lucide-react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -28,11 +28,13 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState<string>("");
   const [userEmail, setUserEmail] = useState<string>("");
+  const [subscriptionPlan, setSubscriptionPlan] = useState<string>("");
 
   useEffect(() => {
     if (user) {
       setUserEmail(user.email || "");
       fetchUserName();
+      fetchSubscriptionPlan();
     }
   }, [user]);
 
@@ -47,6 +49,19 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
 
     if (data?.full_name) {
       setUserName(data.full_name);
+    }
+  };
+
+  const fetchSubscriptionPlan = async () => {
+    if (!user) return;
+    
+    try {
+      const { data } = await supabase.functions.invoke('talent-check-subscription');
+      if (data?.plan_name) {
+        setSubscriptionPlan(data.plan_name);
+      }
+    } catch (error) {
+      console.error('Error fetching subscription:', error);
     }
   };
 
@@ -109,6 +124,16 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           </nav>
 
           <div className="p-4 border-t border-sidebar-border">
+            <Link
+              to="/subscription"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 mb-3 text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
+            >
+              <CreditCard className="h-5 w-5" />
+              <div className="flex-1">
+                <p className="font-medium">Subscription</p>
+                {subscriptionPlan && <p className="text-xs text-muted-foreground">{subscriptionPlan}</p>}
+              </div>
+            </Link>
             <div className="mb-3 px-3">
               <p className="text-xs font-medium text-muted-foreground">Logged in as</p>
               <p className="text-sm font-semibold truncate">{userName || userEmail}</p>
@@ -158,6 +183,17 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               </nav>
 
               <div className="p-4 border-t border-sidebar-border">
+                <Link
+                  to="/subscription"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 mb-3 text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
+                >
+                  <CreditCard className="h-5 w-5" />
+                  <div className="flex-1">
+                    <p className="font-medium">Subscription</p>
+                    {subscriptionPlan && <p className="text-xs text-muted-foreground">{subscriptionPlan}</p>}
+                  </div>
+                </Link>
                 <div className="mb-3 px-3">
                   <p className="text-xs font-medium text-muted-foreground">Logged in as</p>
                   <p className="text-sm font-semibold truncate">{userName || userEmail}</p>
