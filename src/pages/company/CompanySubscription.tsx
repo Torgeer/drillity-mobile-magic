@@ -44,8 +44,10 @@ const CompanySubscription = () => {
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [previewAIEnabled, setPreviewAIEnabled] = useState(false);
-  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'invoice'>('card');
+  const [checkoutFallbackOpen, setCheckoutFallbackOpen] = useState(false);
+  const [lastCheckoutUrl, setLastCheckoutUrl] = useState<string | null>(null);
+  const [invoiceResult, setInvoiceResult] = useState<{ url: string; pdf_url?: string } | null>(null);
   const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
   const [invoiceFormData, setInvoiceFormData] = useState({
     po_number: '',
@@ -126,12 +128,11 @@ const CompanySubscription = () => {
     
     // Check if popup was blocked
     if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-      toast.error("Pop-up blocked. Please allow pop-ups and try again.", {
-        duration: 5000,
-        action: {
-          label: "Open Checkout",
-          onClick: () => window.open(url, '_blank')
-        }
+      // Store URL and show persistent fallback dialog
+      setLastCheckoutUrl(url);
+      setCheckoutFallbackOpen(true);
+      toast.info("We tried to open Stripe Checkout. If nothing happened, use the dialog below.", {
+        duration: 6000
       });
     } else {
       toast.success("Checkout opened in new tab");
@@ -168,7 +169,7 @@ const CompanySubscription = () => {
         body: { 
           plan_id: selectedPlan.id,
           ai_matching_enabled: previewAIEnabled,
-          billing_interval: billingInterval
+          billing_interval: 'month'
         }
       });
 
@@ -199,7 +200,7 @@ const CompanySubscription = () => {
         body: { 
           plan_id: selectedPlan.id,
           ai_matching_enabled: previewAIEnabled,
-          billing_interval: billingInterval,
+          billing_interval: 'month',
           payment_terms: invoiceFormData.payment_terms,
           po_number: invoiceFormData.po_number || undefined,
           vat_number: invoiceFormData.vat_number || undefined,
@@ -213,17 +214,19 @@ const CompanySubscription = () => {
 
       if (data?.success) {
         toast.success("Invoice created and sent to your email!");
-        setInvoiceDialogOpen(false);
-        setPreviewDialogOpen(false);
+        
+        // Store invoice result to show inline links
+        if (data.hosted_invoice_url) {
+          setInvoiceResult({
+            url: data.hosted_invoice_url,
+            pdf_url: data.invoice_pdf
+          });
+        }
         
         // Show invoice details
         toast.info(`Invoice amount: €${data.amount_due.toFixed(2)}. Due date: ${new Date(data.due_date).toLocaleDateString()}`);
         
-        // Optionally open invoice PDF
-        if (data.invoice_pdf) {
-          window.open(data.invoice_pdf, '_blank');
-        }
-        
+        // Keep dialog open to show inline links
         // Reload data to show pending subscription
         await loadData();
       } else {
@@ -238,36 +241,24 @@ const CompanySubscription = () => {
     }
   };
 
-  const calculateAIMatchingPrice = (plan: SubscriptionPlan, interval: 'month' | 'year') => {
-    // First calculate discounted price
-    const discountedPrice = calculatePrice(plan.price_eur, interval);
-    const monthlyDiscountedPrice = interval === 'year' ? discountedPrice / 12 : discountedPrice;
+  const calculateAIMatchingPrice = (plan: SubscriptionPlan) => {
+    // Calculate on discounted monthly price
+    const discountedPrice = calculatePrice(plan.price_eur);
     
-    // Then calculate AI matching on discounted price
+    // Calculate AI matching percentage on discounted price
     const percentage = plan.job_limit <= 40 ? 0.1 : 0.3;
-    return Math.round(monthlyDiscountedPrice * percentage);
+    return Math.round(discountedPrice * percentage);
   };
 
-  const calculatePrice = (basePrice: number, interval: 'month' | 'year') => {
-    let price = interval === 'year' ? basePrice * 12 : basePrice;
+  const calculatePrice = (basePrice: number) => {
+    let price = basePrice;
     
     // Apply early bird discount (50% off)
     if (isEarlyBird) {
       price = price * 0.5;
-      
-      // Apply additional annual discount (30% off) for yearly billing
-      if (interval === 'year') {
-        price = price * 0.7;
-      }
     }
     
     return Math.round(price);
-  };
-
-  const calculateSavings = (basePrice: number) => {
-    const monthlyTotal = basePrice * 12;
-    const annualPrice = calculatePrice(basePrice, 'year');
-    return monthlyTotal - annualPrice;
   };
 
   const handleToggleAIMatching = async (enabled: boolean) => {
@@ -356,46 +347,25 @@ const CompanySubscription = () => {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-2xl font-bold">🎉 Exclusive 2025 Offer!</h3>
+                  <h3 className="text-2xl font-bold">🎉 Launch Campaign 2025!</h3>
                   <Badge variant="secondary" className="bg-primary/20">
                     <Clock className="h-3 w-3 mr-1" />
                     {daysUntilCampaignEnd} days left
                   </Badge>
                 </div>
                 <p className="text-lg mb-3">
-                  <span className="font-bold text-primary">50% discount</span> on all subscriptions for those who registered before 12/31/2025! 🚀
+                  <span className="font-bold text-primary">50% discount</span> on all monthly subscriptions until December 31st, 2025! 🚀
                 </p>
                 <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg border border-primary/20">
-                  <Calendar className="h-5 w-5 text-primary" />
+                  <Sparkles className="h-5 w-5 text-primary" />
                   <span className="font-semibold">
-                    Choose annual billing and get <span className="text-primary">an additional 30% discount</span> (total 65% off!)
+                    Lock in this price by subscribing before the year ends – discount valid for those who register before 12/31/2025
                   </span>
                 </div>
               </div>
             </div>
           </Card>
         )}
-
-        {/* Billing Interval Toggle */}
-        <Card className="p-4">
-          <div className="flex items-center justify-center gap-4">
-            <span className={`font-medium ${billingInterval === 'month' ? 'text-primary' : 'text-muted-foreground'}`}>
-              Monthly
-            </span>
-            <Switch
-              checked={billingInterval === 'year'}
-              onCheckedChange={(checked) => setBillingInterval(checked ? 'year' : 'month')}
-            />
-            <span className={`font-medium ${billingInterval === 'year' ? 'text-primary' : 'text-muted-foreground'}`}>
-              Annually
-              {isEarlyBird && (
-                <Badge variant="secondary" className="ml-2 bg-green-500 text-white">
-                  -30% extra
-                </Badge>
-              )}
-            </span>
-          </div>
-        </Card>
 
         {/* Payment Method Selector */}
         <Card className="p-4">
@@ -609,9 +579,8 @@ const CompanySubscription = () => {
           {plans.map((plan) => {
             const isCurrentPlan = currentSubscription?.plan_id === plan.id;
             const isPopular = plan.job_limit === 20 || plan.job_limit === 30;
-            const displayPrice = calculatePrice(plan.price_eur, billingInterval);
-            const originalPrice = billingInterval === 'year' ? plan.price_eur * 12 : plan.price_eur;
-            const savings = isEarlyBird && billingInterval === 'year' ? calculateSavings(plan.price_eur) : 0;
+            const displayPrice = calculatePrice(plan.price_eur);
+            const originalPrice = plan.price_eur;
 
             return (
               <Card key={plan.id} className={`p-4 relative ${isPopular ? 'border-primary shadow-lg' : ''}`}>
@@ -635,19 +604,12 @@ const CompanySubscription = () => {
                       </p>
                     )}
                     <p className="text-3xl font-bold">€{displayPrice}</p>
-                    <p className="text-xs text-muted-foreground">
-                      per {billingInterval === 'year' ? 'year' : 'month'}
-                    </p>
+                    <p className="text-xs text-muted-foreground">per month</p>
                     {isEarlyBird && (
                       <Badge variant="secondary" className="mt-1 bg-green-500 text-white">
                         <Gift className="h-3 w-3 mr-1" />
                         Save €{originalPrice - displayPrice}
                       </Badge>
-                    )}
-                    {billingInterval === 'year' && isEarlyBird && savings > 0 && (
-                      <p className="text-xs text-primary font-semibold mt-1">
-                        Total €{savings} cheaper than monthly!
-                      </p>
                     )}
                   </div>
 
@@ -708,9 +670,9 @@ const CompanySubscription = () => {
                     <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
                       <Gift className="h-5 w-5" />
                       <div>
-                        <p className="font-semibold">You're getting campaign discounts!</p>
+                        <p className="font-semibold">Launch Campaign Active!</p>
                         <p className="text-sm">
-                          50% discount {billingInterval === 'year' && '+ 30% extra for annual billing'}
+                          You're getting 50% off on monthly billing
                         </p>
                       </div>
                     </div>
@@ -724,25 +686,25 @@ const CompanySubscription = () => {
                       <h3 className="text-xl font-bold">{selectedPlan.name}</h3>
                       <Badge variant="secondary">{selectedPlan.job_limit} jobs</Badge>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Billing Interval</span>
-                      <span className="font-semibold">{billingInterval === 'year' ? 'Annual' : 'Monthly'}</span>
-                    </div>
                     {isEarlyBird && (
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground line-through">
                           Regular price
                         </span>
                         <span className="text-muted-foreground line-through">
-                          €{billingInterval === 'year' ? selectedPlan.price_eur * 12 : selectedPlan.price_eur}
+                          €{selectedPlan.price_eur}
                         </span>
                       </div>
                     )}
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Campaign Price</span>
                       <span className="text-2xl font-bold text-green-600 dark:text-green-400">
-                        €{calculatePrice(selectedPlan.price_eur, billingInterval)}
+                        €{calculatePrice(selectedPlan.price_eur)}
                       </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Billing</span>
+                      <span className="font-semibold">Monthly</span>
                     </div>
                   </div>
                 </Card>
@@ -772,7 +734,7 @@ const CompanySubscription = () => {
                     {previewAIEnabled && (
                       <div className="flex items-center justify-between pt-2 border-t">
                         <span className="text-sm text-muted-foreground">AI Matching</span>
-                        <span className="font-semibold">€{calculateAIMatchingPrice(selectedPlan, billingInterval)}/month</span>
+                        <span className="font-semibold">€{calculateAIMatchingPrice(selectedPlan)}/month</span>
                       </div>
                     )}
                   </div>
@@ -781,22 +743,15 @@ const CompanySubscription = () => {
                 {/* Total */}
                 <div className="space-y-2 pt-2 border-t">
                   <div className="flex items-center justify-between text-lg">
-                    <span className="font-bold">
-                      Total per {billingInterval === 'year' ? 'year' : 'month'}
-                    </span>
+                    <span className="font-bold">Total per month</span>
                     <span className="text-2xl font-bold text-primary">
-                      €{calculatePrice(selectedPlan.price_eur, billingInterval) + (previewAIEnabled ? calculateAIMatchingPrice(selectedPlan, billingInterval) : 0)}
+                      €{calculatePrice(selectedPlan.price_eur) + (previewAIEnabled ? calculateAIMatchingPrice(selectedPlan) : 0)}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Includes {selectedPlan.job_limit} active job postings
                     {previewAIEnabled && " + unlimited AI matches"}
                   </p>
-                  {isEarlyBird && billingInterval === 'year' && (
-                    <p className="text-sm font-semibold text-green-600 dark:text-green-400">
-                      🎉 You save €{calculateSavings(selectedPlan.price_eur)} compared to monthly!
-                    </p>
-                  )}
                 </div>
 
                 {/* Action Buttons */}
@@ -838,25 +793,65 @@ const CompanySubscription = () => {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <h3 className="font-bold">{selectedPlan.name} Plan</h3>
-                      <Badge>{billingInterval === 'year' ? 'Annual' : 'Monthly'}</Badge>
+                      <Badge>Monthly</Badge>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span>Subscription Cost</span>
-                      <span className="font-semibold">€{calculatePrice(selectedPlan.price_eur, billingInterval)}</span>
+                      <span className="font-semibold">€{calculatePrice(selectedPlan.price_eur)}</span>
                     </div>
                     {previewAIEnabled && (
                       <div className="flex items-center justify-between text-sm">
                         <span>AI Matching</span>
-                        <span className="font-semibold">€{calculateAIMatchingPrice(selectedPlan, billingInterval)}</span>
+                        <span className="font-semibold">€{calculateAIMatchingPrice(selectedPlan)}</span>
                       </div>
                     )}
                     <div className="flex items-center justify-between pt-2 border-t font-bold">
                       <span>Total</span>
                       <span className="text-lg text-primary">
-                        €{calculatePrice(selectedPlan.price_eur, billingInterval) + (previewAIEnabled ? calculateAIMatchingPrice(selectedPlan, billingInterval) : 0)}
+                        €{calculatePrice(selectedPlan.price_eur) + (previewAIEnabled ? calculateAIMatchingPrice(selectedPlan) : 0)}
                       </span>
                     </div>
                   </div>
+
+                  {/* Invoice Result - Show inline links when available */}
+                  {invoiceResult && (
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                      <p className="font-semibold text-green-800 dark:text-green-200 mb-3">
+                        ✅ Invoice created successfully!
+                      </p>
+                      <div className="flex flex-col gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open(invoiceResult.url, '_blank')}
+                          className="w-full"
+                        >
+                          Open Invoice
+                        </Button>
+                        {invoiceResult.pdf_url && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(invoiceResult.pdf_url, '_blank')}
+                            className="w-full"
+                          >
+                            Download PDF
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(invoiceResult.url);
+                            toast.success("Invoice link copied!");
+                          }}
+                          className="w-full"
+                        >
+                          Copy Link
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </Card>
 
                 {/* Company Information */}
@@ -1028,6 +1023,63 @@ const CompanySubscription = () => {
                 </div>
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Checkout Blocked Fallback Dialog */}
+        <Dialog open={checkoutFallbackOpen} onOpenChange={setCheckoutFallbackOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Open Stripe Checkout</DialogTitle>
+              <DialogDescription>
+                The checkout didn't open automatically. Use the buttons below to continue.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                <p className="text-sm text-yellow-900 dark:text-yellow-100">
+                  ⚠️ Your browser blocked the pop-up. This can happen due to:
+                </p>
+                <ul className="text-xs text-yellow-800 dark:text-yellow-200 mt-2 ml-4 list-disc space-y-1">
+                  <li>Pop-up blocker enabled</li>
+                  <li>Ad blocker extension</li>
+                  <li>Browser privacy settings</li>
+                </ul>
+              </div>
+
+              {lastCheckoutUrl && (
+                <div className="space-y-3">
+                  <a
+                    href={lastCheckoutUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <Button className="w-full" size="lg">
+                      Open Stripe Checkout
+                    </Button>
+                  </a>
+                  
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      navigator.clipboard.writeText(lastCheckoutUrl);
+                      toast.success("Checkout link copied!");
+                    }}
+                  >
+                    Copy Checkout Link
+                  </Button>
+                </div>
+              )}
+
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <p className="text-xs text-muted-foreground">
+                  💡 <strong>Tips:</strong> Allow pop-ups for this site, disable ad blockers, or try Incognito mode.
+                </p>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
