@@ -13,7 +13,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Tables, Enums } from "@/integrations/supabase/types";
-import { Plus, Trash2, AlertCircle, CheckCircle2, Star } from "lucide-react";
+import { Plus, Trash2, AlertCircle, CheckCircle2, Star, Sparkles, Loader2 } from "lucide-react";
 import { formatDistanceToNow, isPast, parseISO } from "date-fns";
 
 const Profile = () => {
@@ -29,6 +29,7 @@ const Profile = () => {
   const [addCertDialogOpen, setAddCertDialogOpen] = useState(false);
   const [selectedSkillName, setSelectedSkillName] = useState("");
   const [showSkillSelector, setShowSkillSelector] = useState(false);
+  const [generatingBio, setGeneratingBio] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -182,6 +183,40 @@ const Profile = () => {
     return isPast(parseISO(expiryDate));
   };
 
+  const handleGenerateBio = async () => {
+    if (!user) return;
+    
+    setGeneratingBio(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-generate-profile');
+      
+      if (error) throw error;
+      
+      if (data?.bio) {
+        await supabase
+          .from('profiles')
+          .update({ bio: data.bio })
+          .eq('id', user.id);
+        
+        toast({
+          title: "Bio generated!",
+          description: "Your profile bio has been created with AI.",
+        });
+        
+        await fetchProfile();
+      }
+    } catch (error: any) {
+      console.error('Error generating bio:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate bio",
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingBio(false);
+    }
+  };
+
   if (loading || !profile) {
     return (
       <Layout>
@@ -263,8 +298,28 @@ const Profile = () => {
                   ))
                 )}
               </div>
-              {profile.bio && (
+              {profile.bio ? (
                 <p className="mt-4 text-sm">{profile.bio}</p>
+              ) : subscription?.plan_details?.ai_profile_autofill && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleGenerateBio}
+                  disabled={generatingBio}
+                  className="mt-4"
+                >
+                  {generatingBio ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Generate Bio with AI
+                    </>
+                  )}
+                </Button>
               )}
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, LogOut, Newspaper, CreditCard } from "lucide-react";
+import { Home, Briefcase, FileText, MessageSquare, User, Settings, Menu, X, LogOut, Newspaper, CreditCard, TrendingUp } from "lucide-react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -9,11 +9,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useTheme } from "@/hooks/useTheme";
+import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Browse Jobs", href: "/jobs", icon: Briefcase },
   { name: "My Applications", href: "/applications", icon: FileText },
+  { name: "Analytics", href: "/analytics", icon: TrendingUp },
   { name: "Company News", href: "/news", icon: Newspaper },
   { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "My Profile", href: "/profile", icon: User },
@@ -101,7 +103,10 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           <nav className="flex-1 space-y-1 p-4">
             <div className="mb-2 flex items-center justify-between px-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-primary">Talent</span>
-              <ThemeSwitcher />
+              <div className="flex items-center gap-2">
+                {subscriptionPlan && <SubscriptionBadge planName={subscriptionPlan} />}
+                <ThemeSwitcher />
+              </div>
             </div>
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;
