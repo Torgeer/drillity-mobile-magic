@@ -101,7 +101,30 @@ export default function Subscription() {
       if (error) throw error;
 
       if (data?.url) {
-        window.location.href = data.url;
+        const inIframe = window.self !== window.top;
+        
+        if (inIframe) {
+          // In iframe (preview): try to open in new tab
+          const newWindow = window.open(data.url, '_blank', 'noopener,noreferrer');
+          if (!newWindow) {
+            // Popup blocked: try top-level redirect
+            try {
+              window.top!.location.href = data.url;
+            } catch (e) {
+              // Last resort: show clickable link
+              toast.message('Open checkout', {
+                description: 'Click to continue to Stripe',
+                action: {
+                  label: 'Open Stripe',
+                  onClick: () => window.open(data.url, '_blank', 'noopener,noreferrer')
+                }
+              });
+            }
+          }
+        } else {
+          // Not in iframe: redirect in same tab
+          window.location.assign(data.url);
+        }
       }
     } catch (error) {
       console.error('Error creating checkout:', error);

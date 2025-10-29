@@ -112,7 +112,25 @@ serve(async (req) => {
       logStep("AI matching price", { aiMatchingPrice });
     }
 
-    const origin = req.headers.get("origin") || "http://localhost:8080";
+    // Get origin for return URLs
+    const getOrigin = () => {
+      const origin = req.headers.get("origin");
+      if (origin) return origin;
+      
+      const referer = req.headers.get("referer");
+      if (referer) {
+        try {
+          return new URL(referer).origin;
+        } catch (e) {
+          logStep("Failed to parse referer", { referer });
+        }
+      }
+      
+      return Deno.env.get("PUBLIC_SITE_URL") || "https://lovable.dev";
+    };
+    
+    const origin = getOrigin();
+    logStep("Using origin for return URLs", { origin });
     
     // Prepare discounts for early bird campaign
     const discounts: any[] = [];

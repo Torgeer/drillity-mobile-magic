@@ -66,6 +66,26 @@ serve(async (req) => {
       logStep("Existing customer found", { customerId });
     }
 
+    // Get origin for return URLs
+    const getOrigin = () => {
+      const origin = req.headers.get("origin");
+      if (origin) return origin;
+      
+      const referer = req.headers.get("referer");
+      if (referer) {
+        try {
+          return new URL(referer).origin;
+        } catch (e) {
+          logStep("Failed to parse referer", { referer });
+        }
+      }
+      
+      return Deno.env.get("PUBLIC_SITE_URL") || "https://lovable.dev";
+    };
+    
+    const origin = getOrigin();
+    logStep("Using origin for return URLs", { origin });
+
     // Create checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -77,8 +97,8 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/subscription?success=true`,
-      cancel_url: `${req.headers.get("origin")}/subscription?canceled=true`,
+      success_url: `${origin}/subscription?success=true`,
+      cancel_url: `${origin}/subscription?canceled=true`,
       metadata: {
         talent_id: user.id,
         plan_id: plan_id,

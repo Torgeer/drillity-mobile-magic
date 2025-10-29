@@ -120,23 +120,36 @@ const CompanySubscription = () => {
   const openStripeCheckout = (url: string) => {
     setPreviewDialogOpen(false);
     
-    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+    const inIframe = window.self !== window.top;
     
-    // Reset loading after a brief delay
-    setTimeout(() => {
-      setLoadingData(false);
-    }, 500);
-    
-    // Check if popup was blocked
-    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-      // Store URL and show persistent fallback dialog
-      setLastCheckoutUrl(url);
-      setCheckoutFallbackOpen(true);
-      toast.info("We tried to open Stripe Checkout. If nothing happened, use the dialog below.", {
-        duration: 6000
-      });
+    if (inIframe) {
+      // In iframe (preview): try to open in new tab
+      const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+      
+      setTimeout(() => setLoadingData(false), 500);
+      
+      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        // Popup blocked: try top-level redirect
+        try {
+          window.top!.location.href = url;
+        } catch (e) {
+          // Last resort: show clickable link
+          setLastCheckoutUrl(url);
+          setCheckoutFallbackOpen(true);
+          toast.message('Open checkout', {
+            description: 'Click to continue to Stripe',
+            action: {
+              label: 'Open Stripe',
+              onClick: () => window.open(url, '_blank', 'noopener,noreferrer')
+            }
+          });
+        }
+      } else {
+        toast.success("Checkout opened in new tab");
+      }
     } else {
-      toast.success("Checkout opened in new tab");
+      // Not in iframe: redirect in same tab
+      window.location.assign(url);
     }
   };
 
