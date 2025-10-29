@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Check, Crown, Zap, Sparkles, TrendingUp, Clock, Gift, Calendar } from "lucide-react";
+import { Check, Crown, Zap, Sparkles, TrendingUp, Clock, Gift, Calendar, Settings } from "lucide-react";
 
 interface SubscriptionPlan {
   id: string;
@@ -31,6 +31,7 @@ interface CompanySubscription {
   ai_matches_used_this_month: number;
   trial_end_date: string;
   is_trial: boolean;
+  stripe_customer_id: string | null;
   subscription_plans: SubscriptionPlan;
 }
 
@@ -320,6 +321,29 @@ const CompanySubscription = () => {
     return Math.max(0, daysLeft);
   };
 
+  const handleManageSubscription = async () => {
+    try {
+      setLoadingData(true);
+      
+      const { data, error } = await supabase.functions.invoke('create-customer-portal-session');
+      
+      if (error) throw error;
+      
+      if (data?.url) {
+        // Open in new tab (same as checkout)
+        window.open(data.url, '_blank');
+        toast.success("Customer Portal opened in new tab");
+      } else {
+        throw new Error('No portal URL received');
+      }
+    } catch (error: any) {
+      console.error('Error opening customer portal:', error);
+      toast.error(error.message || "Failed to open subscription management");
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
   if (loading || loadingData) {
     return (
       <CompanyLayout>
@@ -473,6 +497,24 @@ const CompanySubscription = () => {
                 </div>
               </div>
             </Card>
+
+            {/* Manage Subscription Card */}
+            {currentSubscription.stripe_customer_id && (
+              <Card className="p-6">
+                <h3 className="font-semibold mb-2">Manage Your Subscription</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Update payment method, view invoices, or cancel your subscription
+                </p>
+                <Button 
+                  onClick={handleManageSubscription}
+                  variant="outline"
+                  disabled={loadingData}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Manage Subscription
+                </Button>
+              </Card>
+            )}
 
             <Card className="p-6 border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10">
               <div className="space-y-6">

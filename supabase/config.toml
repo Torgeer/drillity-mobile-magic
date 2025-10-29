@@ -24,3 +24,6 @@ verify_jwt = false
 
 [functions.match-talents-to-job]
 verify_jwt = true
+
+[functions.create-customer-portal-session]
+verify_jwt = true
