@@ -27,7 +27,7 @@ export default function BrowseTalent() {
   const fetchTalents = async () => {
     setLoading(true);
     try {
-      let query = supabase
+      let query = (supabase as any)
         .from('profiles')
         .select(`
           *,

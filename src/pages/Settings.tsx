@@ -36,7 +36,7 @@ const Settings = () => {
     if (!user) return;
     
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('user_preferences')
         .select('*')
         .eq('user_id', user.id)
@@ -46,7 +46,7 @@ const Settings = () => {
       
       if (!data) {
         // Create default preferences
-        const { data: newPrefs, error: insertError } = await supabase
+        const { data: newPrefs, error: insertError } = await (supabase as any)
           .from('user_preferences')
           .insert({
             user_id: user.id,
@@ -75,7 +75,7 @@ const Settings = () => {
     
     setSaving(true);
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('user_preferences')
         .update({ [key]: value })
         .eq('user_id', user.id);
