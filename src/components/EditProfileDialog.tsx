@@ -33,6 +33,10 @@ export const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: Ed
     linkedin_url: profile.linkedin_url || "",
     facebook_url: profile.facebook_url || "",
     instagram_url: profile.instagram_url || "",
+    has_passport: profile.has_passport || false,
+    passport_number: profile.passport_number || "",
+    open_to_international: profile.open_to_international || false,
+    profile_visibility: profile.profile_visibility || "public",
   });
 
   useEffect(() => {
@@ -47,6 +51,10 @@ export const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: Ed
       linkedin_url: profile.linkedin_url || "",
       facebook_url: profile.facebook_url || "",
       instagram_url: profile.instagram_url || "",
+      has_passport: profile.has_passport || false,
+      passport_number: profile.passport_number || "",
+      open_to_international: profile.open_to_international || false,
+      profile_visibility: profile.profile_visibility || "public",
     });
   }, [profile]);
 
@@ -122,6 +130,10 @@ export const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: Ed
           facebook_url: formData.facebook_url,
           instagram_url: formData.instagram_url,
           avatar_url,
+          has_passport: formData.has_passport,
+          passport_number: formData.passport_number,
+          open_to_international: formData.open_to_international,
+          profile_visibility: formData.profile_visibility,
         })
         .eq('id', profile.id);
 
@@ -283,6 +295,60 @@ export const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: Ed
                 onChange={(e) => setFormData({ ...formData, instagram_url: e.target.value })}
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Travel & Passport</Label>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="has_passport"
+                  checked={formData.has_passport}
+                  onCheckedChange={(checked) => 
+                    setFormData({...formData, has_passport: checked as boolean})
+                  }
+                />
+                <Label htmlFor="has_passport" className="font-normal">I have a valid passport</Label>
+              </div>
+
+              {formData.has_passport && (
+                <Input
+                  placeholder="Passport Number (Optional)"
+                  value={formData.passport_number}
+                  onChange={(e) => setFormData({...formData, passport_number: e.target.value})}
+                />
+              )}
+
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="open_to_international"
+                  checked={formData.open_to_international}
+                  onCheckedChange={(checked) => 
+                    setFormData({...formData, open_to_international: checked as boolean})
+                  }
+                />
+                <Label htmlFor="open_to_international" className="font-normal">
+                  Open to international job opportunities
+                </Label>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="profile_visibility">Profile Visibility</Label>
+            <Select 
+              value={formData.profile_visibility}
+              onValueChange={(val) => setFormData({...formData, profile_visibility: val})}
+            >
+              <SelectTrigger id="profile_visibility">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="public">Public - Visible to everyone</SelectItem>
+                <SelectItem value="connections_only">Connections Only</SelectItem>
+                <SelectItem value="private">Private - Hidden from search</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

@@ -1,203 +1,195 @@
-import { CompanyLayout } from "@/components/CompanyLayout";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { MapPin, Mail, Briefcase } from "lucide-react";
 import { useState, useEffect } from "react";
-import { getCurrentLocation, requestLocationPermission } from "@/utils/capacitorPlugins";
-import { toast } from "sonner";
+import { CompanyLayout } from "@/components/CompanyLayout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { Search, MapPin, Briefcase } from "lucide-react";
+import { toast } from "sonner";
 
-interface Talent {
-  id: string;
-  full_name: string;
-  location: string;
-  latitude: number;
-  longitude: number;
-  experience_years: number;
-  availability_status: string;
-  avatar_url: string;
-}
-
-const BrowseTalent = () => {
-  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [sortByDistance, setSortByDistance] = useState(false);
-  const [talents, setTalents] = useState<Talent[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadLocation();
-    fetchTalents();
-  }, []);
+export default function BrowseTalent() {
+  const navigate = useNavigate();
+  const [talents, setTalents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState({
+    location: '',
+    experience_level: '',
+    availability: '',
+    open_to_international: false,
+  });
 
   const fetchTalents = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, full_name, location, latitude, longitude, experience_years, availability_status, avatar_url')
-      .eq('user_type', 'talent')
-      .not('full_name', 'is', null);
+    try {
+      let query = supabase
+        .from('profiles')
+        .select(`
+          *,
+          talent_skills(skill_name, skill_level),
+          talent_certifications(certification_name, expiry_date)
+        `)
+        .eq('user_type', 'talent')
+        .eq('profile_visibility', 'public');
 
-    if (data && !error) {
-      setTalents(data as Talent[]);
-    }
-    setLoading(false);
-  };
-
-  const loadLocation = async () => {
-    const hasPermission = await requestLocationPermission();
-    if (hasPermission) {
-      try {
-        const location = await getCurrentLocation();
-        setUserLocation(location);
-        toast.success("Location detected");
-      } catch (error) {
-        console.error("Error getting location:", error);
+      if (filters.location) {
+        query = query.ilike('location', `%${filters.location}%`);
       }
+      if (filters.availability) {
+        query = query.eq('availability_status', filters.availability);
+      }
+      if (filters.open_to_international) {
+        query = query.eq('open_to_international', true);
+      }
+
+      const { data, error } = await query;
+      
+      if (error) throw error;
+      setTalents(data || []);
+    } catch (error: any) {
+      toast.error("Failed to fetch talents: " + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    const R = 6371; // Radius of Earth in km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return Math.round(R * c);
-  };
-
-  const sortedTalents = sortByDistance && userLocation
-    ? [...talents].sort((a, b) => {
-        const distA = a.latitude && a.longitude ? calculateDistance(userLocation.latitude, userLocation.longitude, a.latitude, a.longitude) : Infinity;
-        const distB = b.latitude && b.longitude ? calculateDistance(userLocation.latitude, userLocation.longitude, b.latitude, b.longitude) : Infinity;
-        return distA - distB;
-      })
-    : talents;
-
-  if (loading) {
-    return (
-      <CompanyLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      </CompanyLayout>
-    );
-  }
+  useEffect(() => {
+    fetchTalents();
+  }, []);
 
   return (
     <CompanyLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Browse Talent</h1>
-            <p className="text-muted-foreground">Find qualified candidates</p>
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Browse Talent</h1>
+          <p className="text-muted-foreground">Search and connect with skilled professionals</p>
+        </div>
+
+        <Card className="p-6">
+          <div className="grid md:grid-cols-4 gap-4 mb-4">
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input 
+                id="location"
+                placeholder="City or country" 
+                value={filters.location}
+                onChange={(e) => setFilters({...filters, location: e.target.value})}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="availability">Availability</Label>
+              <Select 
+                value={filters.availability}
+                onValueChange={(val) => setFilters({...filters, availability: val})}
+              >
+                <SelectTrigger id="availability">
+                  <SelectValue placeholder="Any" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Any</SelectItem>
+                  <SelectItem value="available">Available Now</SelectItem>
+                  <SelectItem value="2weeks">Available in 2 weeks</SelectItem>
+                  <SelectItem value="1month">Available in 1 month</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-end">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="international"
+                  checked={filters.open_to_international}
+                  onCheckedChange={(checked) => 
+                    setFilters({...filters, open_to_international: checked as boolean})
+                  }
+                />
+                <Label htmlFor="international">Open to International</Label>
+              </div>
+            </div>
+
+            <div className="flex items-end">
+              <Button onClick={fetchTalents} className="w-full" disabled={loading}>
+                <Search className="h-4 w-4 mr-2" />
+                {loading ? "Searching..." : "Search"}
+              </Button>
+            </div>
           </div>
-          {userLocation && (
-            <Button 
-              variant={sortByDistance ? "default" : "outline"}
-              onClick={() => setSortByDistance(!sortByDistance)}
-            >
-              {sortByDistance ? "Sorted by Distance" : "Sort by Distance"}
-            </Button>
-          )}
-        </div>
+        </Card>
 
-        <div className="flex gap-4">
-          <input
-            type="text"
-            placeholder="Search talents..."
-            className="flex-1 rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-          <select className="rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-            <option>All Locations</option>
-            <option>Houston, TX</option>
-            <option>Aberdeen, UK</option>
-            <option>Stavanger, Norway</option>
-          </select>
-          <select className="rounded-lg border border-input bg-secondary px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-            <option>All Skills</option>
-            <option>Drilling</option>
-            <option>Safety</option>
-            <option>Engineering</option>
-          </select>
-        </div>
-
-        <div className="space-y-4">
-          {talents.length === 0 ? (
-            <Card className="p-12 text-center">
-              <p className="text-muted-foreground">No talents found</p>
-            </Card>
-          ) : (
-            sortedTalents.map((talent) => {
-              const distance = userLocation && talent.latitude && talent.longitude
-                ? calculateDistance(userLocation.latitude, userLocation.longitude, talent.latitude, talent.longitude)
-                : null;
-
-              const isAvailable = talent.availability_status === 'available';
-
-              return (
-                <Card key={talent.id} className="p-6 hover:border-primary/50 transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4 flex-1">
-                      {talent.avatar_url ? (
-                        <img 
-                          src={talent.avatar_url} 
-                          alt={talent.full_name} 
-                          className="h-16 w-16 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-2xl">
-                          {talent.full_name?.split(' ').map(n => n[0]).join('') || '?'}
-                        </div>
-                      )}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="text-xl font-semibold">{talent.full_name || 'Unknown'}</h3>
-                          <Badge variant={isAvailable ? "default" : "secondary"}>
-                            {isAvailable ? "Available" : "Not Available"}
-                          </Badge>
-                        </div>
-                        
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-4 w-4" />
-                            {talent.location || 'Location not set'}
-                            {distance && <span className="text-primary ml-1">({distance} km away)</span>}
-                          </div>
-                          {talent.experience_years && (
-                            <div className="flex items-center gap-1">
-                              <Briefcase className="h-4 w-4" />
-                              {talent.experience_years}+ years
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button size="sm">
-                            View Profile
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Mail className="h-4 w-4 mr-2" />
-                            Message
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            Invite to Apply
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {talents.map(talent => (
+            <Card key={talent.id} className="p-6 hover:shadow-lg transition-shadow">
+              <div className="space-y-4">
+                <div className="flex items-start space-x-4">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage src={talent.avatar_url} />
+                    <AvatarFallback className="text-lg">
+                      {talent.full_name?.[0] || 'T'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-lg truncate">{talent.full_name}</h3>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {talent.location || 'Location not specified'}
+                    </p>
+                    {talent.experience_years && (
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                        <Briefcase className="h-3 w-3" />
+                        {talent.experience_years}+ years experience
+                      </p>
+                    )}
                   </div>
-                </Card>
-              );
-            })
-          )}
+                </div>
+
+                {talent.bio && (
+                  <p className="text-sm text-muted-foreground line-clamp-3">
+                    {talent.bio}
+                  </p>
+                )}
+
+                {talent.talent_skills && talent.talent_skills.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {talent.talent_skills.slice(0, 4).map((skill: any, idx: number) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">
+                        {skill.skill_name}
+                      </Badge>
+                    ))}
+                    {talent.talent_skills.length > 4 && (
+                      <Badge variant="outline" className="text-xs">
+                        +{talent.talent_skills.length - 4} more
+                      </Badge>
+                    )}
+                  </div>
+                )}
+
+                <Button 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => navigate(`/company/talent/${talent.id}`)}
+                >
+                  View Profile
+                </Button>
+              </div>
+            </Card>
+          ))}
         </div>
+
+        {talents.length === 0 && !loading && (
+          <Card className="p-12 text-center">
+            <p className="text-muted-foreground">No talents found matching your criteria</p>
+            <Button onClick={fetchTalents} variant="outline" className="mt-4">
+              Reset Filters
+            </Button>
+          </Card>
+        )}
       </div>
     </CompanyLayout>
   );
-};
-
-export default BrowseTalent;
+}
