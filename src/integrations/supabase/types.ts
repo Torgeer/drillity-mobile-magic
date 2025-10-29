@@ -447,6 +447,45 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          id: string
+          last_message_at: string | null
+          talent_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          talent_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          talent_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       industry_skills: {
         Row: {
           created_at: string
@@ -739,9 +778,11 @@ export type Database = {
           longitude: number | null
           mining_experience: boolean | null
           offshore_experience: boolean | null
+          open_to_international: boolean | null
           passport_number: string | null
           phone: string | null
           preferred_work_type: string[] | null
+          profile_visibility: string | null
           prospecting_experience: boolean | null
           updated_at: string
           user_type: Database["public"]["Enums"]["user_type"]
@@ -766,9 +807,11 @@ export type Database = {
           longitude?: number | null
           mining_experience?: boolean | null
           offshore_experience?: boolean | null
+          open_to_international?: boolean | null
           passport_number?: string | null
           phone?: string | null
           preferred_work_type?: string[] | null
+          profile_visibility?: string | null
           prospecting_experience?: boolean | null
           updated_at?: string
           user_type?: Database["public"]["Enums"]["user_type"]
@@ -793,9 +836,11 @@ export type Database = {
           longitude?: number | null
           mining_experience?: boolean | null
           offshore_experience?: boolean | null
+          open_to_international?: boolean | null
           passport_number?: string | null
           phone?: string | null
           preferred_work_type?: string[] | null
+          profile_visibility?: string | null
           prospecting_experience?: boolean | null
           updated_at?: string
           user_type?: Database["public"]["Enums"]["user_type"]
@@ -1227,6 +1272,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_preferences: {
+        Row: {
+          created_at: string | null
+          email_notifications: boolean | null
+          id: string
+          language: string | null
+          push_notifications: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          language?: string | null
+          push_notifications?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          language?: string | null
+          push_notifications?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
