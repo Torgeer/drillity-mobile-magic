@@ -35,8 +35,8 @@ export const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: Ed
     instagram_url: profile.instagram_url || "",
     has_passport: profile.has_passport || false,
     passport_number: profile.passport_number || "",
-    open_to_international: profile.open_to_international || false,
-    profile_visibility: profile.profile_visibility || "public",
+    open_to_international: (profile as any).open_to_international || false,
+    profile_visibility: (profile as any).profile_visibility || "public",
   });
 
   useEffect(() => {
@@ -53,8 +53,8 @@ export const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: Ed
       instagram_url: profile.instagram_url || "",
       has_passport: profile.has_passport || false,
       passport_number: profile.passport_number || "",
-      open_to_international: profile.open_to_international || false,
-      profile_visibility: profile.profile_visibility || "public",
+      open_to_international: (profile as any).open_to_international || false,
+      profile_visibility: (profile as any).profile_visibility || "public",
     });
   }, [profile]);
 
